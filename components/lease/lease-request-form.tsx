@@ -3,24 +3,28 @@
 import { useState, type FormEvent } from 'react'
 import Link from 'next/link'
 import { CircleCheckBig } from 'lucide-react'
-import { FormAlert, TextField } from '@/components/forms/fields'
+import { FormAlert, SelectField, TextField } from '@/components/forms/fields'
 import { SubmitButton } from '@/components/forms/submit-button'
 import { buttonVariants } from '@/components/ui/button'
 import { formatYen } from '@/lib/data'
-import { countRentalDays, type DateRange } from '@/lib/rent-to-own'
-import { validateRentalRequest } from '@/lib/validation/rental'
+import {
+  leaseEndDate,
+  leaseTermMonths,
+  type DateRange,
+} from '@/lib/residual-lease'
+import { validateLeaseRequest } from '@/lib/validation/lease'
 import { cn } from '@/lib/utils'
 
 function shortDate(iso: string): string {
-  const [, month, day] = iso.split('-')
-  return `${Number(month)}/${Number(day)}`
+  const [year, month, day] = iso.split('-')
+  return `${year}/${Number(month)}/${Number(day)}`
 }
 
 function BookedRanges({ booked }: { booked: DateRange[] }) {
   if (booked.length === 0) return null
   return (
     <p className="text-xs text-muted-foreground">
-      予約済み:{' '}
+      契約済み:{' '}
       {booked.map((range, index) => (
         <span key={range.startDate + range.endDate}>
           {index > 0 && '、'}
@@ -31,24 +35,30 @@ function BookedRanges({ booked }: { booked: DateRange[] }) {
   )
 }
 
-export function RentalRequestForm({
+const termOptions = leaseTermMonths.map((months) => ({
+  value: String(months),
+  label: `${months}ヶ月`,
+}))
+
+export function LeaseRequestForm({
   listingId,
-  rentPerDay,
+  leasePerMonth,
   booked,
   signedIn,
 }: {
   listingId: string
-  rentPerDay: number
+  leasePerMonth: number
   booked: DateRange[]
   signedIn: boolean
 }) {
   const [startDate, setStartDate] = useState('')
-  const [endDate, setEndDate] = useState('')
+  const [term, setTerm] = useState('')
   const [errors, setErrors] = useState<Record<string, string>>({})
   const [error, setError] = useState<string>()
   const [isSubmitting, setIsSubmitting] = useState(false)
   const [done, setDone] = useState(false)
-  const days = countRentalDays(startDate, endDate)
+  const months = Number(term)
+  const endDate = months > 0 ? leaseEndDate(startDate, months) : undefined
 
   if (!signedIn) {
     return (
@@ -72,7 +82,7 @@ export function RentalRequestForm({
       >
         <CircleCheckBig className="mt-0.5 size-4 shrink-0 text-primary" />
         <span>
-          レンタルを申し込みました。出品者の承認をお待ちください。
+          リースを申し込みました。出品者の承認をお待ちください。
           <Link href="/account" className="ml-1 font-medium text-primary">
             マイページで確認する
           </Link>
@@ -84,19 +94,15 @@ export function RentalRequestForm({
   const submit = async (event: FormEvent) => {
     event.preventDefault()
     setError(undefined)
-    const parsed = validateRentalRequest({ startDate, endDate })
+    const parsed = validateLeaseRequest({ startDate, months })
     if (!parsed.ok) {
       setErrors(parsed.errors)
-      return
-    }
-    if (days === 0) {
-      setErrors({ endDate: '終了日は開始日以降にしてください。' })
       return
     }
     setErrors({})
     setIsSubmitting(true)
     try {
-      const response = await fetch(`/api/listings/${listingId}/rentals`, {
+      const response = await fetch(`/api/listings/${listingId}/leases`, {
         method: 'POST',
         headers: { 'content-type': 'application/json' },
         body: JSON.stringify(parsed.value),
@@ -119,29 +125,30 @@ export function RentalRequestForm({
       <FormAlert error={error} />
       <div className="grid grid-cols-2 gap-3">
         <TextField
-          id="rental-start"
+          id="lease-start"
           label="開始日"
           type="date"
           value={startDate}
           error={errors.startDate}
           onChange={(event) => setStartDate(event.target.value)}
         />
-        <TextField
-          id="rental-end"
-          label="終了日"
-          type="date"
-          value={endDate}
-          error={errors.endDate}
-          onChange={(event) => setEndDate(event.target.value)}
+        <SelectField
+          id="lease-term"
+          label="契約期間"
+          options={termOptions}
+          value={term}
+          error={errors.months}
+          onChange={(event) => setTerm(event.target.value)}
         />
       </div>
       <BookedRanges booked={booked} />
-      {days > 0 && (
+      {endDate && (
         <p className="text-sm text-foreground">
-          {days}日間 · {formatYen(rentPerDay * days)}
+          {shortDate(startDate)} 〜 {shortDate(endDate)} · 総額{' '}
+          {formatYen(leasePerMonth * months)}
         </p>
       )}
-      <SubmitButton label="レンタルを申し込む" isSubmitting={isSubmitting} />
+      <SubmitButton label="リースを申し込む" isSubmitting={isSubmitting} />
     </form>
   )
 }

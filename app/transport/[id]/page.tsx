@@ -24,7 +24,7 @@ import { canManage } from '@/lib/server/auth/access'
 import { getCarrierProfile, matchCarriersForJob } from '@/lib/server/carriers'
 import { CarrierMatches } from '@/components/carriers/carrier-matches'
 
-export const metadata: Metadata = { title: '運搬案件 | Agri Machare' }
+export const metadata: Metadata = { title: '運搬案件 | Auto Machare' }
 export const dynamic = 'force-dynamic'
 
 export default async function TransportJobPage({
@@ -74,7 +74,7 @@ export default async function TransportJobPage({
             </span>
           </div>
           <h1 className="mt-4 font-display text-3xl font-bold tracking-tight text-foreground sm:text-4xl">
-            {job.item}
+            {job.vehicleName}
           </h1>
         </header>
         <div className="mt-8 grid items-start gap-8 lg:grid-cols-[1fr_1.25fr] lg:gap-12">
@@ -119,10 +119,10 @@ export default async function TransportJobPage({
                 <div>
                   <dt className="flex items-center gap-1.5 text-xs text-primary-foreground/65">
                     <Scale className="size-3.5" />
-                    重量
+                    車両サイズ
                   </dt>
                   <dd className="mt-2 font-display text-lg font-semibold">
-                    {job.weight}
+                    {job.vehicleSize}・{job.vehicleCount}台
                   </dd>
                 </div>
                 <div className="col-span-2">

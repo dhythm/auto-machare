@@ -13,13 +13,13 @@ describe('AdminDataTable', () => {
         rows={[
           {
             key: 'one',
-            searchText: '高橋農園 farm@example.com',
-            cells: ['高橋農園', <button key="one">停止する</button>],
+            searchText: '高橋モータース farm@example.com',
+            cells: ['高橋モータース', <button key="one">停止する</button>],
           },
           {
             key: 'two',
-            searchText: '田中農園 tanaka@example.com',
-            cells: ['田中農園', <button key="two">停止を解除</button>],
+            searchText: '田中モータース tanaka@example.com',
+            cells: ['田中モータース', <button key="two">停止を解除</button>],
           },
         ]}
       />,
@@ -29,8 +29,8 @@ describe('AdminDataTable', () => {
       screen.getByRole('searchbox', { name: 'アカウントを検索' }),
       'FARM@',
     )
-    expect(screen.getByText('高橋農園')).toBeInTheDocument()
-    expect(screen.queryByText('田中農園')).not.toBeInTheDocument()
+    expect(screen.getByText('高橋モータース')).toBeInTheDocument()
+    expect(screen.queryByText('田中モータース')).not.toBeInTheDocument()
     expect(
       screen.getByRole('table', { name: 'アカウント' }),
     ).toBeInTheDocument()
@@ -38,7 +38,7 @@ describe('AdminDataTable', () => {
     await user.clear(
       screen.getByRole('searchbox', { name: 'アカウントを検索' }),
     )
-    expect(screen.getByText('田中農園')).toBeInTheDocument()
+    expect(screen.getByText('田中モータース')).toBeInTheDocument()
   })
 
   it('keeps the search available when no rows match', async () => {
@@ -46,7 +46,7 @@ describe('AdminDataTable', () => {
       <AdminDataTable
         title="運搬者"
         headers={['名前']}
-        rows={[{ key: 'one', searchText: '高橋運送', cells: ['高橋運送'] }]}
+        rows={[{ key: 'one', searchText: '高橋陸送', cells: ['高橋陸送'] }]}
       />,
     )
     await userEvent

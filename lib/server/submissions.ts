@@ -62,7 +62,7 @@ async function notifyTargetOwner(submission: Submission): Promise<void> {
       userId: job.ownerUserId,
       kind: isApplication ? 'application' : 'inquiry',
       title: isApplication ? '応募が届きました' : '案件への質問が届きました',
-      body: job.item,
+      body: job.vehicleName,
       href: `/account/threads/${submission.id}`,
     })
   }

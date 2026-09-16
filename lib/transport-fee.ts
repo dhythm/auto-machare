@@ -89,14 +89,14 @@ export function estimateDistanceKm(
 }
 
 export const transportBaseRates: Record<string, number> = {
-  トラクター: 30_000,
-  コンバイン: 42_000,
-  田植機: 18_000,
-  耕運機: 6_000,
-  ドローン: 4_000,
+  軽自動車: 8_000,
+  乗用車: 12_000,
+  SUV: 15_000,
+  トラック: 22_000,
+  バン: 15_000,
 }
 
-export const transportDefaultRate = 20_000
+export const transportDefaultRate = 12_000
 
 export const distanceBands = [
   { upTo: 50, rate: 1.0, label: '〜50km' },
@@ -116,14 +116,21 @@ export function transportBaseRate(category: string): number {
   return transportBaseRates[category] ?? transportDefaultRate
 }
 
-/** Base rate for the category times the distance band, rounded to 100 yen. */
+/**
+ * Base rate for the category times the distance band and the number of
+ * vehicles hauled, rounded to 100 yen.
+ */
 export function estimateTransportFee(
   category: string,
   distanceKm: number,
+  vehicleCount = 1,
 ): number {
   return (
     Math.round(
-      (transportBaseRate(category) * transportMultiplier(distanceKm)) / 100,
+      (transportBaseRate(category) *
+        transportMultiplier(distanceKm) *
+        vehicleCount) /
+        100,
     ) * 100
   )
 }

@@ -3,7 +3,7 @@ import { AdminSection, transportTabs } from '@/components/admin/admin-section'
 import { ThreadTable } from '@/components/admin/admin-tables'
 import { listThreadSummaries } from '@/lib/server/admin-overview'
 
-export const metadata: Metadata = { title: '質問 | Agri Machare 運営' }
+export const metadata: Metadata = { title: '質問 | Auto Machare 運営' }
 
 export const dynamic = 'force-dynamic'
 

@@ -5,7 +5,7 @@ import {
   AccountTable,
   CarrierTable,
   OrderTable,
-  RentalTable,
+  LeaseTable,
   ReviewTable,
   ThreadTable,
 } from './admin-tables'
@@ -15,20 +15,20 @@ vi.mock('next/navigation', () => ({
 }))
 
 describe('admin tables', () => {
-  it('renders rentals with listing, renter, and status', () => {
+  it('renders leases with listing, lessee, and status', () => {
     render(
-      <RentalTable
+      <LeaseTable
         items={[
           {
-            rental: {
-              id: 'r-1',
-              listingId: 'trc-001',
-              renterUserId: 'demo-user',
+            lease: {
+              id: 'l-1',
+              listingId: 'car-001',
+              lesseeUserId: 'demo-user',
               startDate: '2026-10-01',
-              endDate: '2026-10-07',
-              days: 7,
-              rentPerDay: 22_000,
-              rentTotal: 154_000,
+              endDate: '2027-09-30',
+              months: 12,
+              leasePerMonth: 42_000,
+              leaseTotal: 504_000,
               status: 'requested',
               createdAt: '2026-09-13T00:00:00.000Z',
               updatedAt: '2026-09-13T00:00:00.000Z',
@@ -41,7 +41,7 @@ describe('admin tables', () => {
     expect(screen.getByText('（削除済み）')).toBeInTheDocument()
     expect(screen.getByText('demo-user')).toBeInTheDocument()
     expect(screen.getByText('申込中')).toBeInTheDocument()
-    expect(screen.getByText('¥154,000')).toBeInTheDocument()
+    expect(screen.getByText('¥504,000')).toBeInTheDocument()
     expect(screen.getByRole('button', { name: '取り消す' })).toBeInTheDocument()
   })
 
@@ -52,8 +52,8 @@ describe('admin tables', () => {
           {
             id: 't-1',
             kind: 'listingInquiry',
-            targetId: 'trc-001',
-            targetName: 'クボタ 45馬力',
+            targetId: 'car-001',
+            targetName: 'トヨタ Z',
             senderName: '利用者デモ',
             status: 'in_progress',
             replyCount: 3,
@@ -63,9 +63,9 @@ describe('admin tables', () => {
         ]}
       />,
     )
-    expect(screen.getByRole('link', { name: 'クボタ 45馬力' })).toHaveAttribute(
+    expect(screen.getByRole('link', { name: 'トヨタ Z' })).toHaveAttribute(
       'href',
-      '/listings/trc-001',
+      '/listings/car-001',
     )
     expect(screen.getByRole('link', { name: '開く' })).toHaveAttribute(
       'href',
@@ -83,7 +83,7 @@ describe('admin tables', () => {
           {
             order: {
               id: 'o-1',
-              listingId: 'trc-001',
+              listingId: 'car-001',
               buyerUserId: 'demo-user',
               sellerUserId: 'demo-seller',
               price: 18_800_000,
@@ -108,21 +108,21 @@ describe('admin tables', () => {
           {
             review: {
               id: 'rv-1',
-              listingId: 'trc-001',
+              listingId: 'car-001',
               sellerUserId: 'demo-seller',
               reviewerUserId: 'demo-user',
-              sourceKind: 'rental',
-              sourceId: 'r-1',
+              sourceKind: 'lease',
+              sourceId: 'l-1',
               rating: 5,
               comment: '最高',
               createdAt: '2026-09-13T00:00:00.000Z',
             },
-            listingName: 'クボタ 45馬力',
+            listingName: 'トヨタ Z',
           },
         ]}
       />,
     )
-    expect(screen.getByText('クボタ 45馬力')).toBeInTheDocument()
+    expect(screen.getByText('トヨタ Z')).toBeInTheDocument()
     expect(screen.getByText('最高')).toBeInTheDocument()
     expect(screen.getByLabelText('評価 5')).toBeInTheDocument()
   })
@@ -133,10 +133,10 @@ describe('admin tables', () => {
         items={[
           {
             id: 'demo-user',
-            name: '高橋運送',
+            name: '高橋陸送',
             kind: '法人',
             prefecture: '秋田県',
-            vehicles: ['4tトラック'],
+            vehicles: ['セルフローダー'],
             serviceAreas: ['秋田県', '山形県'],
             createdAt: '2026-09-13T00:00:00.000Z',
             updatedAt: '2026-09-13T00:00:00.000Z',
@@ -144,8 +144,8 @@ describe('admin tables', () => {
         ]}
       />,
     )
-    expect(screen.getByText('高橋運送')).toBeInTheDocument()
-    expect(screen.getByText('4tトラック')).toBeInTheDocument()
+    expect(screen.getByText('高橋陸送')).toBeInTheDocument()
+    expect(screen.getByText('セルフローダー')).toBeInTheDocument()
     render(
       <AccountTable
         items={[
@@ -156,7 +156,7 @@ describe('admin tables', () => {
             role: 'user',
             listingCount: 6,
             transportJobCount: 2,
-            rentalCount: 0,
+            leaseCount: 0,
             status: 'suspended',
             note: '規約違反',
           },
@@ -171,7 +171,7 @@ describe('admin tables', () => {
     expect(
       screen.getByRole('button', { name: '停止を解除' }),
     ).toBeInTheDocument()
-    render(<RentalTable items={[]} />)
+    render(<LeaseTable items={[]} />)
     expect(screen.getByText('該当なし')).toBeInTheDocument()
   })
 })

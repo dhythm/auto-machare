@@ -11,8 +11,8 @@ describe('DealTimeline', () => {
           summary: {
             kind: 'order',
             id: 'o-1',
-            title: 'クボタ 45馬力',
-            href: '/listings/trc-001',
+            title: 'トヨタ Z',
+            href: '/listings/car-001',
             amount: 18_800_000,
             status: 'accepted',
             statusLabel: '承諾',
@@ -40,18 +40,18 @@ describe('DealTimeline', () => {
           ],
           relatedDeals: [
             {
-              kind: 'rental',
+              kind: 'lease',
               id: 'r-1',
-              title: 'クボタ 45馬力',
-              statusLabel: '購入に切替',
+              title: 'トヨタ Z',
+              statusLabel: '買取に切替',
             },
           ],
         }}
       />,
     )
-    expect(screen.getByRole('link', { name: 'クボタ 45馬力' })).toHaveAttribute(
+    expect(screen.getByRole('link', { name: 'トヨタ Z' })).toHaveAttribute(
       'href',
-      '/listings/trc-001',
+      '/listings/car-001',
     )
     expect(screen.getByText('¥18,800,000')).toBeInTheDocument()
     const timeline = screen.getByRole('list', { name: '履歴' })
@@ -64,9 +64,9 @@ describe('DealTimeline', () => {
       'href',
       '/account/threads/t-1',
     )
-    expect(screen.getByRole('link', { name: /レンタル/ })).toHaveAttribute(
+    expect(screen.getByRole('link', { name: /リース/ })).toHaveAttribute(
       'href',
-      '/account/deals/rental/r-1',
+      '/account/deals/lease/r-1',
     )
   })
 })

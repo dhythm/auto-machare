@@ -9,7 +9,7 @@ import { canManage } from '@/lib/server/auth/access'
 import { getCurrentUser } from '@/lib/server/auth/session'
 import { getListing } from '@/lib/server/listings'
 
-export const metadata: Metadata = { title: '出品を編集する | Agri Machare' }
+export const metadata: Metadata = { title: '出品を編集する | Auto Machare' }
 
 export const dynamic = 'force-dynamic'
 
@@ -22,17 +22,19 @@ function toEdit(listing: Listing): ListingEdit {
       name: listing.name,
       category: listing.category,
       maker: listing.maker,
+      model: listing.model,
       year: String(listing.year),
-      hours: String(listing.hours),
+      mileageKm: String(listing.mileageKm),
+      inspectionExpiresOn: listing.inspectionExpiresOn ?? '',
       condition: listing.condition,
       prefecture: listing.prefecture,
       city: listing.city,
       deals: listing.deals,
       salePrice: text(listing.salePrice),
-      rentPerDay: text(listing.rentPerDay),
-      rentToOwn: listing.rentToOwn ?? false,
-      rentToOwnCreditRate: text(listing.rentToOwnCreditRate),
-      rentToOwnCreditCap: text(listing.rentToOwnCreditCap),
+      leasePerMonth: text(listing.leasePerMonth),
+      residualLease: listing.residualLease ?? false,
+      residualLeaseCreditRate: text(listing.residualLeaseCreditRate),
+      residualLeaseCreditCap: text(listing.residualLeaseCreditCap),
       summary: listing.summary,
       sellerName: listing.seller.name,
       sellerKind: listing.seller.kind,
@@ -57,7 +59,7 @@ export default async function EditListingPage({
   return (
     <PageShell>
       <div className="mx-auto max-w-4xl px-5 py-12 sm:px-8">
-        <BackLink href={`/listings/${id}`} label="農機具の詳細にもどる" />
+        <BackLink href={`/listings/${id}`} label="車両の詳細にもどる" />
         <div className="mt-6">
           <PageIntro title="出品を編集する" />
         </div>

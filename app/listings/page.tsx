@@ -6,7 +6,7 @@ import { parseListingSearchParams } from '@/lib/listing-search-params'
 import { paginateListings } from '@/lib/server/listings'
 
 export const metadata: Metadata = {
-  title: '農機具を探す | Agri Machare',
+  title: '車両を探す | Auto Machare',
 }
 
 export default async function ListingsPage({

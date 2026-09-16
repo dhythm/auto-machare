@@ -68,7 +68,7 @@ export async function applyModeration(
     })
   if (updated?.ownerUserId) {
     const label = kind === 'listing' ? '出品' : '運搬依頼'
-    const name = 'name' in updated ? updated.name : updated.item
+    const name = 'name' in updated ? updated.name : updated.vehicleName
     await notify({
       userId: updated.ownerUserId,
       kind: 'moderation',

@@ -10,22 +10,24 @@ describe('TransportBoard', () => {
     vi.mocked(getTransportJobs).mockResolvedValue([
       {
         id: 'open-job',
-        item: 'トラクター 45馬力',
+        vehicleName: '乗用車 Z',
         from: '新潟県 長岡市',
         to: '長野県 長野市',
         distanceKm: 180,
-        weight: '2t',
+        vehicleSize: '普通車',
+        vehicleCount: 1,
         desiredDate: '10月1日',
         reward: 45000,
         status: '募集中',
       },
       {
         id: 'coordinating-job',
-        item: 'コンバイン 4条刈',
+        vehicleName: 'マツダ CX-5 XD',
         from: '秋田県 大仙市',
         to: '山形県 天童市',
         distanceKm: 120,
-        weight: '2.4t',
+        vehicleSize: '普通車',
+        vehicleCount: 1,
         desiredDate: '10月2日',
         reward: 38000,
         status: '調整中',
@@ -34,8 +36,8 @@ describe('TransportBoard', () => {
 
     render(await TransportBoard())
 
-    const openCard = screen.getByText('トラクター 45馬力').closest('li')!
-    const coordinatingCard = screen.getByText('コンバイン 4条刈').closest('li')!
+    const openCard = screen.getByText('乗用車 Z').closest('li')!
+    const coordinatingCard = screen.getByText('マツダ CX-5 XD').closest('li')!
     expect(
       within(openCard).getByRole('link', { name: 'この案件に応募する' }),
     ).toHaveAttribute('href', '/transport/open-job')

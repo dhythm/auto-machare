@@ -10,7 +10,12 @@ import {
   type ValidationResult,
 } from './shared'
 
-export const inquiryModes = ['buy', 'rent', 'rentToOwn', 'question'] as const
+export const inquiryModes = [
+  'buy',
+  'lease',
+  'residualLease',
+  'question',
+] as const
 
 export type InquiryMode = (typeof inquiryModes)[number]
 

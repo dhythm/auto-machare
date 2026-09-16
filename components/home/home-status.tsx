@@ -4,7 +4,7 @@ import { ArrowRight } from 'lucide-react'
 export type HomeStatusCounts = {
   unreadThreads: number
   openInquiries: number
-  requestedRentals: number
+  requestedLeases: number
   requestedOrders: number
   pendingListings: number
   /** Only for users with a carrier profile. */
@@ -27,8 +27,8 @@ export function HomeStatus({
       href: '/account',
     },
     {
-      label: '申込中のレンタル',
-      value: status.requestedRentals,
+      label: '申込中のリース',
+      value: status.requestedLeases,
       href: '/account',
     },
     {

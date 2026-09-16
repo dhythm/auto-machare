@@ -8,8 +8,8 @@ vi.mock('@/lib/server/admin-overview', () => ({
   getAdminCounts: vi.fn(async () => ({
     pendingListings: 2,
     pendingTransportJobs: 3,
-    requestedRentals: 4,
-    activeRentals: 1,
+    requestedLeases: 4,
+    activeLeases: 1,
     requestedOrders: 5,
     haulingJobs: 2,
     openThreads: 6,
@@ -20,7 +20,7 @@ vi.mock('@/lib/server/admin-overview', () => ({
       id: 'e-1',
       kind: 'order',
       dealId: 'o-1',
-      title: 'クボタ 45馬力',
+      title: 'トヨタ Z',
       statusLabel: '承諾',
       actorName: '出品者デモ',
       createdAt: '2026-09-13T01:00:00.000Z',
@@ -31,7 +31,7 @@ vi.mock('@/lib/server/admin-overview', () => ({
     {
       review: {
         id: 'rv-1',
-        listingId: 'trc-001',
+        listingId: 'car-001',
         sellerUserId: 'demo-seller',
         reviewerUserId: 'demo-user',
         sourceKind: 'order',
@@ -40,7 +40,7 @@ vi.mock('@/lib/server/admin-overview', () => ({
         comment: '助かりました',
         createdAt: '2026-09-13T02:00:00.000Z',
       },
-      listingName: 'クボタ 45馬力',
+      listingName: 'トヨタ Z',
     },
   ]),
 }))
@@ -55,7 +55,7 @@ describe('AdminDashboardPage', () => {
     for (const path of [
       '/admin/deals',
       '/admin/deals/orders',
-      '/admin/deals/rentals',
+      '/admin/deals/leases',
       '/admin/deals/inquiries',
       '/admin/deals/reviews',
       '/admin/transport',
@@ -78,7 +78,7 @@ describe('AdminDashboardPage', () => {
     expect(screen.getByText('運搬中の案件')).toBeInTheDocument()
     const activity = screen.getByRole('region', { name: '直近の取引の動き' })
     expect(
-      within(activity).getByRole('link', { name: /クボタ 45馬力/ }),
+      within(activity).getByRole('link', { name: /トヨタ Z/ }),
     ).toHaveAttribute('href', '/account/deals/order/o-1')
     expect(within(activity).getByText('承諾')).toBeInTheDocument()
     expect(within(activity).getByText('出品者デモ')).toBeInTheDocument()

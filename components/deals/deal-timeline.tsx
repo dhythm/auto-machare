@@ -5,7 +5,7 @@ import type { DealView } from '@/lib/server/deals'
 
 const kindLabels = {
   order: '注文',
-  rental: 'レンタル',
+  lease: 'リース',
   transportJob: '運搬',
 } as const
 

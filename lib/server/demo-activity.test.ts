@@ -1,5 +1,5 @@
 import { describe, expect, it, vi } from 'vitest'
-import { countRentalDays } from '@/lib/rent-to-own'
+import { leaseEndDate } from '@/lib/residual-lease'
 import { isThreadKind } from '@/lib/data'
 import { configuredAccounts } from './auth/accounts'
 import { listings, transportJobs } from './data'
@@ -17,7 +17,7 @@ describe('demoActivity', () => {
   it('references only known accounts, listings, and jobs', () => {
     const {
       orders,
-      rentals,
+      leases,
       submissions,
       messages,
       reviews,
@@ -36,14 +36,12 @@ describe('demoActivity', () => {
         order.sellerUserId,
       )
     }
-    for (const rental of rentals) {
-      expect(userIds).toContain(rental.renterUserId)
-      const listing = listingById.get(rental.listingId)
-      expect(listing?.rentPerDay).toBe(rental.rentPerDay)
-      expect(rental.days).toBe(
-        countRentalDays(rental.startDate, rental.endDate),
-      )
-      expect(rental.rentTotal).toBe(rental.days * rental.rentPerDay)
+    for (const lease of leases) {
+      expect(userIds).toContain(lease.lesseeUserId)
+      const listing = listingById.get(lease.listingId)
+      expect(listing?.leasePerMonth).toBe(lease.leasePerMonth)
+      expect(lease.endDate).toBe(leaseEndDate(lease.startDate, lease.months))
+      expect(lease.leaseTotal).toBe(lease.months * lease.leasePerMonth)
     }
     for (const submission of submissions) {
       expect(isThreadKind(submission.kind)).toBe(true)
@@ -70,7 +68,7 @@ describe('demoActivity', () => {
       const source =
         review.sourceKind === 'order'
           ? orders.find((order) => order.id === review.sourceId)
-          : rentals.find((rental) => rental.id === review.sourceId)
+          : leases.find((lease) => lease.id === review.sourceId)
       expect(source?.status).toBe('completed')
     }
     for (const profile of carrierProfiles) expect(userIds).toContain(profile.id)
@@ -80,13 +78,13 @@ describe('demoActivity', () => {
   })
 
   it('links every deal event to an existing deal, newest first', () => {
-    const { dealEvents, orders, rentals } = demoActivity
+    const { dealEvents, orders, leases } = demoActivity
     for (const event of dealEvents) {
       const exists =
         event.dealKind === 'order'
           ? orders.some((order) => order.id === event.dealId)
-          : event.dealKind === 'rental'
-            ? rentals.some((rental) => rental.id === event.dealId)
+          : event.dealKind === 'lease'
+            ? leases.some((lease) => lease.id === event.dealId)
             : jobById.has(event.dealId)
       expect(exists).toBe(true)
     }
@@ -127,7 +125,7 @@ describe('demoActivity', () => {
       const involved =
         demoActivity.orders.some(
           (o) => o.buyerUserId === userId || o.sellerUserId === userId,
-        ) || demoActivity.rentals.some((r) => r.renterUserId === userId)
+        ) || demoActivity.leases.some((r) => r.lesseeUserId === userId)
       expect(involved, userId).toBe(true)
       expect(
         demoActivity.notifications.some((n) => n.userId === userId),

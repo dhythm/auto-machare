@@ -61,7 +61,9 @@ function ownerOf(target: ThreadTarget | undefined): string | undefined {
 
 function targetLabel(target: ThreadTarget | undefined): string | undefined {
   if (!target) return undefined
-  return target.kind === 'listing' ? target.listing.name : target.job.item
+  return target.kind === 'listing'
+    ? target.listing.name
+    : target.job.vehicleName
 }
 
 function kindLabel(submission: Submission): string {

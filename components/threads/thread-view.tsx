@@ -24,8 +24,8 @@ import { cn } from '@/lib/utils'
 
 const inquiryModeLabels: Record<string, string> = {
   buy: '購入したい',
-  rent: 'レンタルしたい',
-  rentToOwn: 'レンタル購入したい',
+  lease: 'リースしたい',
+  residualLease: '残価設定リースしたい',
   question: '質問',
 }
 
@@ -41,7 +41,7 @@ function TargetCard({ target }: { target: Thread['target'] }) {
   if (!target)
     return (
       <p className="text-sm text-muted-foreground">
-        対象の農機具・案件は削除されました。
+        対象の車両・案件は削除されました。
       </p>
     )
   if (target.kind === 'listing') {
@@ -74,11 +74,11 @@ function TargetCard({ target }: { target: Thread['target'] }) {
           {listing.prefecture} {listing.city}
         </p>
         <dl className="mt-5 space-y-3 border-t border-border pt-4">
-          {listing.rentPerDay && (
+          {listing.leasePerMonth && (
             <div className="flex items-center justify-between gap-3">
-              <dt className="text-xs text-muted-foreground">レンタル / 日</dt>
+              <dt className="text-xs text-muted-foreground">リース / 日</dt>
               <dd className="font-semibold tabular-nums">
-                {formatYen(listing.rentPerDay)}
+                {formatYen(listing.leasePerMonth)}
               </dd>
             </div>
           )}
@@ -105,7 +105,7 @@ function TargetCard({ target }: { target: Thread['target'] }) {
           href={`/transport/${job.id}`}
           className="font-semibold text-foreground hover:text-primary"
         >
-          {job.item}
+          {job.vehicleName}
         </Link>
         <Badge variant="muted">{job.status}</Badge>
       </div>
@@ -259,7 +259,7 @@ export function ThreadView({
           <p className="min-w-0 font-medium leading-relaxed">
             {thread.target?.kind === 'listing'
               ? thread.target.listing.name
-              : thread.target?.job.item}
+              : thread.target?.job.vehicleName}
           </p>
           <Link
             href="#transaction-title"

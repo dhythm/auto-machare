@@ -2,7 +2,7 @@ import { describe, expect, it } from 'vitest'
 import { validateListingInquiry } from './listing-inquiry'
 
 const valid = {
-  mode: 'rent',
+  mode: 'lease',
   name: '山田 太郎',
   email: 'taro@example.com',
   preferredDate: '2026-10-01',
@@ -10,10 +10,10 @@ const valid = {
 }
 
 describe('validateListingInquiry', () => {
-  it('accepts a rental inquiry', () => {
+  it('accepts a lease inquiry', () => {
     const result = validateListingInquiry(valid)
     expect(result.ok).toBe(true)
-    if (result.ok) expect(result.value.mode).toBe('rent')
+    if (result.ok) expect(result.value.mode).toBe('lease')
   })
 
   it('allows a question without a date', () => {

@@ -12,10 +12,10 @@ beforeEach(() => {
 })
 
 const profile = {
-  name: '高橋運送',
+  name: '高橋陸送',
   kind: '法人',
   prefecture: '秋田県',
-  vehicles: ['2tトラック'],
+  vehicles: ['2台積みキャリアカー'],
   serviceAreas: ['秋田県', '山形県'],
 }
 
@@ -34,10 +34,10 @@ describe('/api/transport/carrier-profile', () => {
     expect(saved.status).toBe(200)
     expect(await saved.json()).toMatchObject({
       id: 'demo-user',
-      name: '高橋運送',
+      name: '高橋陸送',
     })
     expect((await (await GET()).json()).profile).toMatchObject({
-      vehicles: ['2tトラック'],
+      vehicles: ['2台積みキャリアカー'],
     })
     expect((await put({ ...profile, vehicles: [] })).status).toBe(400)
     signInAs(null)

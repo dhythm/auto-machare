@@ -21,11 +21,12 @@ vi.mock('server-only', () => ({}))
 beforeEach(() => resetStore())
 
 const input: TransportJobInput = {
-  item: 'トラクター 25馬力',
+  vehicleName: '乗用車 L',
   from: '長野県 松本市',
   to: '長野県 諏訪市',
   distanceKm: 40,
-  weight: '約1.2t',
+  vehicleSize: '普通車',
+  vehicleCount: 1,
   desiredDate: '相談',
   reward: 14_000,
   contactEmail: 'owner@example.com',
@@ -40,14 +41,14 @@ describe('transport jobs', () => {
   })
 
   it('finds a job and handles an unknown id', async () => {
-    expect((await getTransportJob('tj-01'))?.item).toContain('コンバイン')
+    expect((await getTransportJob('tj-01'))?.vehicleName).toContain('エルフ')
     expect(await getTransportJob('missing')).toBeUndefined()
   })
 
   it('creates a pending job that stays off the public board', async () => {
     const created = await createTransportJob(input, 'demo-seller')
     expect(created).toMatchObject({
-      item: input.item,
+      vehicleName: input.vehicleName,
       status: '募集中',
       reward: 14_000,
       moderationStatus: 'pending',
@@ -56,7 +57,9 @@ describe('transport jobs', () => {
     expect(JSON.stringify(created)).not.toContain('owner@example.com')
     expect((await getTransportJobs())[0].id).toBe('tj-01')
     expect(await getTransportJobIds()).not.toContain(created.id)
-    expect((await getTransportJob(created.id))?.item).toBe(input.item)
+    expect((await getTransportJob(created.id))?.vehicleName).toBe(
+      input.vehicleName,
+    )
   })
 
   it('publishes a job after approval and hides a rejected one', async () => {
@@ -80,7 +83,7 @@ describe('transport jobs', () => {
       'transportApplication',
       {
         name: '利用者デモ',
-        vehicle: '2tトラック',
+        vehicle: '2台積みキャリアカー',
         availableDate: '2026-10-03',
       },
       { targetId: 'tj-01', userId: 'demo-user' },

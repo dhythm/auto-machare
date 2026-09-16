@@ -25,25 +25,27 @@ function setup(
 }
 
 const existing = {
-  listingId: 'trc-001',
+  listingId: 'car-001',
   values: {
-    name: 'クボタ トラクター 45馬力',
-    category: 'トラクター',
-    maker: 'クボタ',
+    name: 'トヨタ プリウス Z',
+    category: '乗用車',
+    maker: 'トヨタ',
+    model: 'プリウス Z',
     year: '2019',
-    hours: '620',
+    inspectionExpiresOn: '2027-03-31',
+    mileageKm: '620',
     condition: '目立った傷なし',
     prefecture: '新潟県',
     city: '長岡市',
-    deals: ['sale', 'rent'] as ('sale' | 'rent')[],
+    deals: ['sale', 'lease'] as ('sale' | 'lease')[],
     salePrice: '18800000',
-    rentPerDay: '22000',
-    rentToOwn: true,
-    rentToOwnCreditRate: '50',
-    rentToOwnCreditCap: '5000000',
-    summary: 'キャビン付き',
-    sellerName: '中村ファーム',
-    sellerKind: '農業法人',
+    leasePerMonth: '22000',
+    residualLease: true,
+    residualLeaseCreditRate: '50',
+    residualLeaseCreditCap: '5000000',
+    summary: '禁煙車',
+    sellerName: '中村モータース',
+    sellerKind: '中古車販売店',
     contactEmail: 'seller@example.com',
   },
   images: ['data:image/jpeg;base64,one', 'data:image/jpeg;base64,two'],
@@ -58,10 +60,10 @@ describe('ListingForm', () => {
     vi.stubGlobal('fetch', fetchMock)
     const user = setup()
     await user.click(screen.getByRole('button', { name: '出品を申し込む' }))
-    const name = screen.getByLabelText('農機具名')
+    const name = screen.getByLabelText('車名')
     expect(name).toHaveFocus()
-    await user.type(name, 'トラクター')
-    expect(name).toHaveValue('トラクター')
+    await user.type(name, '乗用車')
+    expect(name).toHaveValue('乗用車')
     expect(name).toHaveFocus()
     expect(fetchMock).not.toHaveBeenCalled()
   })
@@ -69,25 +71,23 @@ describe('ListingForm', () => {
   it('edits an existing listing with PUT, keeping remaining pictures', async () => {
     resizeDataUrl.mockResolvedValue('data:image/jpeg;base64,thumbtwo')
     const fetchMock = vi.fn(async () =>
-      Response.json({ id: 'trc-001', updatedAt: '2026-09-13T00:00:00.000Z' }),
+      Response.json({ id: 'car-001', updatedAt: '2026-09-13T00:00:00.000Z' }),
     )
     vi.stubGlobal('fetch', fetchMock)
     const user = setup(undefined, existing)
-    expect(screen.getByLabelText('農機具名')).toHaveValue(
-      'クボタ トラクター 45馬力',
-    )
-    expect(screen.getByLabelText('充当率（%）')).toHaveValue('50')
+    expect(screen.getByLabelText('車名')).toHaveValue('トヨタ プリウス Z')
+    expect(screen.getByLabelText('買取価格への充当率（%）')).toHaveValue('50')
     expect(screen.getAllByRole('img', { name: /写真/ })).toHaveLength(2)
     await user.click(screen.getAllByRole('button', { name: '削除' })[0])
-    await user.clear(screen.getByLabelText('農機具名'))
-    await user.type(screen.getByLabelText('農機具名'), '更新後の名前')
+    await user.clear(screen.getByLabelText('車名'))
+    await user.type(screen.getByLabelText('車名'), '更新後の名前')
     await user.click(screen.getByRole('button', { name: '更新する' }))
     expect(await screen.findByRole('status')).toHaveTextContent('更新しました')
     expect(
-      screen.getByRole('link', { name: '農機具の詳細を見る' }),
-    ).toHaveAttribute('href', '/listings/trc-001')
+      screen.getByRole('link', { name: '車両の詳細を見る' }),
+    ).toHaveAttribute('href', '/listings/car-001')
     expect(fetchMock).toHaveBeenCalledWith(
-      '/api/listings/trc-001',
+      '/api/listings/car-001',
       expect.objectContaining({ method: 'PUT' }),
     )
     const body = JSON.parse(
@@ -119,18 +119,22 @@ describe('ListingForm', () => {
     await user.click(screen.getAllByRole('button', { name: '削除' })[1])
     expect(screen.getAllByRole('img', { name: /写真/ })).toHaveLength(1)
 
-    await user.type(screen.getByLabelText('農機具名'), 'クボタ トラクター')
-    await user.selectOptions(screen.getByLabelText('カテゴリ'), 'トラクター')
-    await user.type(screen.getByLabelText('メーカー'), 'クボタ')
+    await user.type(screen.getByLabelText('車名'), 'トヨタ プリウス')
+    await user.selectOptions(screen.getByLabelText('カテゴリ'), '乗用車')
+    await user.type(screen.getByLabelText('メーカー'), 'トヨタ')
+    await user.type(screen.getByLabelText('車種・グレード'), 'プリウス Z')
     await user.type(screen.getByLabelText('年式'), '2018')
-    await user.type(screen.getByLabelText('稼働時間'), '500')
+    await user.type(screen.getByLabelText('走行距離（km）'), '48000')
     await user.selectOptions(screen.getByLabelText('状態'), '使用感あり')
     await user.type(screen.getByLabelText('都道府県'), '新潟県')
     await user.type(screen.getByLabelText('市区町村'), '長岡市')
     await user.type(screen.getByLabelText('販売価格'), '1500000')
-    await user.type(screen.getByLabelText('レンタル料（1日）'), '12000')
-    await user.type(screen.getByLabelText('説明'), 'キャビン付き。')
-    await user.selectOptions(screen.getByLabelText('出品者の区分'), '農業法人')
+    await user.type(screen.getByLabelText('月額リース料'), '12000')
+    await user.type(screen.getByLabelText('説明'), '禁煙車。')
+    await user.selectOptions(
+      screen.getByLabelText('出品者の区分'),
+      '中古車販売店',
+    )
     await user.click(screen.getByRole('button', { name: '出品を申し込む' }))
     await screen.findByRole('status')
     const body = JSON.parse(
@@ -149,22 +153,22 @@ describe('ListingForm', () => {
     )
   })
 
-  it('asks for credit terms only when rent-to-own is enabled', async () => {
+  it('asks for credit terms only when residual-lease is enabled', async () => {
     const user = setup()
-    expect(screen.queryByLabelText('充当率（%）')).toBeNull()
-    await user.click(screen.getByLabelText('レンタル購入を受け付ける'))
-    expect(screen.getByLabelText('充当率（%）')).toHaveValue('50')
-    expect(screen.getByLabelText('充当上限（円）')).toBeInTheDocument()
+    expect(screen.queryByLabelText('買取価格への充当率（%）')).toBeNull()
+    await user.click(screen.getByLabelText('残価設定リースを受け付ける'))
+    expect(screen.getByLabelText('買取価格への充当率（%）')).toHaveValue('50')
+    expect(screen.getByLabelText('充当上限額（円）')).toBeInTheDocument()
   })
 
   it('only asks for prices of the selected deals', async () => {
     const user = setup()
     expect(screen.getByLabelText('販売価格')).toBeInTheDocument()
-    expect(screen.getByLabelText('レンタル料（1日）')).toBeInTheDocument()
+    expect(screen.getByLabelText('月額リース料')).toBeInTheDocument()
     await user.click(screen.getByLabelText('販売する'))
     expect(screen.queryByLabelText('販売価格')).not.toBeInTheDocument()
     expect(
-      screen.queryByLabelText('レンタル購入を受け付ける'),
+      screen.queryByLabelText('残価設定リースを受け付ける'),
     ).not.toBeInTheDocument()
   })
 
@@ -177,20 +181,24 @@ describe('ListingForm', () => {
     )
     vi.stubGlobal('fetch', fetchMock)
     const user = setup()
-    await user.type(screen.getByLabelText('農機具名'), 'クボタ トラクター')
-    await user.selectOptions(screen.getByLabelText('カテゴリ'), 'トラクター')
-    await user.type(screen.getByLabelText('メーカー'), 'クボタ')
+    await user.type(screen.getByLabelText('車名'), 'トヨタ プリウス')
+    await user.selectOptions(screen.getByLabelText('カテゴリ'), '乗用車')
+    await user.type(screen.getByLabelText('メーカー'), 'トヨタ')
+    await user.type(screen.getByLabelText('車種・グレード'), 'プリウス Z')
     await user.type(screen.getByLabelText('年式'), '2018')
-    await user.type(screen.getByLabelText('稼働時間'), '500')
+    await user.type(screen.getByLabelText('走行距離（km）'), '48000')
     await user.selectOptions(screen.getByLabelText('状態'), '使用感あり')
     await user.type(screen.getByLabelText('都道府県'), '新潟県')
     await user.type(screen.getByLabelText('市区町村'), '長岡市')
     await user.type(screen.getByLabelText('販売価格'), '1500000')
-    await user.type(screen.getByLabelText('レンタル料（1日）'), '12000')
-    await user.click(screen.getByLabelText('レンタル購入を受け付ける'))
-    await user.type(screen.getByLabelText('説明'), 'キャビン付き。')
-    await user.type(screen.getByLabelText('出品者名'), 'テスト農園')
-    await user.selectOptions(screen.getByLabelText('出品者の区分'), '農業法人')
+    await user.type(screen.getByLabelText('月額リース料'), '12000')
+    await user.click(screen.getByLabelText('残価設定リースを受け付ける'))
+    await user.type(screen.getByLabelText('説明'), '禁煙車。')
+    await user.type(screen.getByLabelText('出品者名'), 'テストモータース')
+    await user.selectOptions(
+      screen.getByLabelText('出品者の区分'),
+      '中古車販売店',
+    )
     await user.type(
       screen.getByLabelText('メールアドレス'),
       'seller@example.com',
@@ -200,19 +208,19 @@ describe('ListingForm', () => {
       '受け付けました',
     )
     expect(
-      screen.getByRole('link', { name: '出品中の農機具を見る' }),
+      screen.getByRole('link', { name: '出品中の車両を見る' }),
     ).toHaveAttribute('href', '/listings')
     const body = JSON.parse(
       (fetchMock.mock.calls[0] as unknown as [string, RequestInit])[1]
         .body as string,
     )
     expect(body).toMatchObject({
-      name: 'クボタ トラクター',
-      deals: ['sale', 'rent'],
+      name: 'トヨタ プリウス',
+      deals: ['sale', 'lease'],
       salePrice: '1500000',
-      rentToOwn: true,
-      sellerName: 'テスト農園',
-      sellerKind: '農業法人',
+      residualLease: true,
+      sellerName: 'テストモータース',
+      sellerKind: '中古車販売店',
     })
   })
 })

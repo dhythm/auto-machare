@@ -8,19 +8,20 @@ import type { Listing, ListingPage } from '@/lib/data'
 
 const listing: Listing = {
   id: 'initial',
-  name: '初期トラクター',
-  category: 'トラクター',
+  name: '初期乗用車',
+  category: '乗用車',
   maker: 'メーカー',
+  model: 'テスト車種',
   year: 2020,
-  hours: 100,
+  mileageKm: 100,
   condition: '目立った傷なし',
   prefecture: '新潟県',
   city: '長岡市',
-  image: '/equipment/tractor.png',
+  image: '/vehicles/sedan.png',
   summary: '説明',
   deals: ['sale'],
   salePrice: 100000,
-  seller: { name: '農家', kind: '個人農家', rating: 4, reviews: 1 },
+  seller: { name: '個人オーナー', kind: '個人', rating: 4, reviews: 1 },
   tags: [],
 }
 
@@ -62,7 +63,7 @@ describe('Marketplace', () => {
     vi.stubGlobal('fetch', fetchMock)
     setup()
     expect(
-      screen.getByRole('heading', { name: '初期トラクター' }),
+      screen.getByRole('heading', { name: '初期乗用車' }),
     ).toBeInTheDocument()
     expect(fetchMock).not.toHaveBeenCalled()
   })
@@ -74,14 +75,14 @@ describe('Marketplace', () => {
     )
     const user = setup()
     expect(
-      screen.getByRole('link', { name: /すべての農機具を見る/ }),
+      screen.getByRole('link', { name: /すべての車両を見る/ }),
     ).toHaveAttribute('href', '/listings')
     expect(screen.getByRole('link', { name: /48件/ })).toBeInTheDocument()
-    await user.click(screen.getByRole('button', { name: 'トラクター' }))
+    await user.click(screen.getByRole('button', { name: '乗用車' }))
     await user.click(screen.getByRole('button', { name: '購入できる' }))
     expect(await screen.findByRole('link', { name: /3件/ })).toHaveAttribute(
       'href',
-      '/listings?category=%E3%83%88%E3%83%A9%E3%82%AF%E3%82%BF%E3%83%BC&deal=sale',
+      '/listings?category=%E4%B9%97%E7%94%A8%E8%BB%8A&deal=sale',
     )
   })
 
@@ -98,11 +99,11 @@ describe('Marketplace', () => {
       )
     vi.stubGlobal('fetch', fetchMock)
     const user = setup()
-    await user.click(screen.getByRole('button', { name: 'トラクター' }))
+    await user.click(screen.getByRole('button', { name: '乗用車' }))
     await user.click(screen.getByRole('button', { name: '購入できる' }))
     await waitFor(() =>
       expect(fetchMock).toHaveBeenLastCalledWith(
-        '/api/listings?category=%E3%83%88%E3%83%A9%E3%82%AF%E3%82%BF%E3%83%BC&deal=sale&page=1&pageSize=6',
+        '/api/listings?category=%E4%B9%97%E7%94%A8%E8%BB%8A&deal=sale&page=1&pageSize=6',
         expect.objectContaining({ signal: expect.any(AbortSignal) }),
       ),
     )
@@ -110,7 +111,7 @@ describe('Marketplace', () => {
       await screen.findByRole('heading', { name: 'サーバーの検索結果' }),
     ).toBeInTheDocument()
     expect(
-      screen.queryByRole('heading', { name: '初期トラクター' }),
+      screen.queryByRole('heading', { name: '初期乗用車' }),
     ).not.toBeInTheDocument()
   })
 
@@ -126,11 +127,11 @@ describe('Marketplace', () => {
       ),
     )
     const user = setup()
-    await user.click(screen.getByRole('button', { name: 'ドローン' }))
+    await user.click(screen.getByRole('button', { name: 'トラック' }))
     expect(screen.getByRole('status')).toHaveTextContent('読み込み中')
     resolveResponse(new Response(pageWith([])))
     expect(
-      await screen.findByText(/条件に合う農機具が見つかりませんでした/),
+      await screen.findByText(/条件に合う車両が見つかりませんでした/),
     ).toBeInTheDocument()
   })
 
@@ -141,16 +142,16 @@ describe('Marketplace', () => {
       .mockResolvedValueOnce(new Response(pageWith([])))
     vi.stubGlobal('fetch', fetchMock)
     const user = setup()
-    await user.click(screen.getByRole('button', { name: 'ドローン' }))
+    await user.click(screen.getByRole('button', { name: 'トラック' }))
     expect(await screen.findByRole('alert')).toHaveTextContent(
-      '農機具を取得できませんでした',
+      '車両を取得できませんでした',
     )
     expect(
-      screen.queryByText(/条件に合う農機具が見つかりませんでした/),
+      screen.queryByText(/条件に合う車両が見つかりませんでした/),
     ).not.toBeInTheDocument()
     await user.click(screen.getByRole('button', { name: '再試行' }))
     expect(
-      await screen.findByText(/条件に合う農機具が見つかりませんでした/),
+      await screen.findByText(/条件に合う車両が見つかりませんでした/),
     ).toBeInTheDocument()
   })
 })

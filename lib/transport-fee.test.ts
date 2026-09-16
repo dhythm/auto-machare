@@ -40,9 +40,14 @@ describe('estimateTransportFee', () => {
     expect(transportMultiplier(50)).toBe(1.3)
     expect(transportMultiplier(150)).toBe(1.8)
     expect(transportMultiplier(200)).toBe(2.5)
-    expect(transportBaseRates['トラクター']).toBe(30_000)
-    expect(estimateTransportFee('トラクター', 30)).toBe(30_000)
-    expect(estimateTransportFee('コンバイン', 120)).toBe(75_600)
-    expect(estimateTransportFee('その他', 400)).toBe(50_000)
+    expect(transportBaseRates['乗用車']).toBe(12_000)
+    expect(estimateTransportFee('乗用車', 30)).toBe(12_000)
+    expect(estimateTransportFee('SUV', 120)).toBe(27_000)
+    expect(estimateTransportFee('その他', 400)).toBe(30_000)
+  })
+
+  it('charges per vehicle hauled', () => {
+    expect(estimateTransportFee('軽自動車', 30, 2)).toBe(16_000)
+    expect(estimateTransportFee('トラック', 120, 3)).toBe(118_800)
   })
 })

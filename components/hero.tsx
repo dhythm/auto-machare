@@ -17,8 +17,8 @@ import { cn } from '@/lib/utils'
 
 const options = [
   { id: 'sale', label: '買う', icon: ShoppingBag },
-  { id: 'rent', label: '借りる', icon: CalendarDays },
-  { id: 'rentToOwn', label: '借りてから買う', icon: Repeat2 },
+  { id: 'lease', label: 'リースする', icon: CalendarDays },
+  { id: 'residualLease', label: '残価設定リース', icon: Repeat2 },
 ] as const
 
 export function Hero() {
@@ -27,34 +27,34 @@ export function Hero() {
     <section className="relative pb-8 sm:pb-12">
       <div className="relative isolate overflow-hidden bg-primary">
         <Image
-          src="/brand-field.webp"
-          alt="山々に囲まれた緑の畑で働くトラクター"
+          src="/brand-hero.webp"
+          alt="朝の光が差す道路"
           fill
           preload
           sizes="100vw"
           className="object-cover object-[65%_60%]"
         />
-        <div className="absolute inset-0 bg-[linear-gradient(90deg,rgba(10,39,28,0.88)_0%,rgba(10,39,28,0.66)_35%,rgba(10,39,28,0.06)_100%)]" />
+        <div className="absolute inset-0 bg-[linear-gradient(90deg,rgba(9,20,34,0.88)_0%,rgba(9,20,34,0.66)_35%,rgba(9,20,34,0.06)_100%)]" />
         <div className="relative mx-auto max-w-[1360px] px-5 pb-36 pt-14 sm:px-8 sm:pb-32 sm:pt-20 lg:px-10 lg:pb-28 lg:pt-16">
-          <p className="flex items-center gap-2.5 text-[10px] font-semibold tracking-[0.22em] text-[#d9eb8b] sm:text-xs">
-            <span className="h-px w-7 bg-[#d9eb8b]" />
-            THE NEXT FIELD, TOGETHER.
+          <p className="flex items-center gap-2.5 text-[10px] font-semibold tracking-[0.22em] text-[#ffc857] sm:text-xs">
+            <span className="h-px w-7 bg-[#ffc857]" />
+            THE NEXT DRIVE, TOGETHER.
           </p>
           <h1 className="mt-7 font-display text-[clamp(2.4rem,4.8vw,4.25rem)] font-bold leading-[1.4] tracking-[-0.035em] text-white">
-            農機の可能性を、
+            車と、
             <br />
-            次の畑へ。
+            次の可能性を。
           </h1>
           <p className="mt-5 text-sm font-medium leading-[2] tracking-wide text-white/85 sm:text-base">
-            買う。借りる。使ってから決める。
+            買う。リースする。満了時に決める。
             <br />
-            あなたの農業に合う一台を、運搬までつなぐ。
+            あなたの使い方に合う一台を、陸送までつなぐ。
           </p>
           <Link
             href="/guide"
             className="mt-7 inline-flex items-center gap-3 border-b border-white/50 pb-2 text-xs font-medium text-white hover:border-white"
           >
-            Agri Machare について
+            Auto Machare について
             <ArrowUpRight className="size-4" />
           </Link>
           <div className="absolute bottom-28 right-10 hidden items-end gap-4 text-white/90 lg:flex">
@@ -101,7 +101,7 @@ export function Hero() {
             action="/listings"
             method="get"
             role="search"
-            aria-label="農機具を探す"
+            aria-label="車両を探す"
             className="mt-5 grid gap-3 sm:grid-cols-[1fr_1.5fr_auto]"
           >
             <input type="hidden" name="deal" value={deal} />
@@ -116,7 +116,7 @@ export function Hero() {
               >
                 {categories.map((category) => (
                   <option key={category} value={category}>
-                    {category === 'すべて' ? 'すべての農機具' : category}
+                    {category === 'すべて' ? 'すべての車両' : category}
                   </option>
                 ))}
               </select>
@@ -138,7 +138,7 @@ export function Hero() {
               className="flex min-h-14 items-center justify-center gap-3 rounded-lg bg-primary px-8 text-sm font-bold text-primary-foreground transition-colors hover:bg-primary/90"
             >
               <Search className="size-4" />
-              農機具を探す
+              車両を探す
             </button>
           </form>
         </div>

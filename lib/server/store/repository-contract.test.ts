@@ -10,7 +10,7 @@ import type {
   Message,
   Notification,
   Order,
-  Rental,
+  Lease,
   Review,
   Store,
   Submission,
@@ -22,24 +22,30 @@ vi.mock('server-only', () => ({}))
 const listing = (id: string, name: string): Listing => ({
   id,
   name,
-  category: 'トラクター',
-  maker: 'クボタ',
+  category: '乗用車',
+  maker: 'トヨタ',
+  model: 'テスト車種',
   year: 2019,
-  hours: 620,
+  mileageKm: 620,
   condition: '目立った傷なし',
   prefecture: '新潟県',
   city: '長岡市',
-  image: '/equipment/tractor.png',
+  image: '/vehicles/sedan.png',
   summary: '説明',
-  deals: ['sale', 'rent'],
+  deals: ['sale', 'lease'],
   salePrice: 18_800_000,
-  rentPerDay: 22_000,
-  rentToOwn: true,
-  rentToOwnCreditRate: 50,
-  rentToOwnCreditCap: 5_000_000,
+  leasePerMonth: 22_000,
+  residualLease: true,
+  residualLeaseCreditRate: 50,
+  residualLeaseCreditCap: 5_000_000,
   images: ['data:image/png;base64,iVBORw0KGgo='],
-  seller: { name: '中村ファーム', kind: '農業法人', rating: 4.8, reviews: 34 },
-  tags: ['キャビン付', '4WD'],
+  seller: {
+    name: '中村モータース',
+    kind: '中古車販売店',
+    rating: 4.8,
+    reviews: 34,
+  },
+  tags: ['禁煙車', '4WD'],
   createdAt: '2026-09-13T00:00:00.000Z',
   updatedAt: '2026-09-13T00:00:00.000Z',
   ownerUserId: 'demo-seller',
@@ -47,11 +53,12 @@ const listing = (id: string, name: string): Listing => ({
 
 const job = (id: string): TransportJob => ({
   id,
-  item: 'コンバイン 4条刈',
+  vehicleName: 'マツダ CX-5 XD',
   from: '秋田県 大仙市',
   to: '山形県 天童市',
   distanceKm: 120,
-  weight: '約2.4t',
+  vehicleSize: '普通車',
+  vehicleCount: 1,
   desiredDate: '9/28 午前',
   reward: 38_000,
   status: '募集中',
@@ -84,9 +91,9 @@ describe.each(stores)('$name store', { timeout: 20_000 }, ({ store }) => {
     const listings = await store.listings.list()
     expect(listings.length).toBeGreaterThanOrEqual(48)
     expect(listings.slice(0, 3).map((item) => item.id)).toEqual([
-      'trc-001',
-      'cmb-002',
-      'rpl-003',
+      'car-001',
+      'suv-002',
+      'kei-003',
     ])
     expect((await store.transportJobs.list())[0].id).toBe('tj-01')
     expect(await store.submissions.list()).toEqual([])
@@ -102,9 +109,9 @@ describe.each(stores)('$name store', { timeout: 20_000 }, ({ store }) => {
   it('stores optional listing fields as absent', async () => {
     const minimal: Listing = {
       ...listing('new-2', '最小'),
-      deals: ['rent'],
+      deals: ['lease'],
       salePrice: undefined,
-      rentToOwn: undefined,
+      residualLease: undefined,
       createdAt: undefined,
       updatedAt: undefined,
     }
@@ -115,29 +122,30 @@ describe.each(stores)('$name store', { timeout: 20_000 }, ({ store }) => {
   })
 
   it('updates in place, keeps the id, and ignores unknown ids', async () => {
-    const updated = await store.listings.update('trc-001', {
+    const updated = await store.listings.update('car-001', {
       name: '更新',
       seller: { name: 'X', kind: '法人', rating: 1.5, reviews: 2 },
       tags: [],
     })
     expect(updated).toMatchObject({
-      id: 'trc-001',
+      id: 'car-001',
       name: '更新',
       seller: { name: 'X', rating: 1.5 },
       tags: [],
-      maker: 'クボタ',
+      maker: 'トヨタ',
+      model: 'プリウス Z',
     })
-    expect((await store.listings.get('trc-001'))?.name).toBe('更新')
+    expect((await store.listings.get('car-001'))?.name).toBe('更新')
     expect(
       await store.listings.update('missing', { name: 'x' }),
     ).toBeUndefined()
   })
 
   it('deletes and rejects duplicate ids', async () => {
-    expect(await store.listings.delete('trc-001')).toBe(true)
-    expect(await store.listings.delete('trc-001')).toBe(false)
+    expect(await store.listings.delete('car-001')).toBe(true)
+    expect(await store.listings.delete('car-001')).toBe(false)
     await expect(
-      store.listings.create(listing('cmb-002', 'dup')),
+      store.listings.create(listing('suv-002', 'dup')),
     ).rejects.toThrow()
   })
 
@@ -166,18 +174,22 @@ describe.each(stores)('$name store', { timeout: 20_000 }, ({ store }) => {
         status: '調整中',
         reward: 1,
       }),
-    ).toMatchObject({ status: '調整中', reward: 1, item: 'コンバイン 4条刈' })
+    ).toMatchObject({
+      status: '調整中',
+      reward: 1,
+      vehicleName: 'マツダ CX-5 XD',
+    })
 
     await store.submissions.create(submission('s-1'))
     await store.submissions.create({
       ...submission('s-2'),
       kind: 'listingInquiry',
-      targetId: 'trc-001',
+      targetId: 'car-001',
     })
     const stored = await store.submissions.list()
     expect(stored.map((item) => item.id)).toEqual(['s-2', 's-1'])
     expect(stored[1]).toEqual(submission('s-1'))
-    expect(stored[0].targetId).toBe('trc-001')
+    expect(stored[0].targetId).toBe('car-001')
     expect(await store.submissions.delete('s-1')).toBe(true)
   })
 
@@ -206,41 +218,41 @@ describe.each(stores)('$name store', { timeout: 20_000 }, ({ store }) => {
     expect(await store.messages.list()).toEqual([])
   })
 
-  it('round-trips rentals', async () => {
-    const rental: Rental = {
-      id: 'r-1',
-      listingId: 'trc-001',
-      renterUserId: 'demo-user',
+  it('round-trips leases', async () => {
+    const lease: Lease = {
+      id: 'l-1',
+      listingId: 'car-001',
+      lesseeUserId: 'demo-user',
       startDate: '2026-10-01',
-      endDate: '2026-10-07',
-      days: 7,
-      rentPerDay: 22_000,
-      rentTotal: 154_000,
-      salePrice: 18_800_000,
-      creditRate: 50,
-      creditCap: 5_000_000,
+      endDate: '2027-09-30',
+      months: 12,
+      leasePerMonth: 42_000,
+      leaseTotal: 504_000,
+      salePrice: 2_180_000,
+      creditRate: 40,
+      creditCap: 600_000,
       status: 'requested',
       createdAt: '2026-09-13T04:00:00.000Z',
       updatedAt: '2026-09-13T04:00:00.000Z',
     }
-    expect(await store.rentals.create(rental)).toEqual(rental)
+    expect(await store.leases.create(lease)).toEqual(lease)
     expect(
-      await store.rentals.update('r-1', {
+      await store.leases.update('l-1', {
         status: 'converted',
-        purchasePrice: 18_723_000,
+        buyoutPrice: 18_723_000,
       }),
-    ).toMatchObject({ status: 'converted', purchasePrice: 18_723_000 })
-    await store.rentals.create({
-      ...rental,
+    ).toMatchObject({ status: 'converted', buyoutPrice: 18_723_000 })
+    await store.leases.create({
+      ...lease,
       id: 'r-2',
       salePrice: undefined,
       creditCap: undefined,
     })
-    const second = await store.rentals.get('r-2')
+    const second = await store.leases.get('r-2')
     expect(second?.salePrice).toBeUndefined()
     expect(second?.creditCap).toBeUndefined()
     await store.reset()
-    expect(await store.rentals.list()).toEqual([])
+    expect(await store.leases.list()).toEqual([])
   })
 
   it('round-trips account statuses keyed by user id', async () => {
@@ -265,7 +277,7 @@ describe.each(stores)('$name store', { timeout: 20_000 }, ({ store }) => {
       userId: 'demo-seller',
       kind: 'inquiry',
       title: '問い合わせが届きました',
-      body: 'クボタ 45馬力',
+      body: 'トヨタ Z',
       href: '/account/threads/t-1',
       createdAt: '2026-09-13T06:00:00.000Z',
     }
@@ -284,11 +296,11 @@ describe.each(stores)('$name store', { timeout: 20_000 }, ({ store }) => {
   it('round-trips reviews', async () => {
     const review: Review = {
       id: 'rv-1',
-      listingId: 'trc-001',
+      listingId: 'car-001',
       sellerUserId: 'demo-seller',
       reviewerUserId: 'demo-user',
-      sourceKind: 'rental',
-      sourceId: 'r-1',
+      sourceKind: 'lease',
+      sourceId: 'l-1',
       rating: 5,
       comment: '整備が行き届いていました',
       createdAt: '2026-09-13T07:00:00.000Z',
@@ -322,10 +334,10 @@ describe.each(stores)('$name store', { timeout: 20_000 }, ({ store }) => {
   it('round-trips carrier profiles', async () => {
     const profile: CarrierProfile = {
       id: 'demo-user',
-      name: '高橋運送',
+      name: '高橋陸送',
       kind: '法人',
       prefecture: '秋田県',
-      vehicles: ['2tトラック', '4tトラック'],
+      vehicles: ['2台積みキャリアカー', 'セルフローダー'],
       serviceAreas: ['秋田県', '山形県'],
       note: '週末対応可',
       createdAt: '2026-09-13T09:00:00.000Z',
@@ -343,7 +355,7 @@ describe.each(stores)('$name store', { timeout: 20_000 }, ({ store }) => {
   it('round-trips orders', async () => {
     const order: Order = {
       id: 'o-1',
-      listingId: 'trc-001',
+      listingId: 'car-001',
       buyerUserId: 'demo-user',
       sellerUserId: 'demo-seller',
       price: 18_800_000,
@@ -357,12 +369,12 @@ describe.each(stores)('$name store', { timeout: 20_000 }, ({ store }) => {
       ...order,
       id: 'o-2',
       message: undefined,
-      sourceRentalId: 'r-1',
+      sourceLeaseId: 'l-1',
       status: 'delivered',
     })
     const second = await store.orders.get('o-2')
     expect(second?.message).toBeUndefined()
-    expect(second?.sourceRentalId).toBe('r-1')
+    expect(second?.sourceLeaseId).toBe('l-1')
     expect(
       (await store.orders.update('o-1', { status: 'accepted' }))?.status,
     ).toBe('accepted')
@@ -393,8 +405,8 @@ describe.each(stores)('$name store', { timeout: 20_000 }, ({ store }) => {
   })
 
   it('does not let callers mutate stored data through returned objects', async () => {
-    const first = (await store.listings.get('trc-001'))!
+    const first = (await store.listings.get('car-001'))!
     first.tags.push('hacked')
-    expect((await store.listings.get('trc-001'))?.tags).not.toContain('hacked')
+    expect((await store.listings.get('car-001'))?.tags).not.toContain('hacked')
   })
 })

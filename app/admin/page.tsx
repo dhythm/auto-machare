@@ -20,7 +20,7 @@ import { StarRating } from '@/components/reviews/star-rating'
 import { Badge } from '@/components/badge'
 
 export const metadata: Metadata = {
-  title: 'ダッシュボード | Agri Machare 運営',
+  title: 'ダッシュボード | Auto Machare 運営',
 }
 
 export const dynamic = 'force-dynamic'
@@ -32,7 +32,7 @@ const workspaces = [
     links: [
       { label: '出品の審査', href: '/admin/deals' },
       { label: '注文', href: '/admin/deals/orders' },
-      { label: 'レンタル', href: '/admin/deals/rentals' },
+      { label: 'リース', href: '/admin/deals/leases' },
       { label: '問い合わせ', href: '/admin/deals/inquiries' },
       { label: 'レビュー', href: '/admin/deals/reviews' },
     ],
@@ -69,10 +69,10 @@ export default async function AdminDashboardPage() {
       links: [{ label: '注文一覧', href: '/admin/deals/orders' }],
     },
     {
-      label: '申込中のレンタル',
-      value: counts.requestedRentals,
+      label: '申込中のリース',
+      value: counts.requestedLeases,
       icon: CalendarDays,
-      links: [{ label: '申込一覧', href: '/admin/deals/rentals' }],
+      links: [{ label: '申込一覧', href: '/admin/deals/leases' }],
     },
     {
       label: '運搬中の案件',
@@ -100,7 +100,7 @@ export default async function AdminDashboardPage() {
   return (
     <AdminSection
       title="ダッシュボード"
-      description="農機具と人をつなぐ、日々の運営をここから。"
+      description="車両と人をつなぐ、日々の運営をここから。"
     >
       <section className="relative overflow-hidden rounded-2xl bg-primary p-6 text-primary-foreground sm:p-8">
         <div
@@ -226,8 +226,8 @@ export default async function AdminDashboardPage() {
                   <Badge variant="outline">
                     {item.kind === 'order'
                       ? '注文'
-                      : item.kind === 'rental'
-                        ? 'レンタル'
+                      : item.kind === 'lease'
+                        ? 'リース'
                         : '運搬'}
                   </Badge>
                   <Link

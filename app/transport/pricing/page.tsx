@@ -12,7 +12,7 @@ import {
   transportDefaultRate,
 } from '@/lib/transport-fee'
 
-export const metadata: Metadata = { title: '運搬料金のめやす | Agri Machare' }
+export const metadata: Metadata = { title: '運搬料金のめやす | Auto Machare' }
 
 export default function TransportPricingPage() {
   return (
@@ -29,7 +29,7 @@ export default function TransportPricingPage() {
               運搬料金のめやす
             </h1>
             <p className="mt-4 max-w-xl text-sm leading-7 text-primary-foreground/75">
-              農機具の種類と距離で、運搬費用を見通せる。実際の報酬は案件ごとに設定し、運搬者と相談できます。
+              車両の種類と距離で、運搬費用を見通せる。実際の報酬は案件ごとに設定し、運搬者と相談できます。
             </p>
           </div>
           <div className="rounded-xl border border-primary-foreground/20 p-5 text-center">
@@ -65,7 +65,7 @@ export default function TransportPricingPage() {
                       基準額
                     </th>
                     <th scope="col" className="px-4 py-4 font-medium">
-                      想定車両
+                      想定する積載車
                     </th>
                   </tr>
                 </thead>
@@ -128,13 +128,13 @@ export default function TransportPricingPage() {
             </div>
             <div className="mt-5 rounded-2xl bg-secondary p-5">
               <p className="text-xs font-medium text-secondary-foreground">
-                例：トラクターを 120km 運ぶ場合
+                例：乗用車を 120km 運ぶ場合
               </p>
               <p className="mt-3 text-sm text-secondary-foreground">
-                {formatYen(transportBaseRates['トラクター'])} × 1.8
+                {formatYen(transportBaseRates['乗用車'])} × 1.8
               </p>
               <p className="mt-1 font-display text-3xl font-bold tracking-tight text-primary">
-                {formatYen(transportBaseRates['トラクター'] * 1.8)}
+                {formatYen(transportBaseRates['乗用車'] * 1.8)}
               </p>
               <p className="mt-3 text-xs leading-6 text-muted-foreground">
                 高速料金・フェリー代は依頼者負担です。
@@ -177,12 +177,12 @@ export default function TransportPricingPage() {
 
 function vehicleFor(category: string): string {
   switch (category) {
-    case 'トラクター':
-    case 'コンバイン':
-      return '4tトラック・トレーラー'
-    case '田植機':
-      return '2t〜4tトラック'
+    case 'トラック':
+      return 'セルフローダー'
+    case 'SUV':
+    case 'バン':
+      return '積載車（1台）・2台積みキャリアカー'
     default:
-      return '軽トラック・2tトラック'
+      return '2台積み・5台積みキャリアカー'
   }
 }

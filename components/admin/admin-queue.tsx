@@ -163,13 +163,13 @@ export function AdminQueue({
           pendingId={pendingId}
           items={pendingFirst(queue.transportJobs)
             .filter((job) =>
-              `${job.id} ${job.item} ${job.from} ${job.to} ${job.status}`
+              `${job.id} ${job.vehicleName} ${job.from} ${job.to} ${job.status}`
                 .toLocaleLowerCase('ja-JP')
                 .includes(normalizedQuery),
             )
             .map((job) => ({
               id: job.id,
-              title: job.item,
+              title: job.vehicleName,
               meta: `${job.from} → ${job.to}・${formatYen(job.reward)}・${job.status}`,
               status: job.moderationStatus ?? 'approved',
               note: job.moderationNote,

@@ -64,7 +64,8 @@ export function SelectField({
   id: string
   label: string
   error?: string
-  options: readonly string[]
+  /** A plain string is both the value and the label. */
+  options: readonly (string | { value: string; label: string })[]
   placeholder?: string
 }) {
   return (
@@ -78,11 +79,17 @@ export function SelectField({
         {...props}
       >
         <option value="">{placeholder}</option>
-        {options.map((option) => (
-          <option key={option} value={option}>
-            {option}
-          </option>
-        ))}
+        {options
+          .map((option) =>
+            typeof option === 'string'
+              ? { value: option, label: option }
+              : option,
+          )
+          .map((option) => (
+            <option key={option.value} value={option.value}>
+              {option.label}
+            </option>
+          ))}
       </select>
       <FieldError id={id} error={error} />
     </div>

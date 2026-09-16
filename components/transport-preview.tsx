@@ -44,7 +44,7 @@ export async function TransportPreview() {
                   <div className="min-w-0 flex-1">
                     <div className="flex items-center gap-2">
                       <p className="truncate font-medium text-foreground">
-                        {job.item}
+                        {job.vehicleName}
                       </p>
                       <Badge
                         variant={job.status === '募集中' ? 'default' : 'muted'}
@@ -53,7 +53,8 @@ export async function TransportPreview() {
                       </Badge>
                     </div>
                     <p className="mt-0.5 truncate text-xs text-muted-foreground">
-                      {job.from} → {job.to}・{job.distanceKm}km・{job.weight}
+                      {job.from} → {job.to}・{job.distanceKm}km・
+                      {job.vehicleSize}・{job.vehicleCount}台
                     </p>
                   </div>
                   <div className="shrink-0 text-right">

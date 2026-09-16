@@ -21,8 +21,8 @@ beforeEach(() => resetStore())
 async function openInquiry() {
   const receipt = await acceptSubmission(
     'listingInquiry',
-    { mode: 'rent', name: '利用者デモ', message: '借りたい' },
-    { targetId: 'trc-001', userId: 'demo-user' },
+    { mode: 'lease', name: '利用者デモ', message: '借りたい' },
+    { targetId: 'car-001', userId: 'demo-user' },
   )
   return receipt.id
 }
@@ -30,7 +30,11 @@ async function openInquiry() {
 async function openApplication() {
   const receipt = await acceptSubmission(
     'transportApplication',
-    { name: '利用者デモ', vehicle: '2tトラック', availableDate: '2026-10-03' },
+    {
+      name: '利用者デモ',
+      vehicle: '2台積みキャリアカー',
+      availableDate: '2026-10-03',
+    },
     { targetId: 'tj-01', userId: 'demo-user' },
   )
   return receipt.id
@@ -86,7 +90,7 @@ describe('addMessage', () => {
   it('removes messages with their thread', async () => {
     const id = await openInquiry()
     await addMessage(id, demoSeller, '在庫あります')
-    await deleteListing('trc-001')
+    await deleteListing('car-001')
     expect(await listMessages(id)).toEqual([])
   })
 })

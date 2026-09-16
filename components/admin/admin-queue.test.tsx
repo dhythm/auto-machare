@@ -12,30 +12,37 @@ vi.mock('next/navigation', () => ({
 
 const listing: Listing = {
   id: 'pending-listing',
-  name: '審査中トラクター',
-  category: 'トラクター',
-  maker: 'クボタ',
+  name: '審査中乗用車',
+  category: '乗用車',
+  maker: 'トヨタ',
+  model: 'テスト車種',
   year: 2018,
-  hours: 500,
+  mileageKm: 500,
   condition: '目立った傷なし',
   prefecture: '新潟県',
   city: '長岡市',
-  image: '/equipment/tractor.png',
+  image: '/vehicles/sedan.png',
   summary: '審査中。',
   deals: ['sale'],
   salePrice: 1_000_000,
-  seller: { name: '審査農園', kind: '農業法人', rating: 0, reviews: 0 },
+  seller: {
+    name: '審査モータース',
+    kind: '中古車販売店',
+    rating: 0,
+    reviews: 0,
+  },
   tags: [],
   moderationStatus: 'pending',
 }
 
 const job: TransportJob = {
   id: 'pending-job',
-  item: '審査中コンバイン',
+  vehicleName: '審査中SUV',
   from: '秋田県 大仙市',
   to: '山形県 天童市',
   distanceKm: 120,
-  weight: '約2.4t',
+  vehicleSize: '普通車',
+  vehicleCount: 1,
   desiredDate: '相談',
   reward: 38_000,
   status: '募集中',
@@ -69,21 +76,21 @@ describe('AdminQueue', () => {
         {
           ...listing,
           id: 'other',
-          name: '田植機',
-          seller: { ...listing.seller, name: '別の農園' },
+          name: '軽自動車',
+          seller: { ...listing.seller, name: '別のモータース' },
         },
       ],
       transportJobs: [job],
     })
     await user.type(
       screen.getByRole('searchbox', { name: '出品を検索' }),
-      '審査農園',
+      '審査モータース',
     )
-    expect(screen.getByText('審査中トラクター')).toBeInTheDocument()
-    expect(screen.queryByText('田植機')).not.toBeInTheDocument()
+    expect(screen.getByText('審査中乗用車')).toBeInTheDocument()
+    expect(screen.queryByText('軽自動車')).not.toBeInTheDocument()
     expect(screen.getByRole('button', { name: '承認' })).toBeInTheDocument()
     await user.clear(screen.getByRole('searchbox', { name: '出品を検索' }))
-    expect(screen.getByText('田植機')).toBeInTheDocument()
+    expect(screen.getByText('軽自動車')).toBeInTheDocument()
   })
 
   it('keeps the current filter and data when a refresh fails', async () => {
@@ -97,7 +104,7 @@ describe('AdminQueue', () => {
       'aria-pressed',
       'true',
     )
-    expect(screen.getByText('審査中トラクター')).toBeInTheDocument()
+    expect(screen.getByText('審査中乗用車')).toBeInTheDocument()
   })
 
   it('offers only the opposite decision once reviewed', () => {
@@ -127,8 +134,8 @@ describe('AdminQueue', () => {
 
   it('renders only the requested kind', () => {
     setup('listing')
-    expect(screen.getByText('審査中トラクター')).toBeInTheDocument()
-    expect(screen.queryByText('審査中コンバイン')).toBeNull()
+    expect(screen.getByText('審査中乗用車')).toBeInTheDocument()
+    expect(screen.queryByText('審査中SUV')).toBeNull()
     expect(
       screen.getByRole('button', { name: '取り下げる' }),
     ).toBeInTheDocument()
@@ -143,7 +150,7 @@ describe('AdminQueue', () => {
     })
     vi.stubGlobal('fetch', fetchMock)
     const user = setup('listing')
-    const listingCard = screen.getByText('審査中トラクター').closest('li')
+    const listingCard = screen.getByText('審査中乗用車').closest('li')
     if (!listingCard) throw new Error('listing card')
     await user.type(within(listingCard).getByLabelText('メモ'), '掲載可')
     await user.click(within(listingCard).getByRole('button', { name: '承認' }))
@@ -167,7 +174,7 @@ describe('AdminQueue', () => {
       note: '掲載可',
     })
     expect(await screen.findByText('該当なし')).toBeInTheDocument()
-    expect(screen.queryByText('審査中トラクター')).not.toBeInTheDocument()
+    expect(screen.queryByText('審査中乗用車')).not.toBeInTheDocument()
   })
 
   it('rejects a transport job', async () => {
@@ -179,7 +186,7 @@ describe('AdminQueue', () => {
     })
     vi.stubGlobal('fetch', fetchMock)
     const user = setup('transportJob')
-    const jobCard = screen.getByText('審査中コンバイン').closest('li')
+    const jobCard = screen.getByText('審査中SUV').closest('li')
     if (!jobCard) throw new Error('job card')
     await user.click(within(jobCard).getByRole('button', { name: '却下' }))
     expect(

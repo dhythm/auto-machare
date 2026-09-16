@@ -9,17 +9,20 @@ describe('SearchRefinements', () => {
     const onChange = vi.fn()
     render(
       <SearchRefinements
-        value={{ category: 'すべて', deal: 'rent', keyword: '' }}
+        value={{ category: 'すべて', deal: 'lease', keyword: '' }}
         onChange={onChange}
       />,
     )
     const user = userEvent.setup()
     await user.selectOptions(screen.getByLabelText('都道府県'), '新潟県')
     expect(onChange).toHaveBeenLastCalledWith({ prefecture: '新潟県' })
-    await user.selectOptions(screen.getByLabelText('並び替え'), '日額が安い順')
-    expect(onChange).toHaveBeenLastCalledWith({ sort: 'rentAsc' })
-    await user.type(screen.getByLabelText('日額の下限'), '10000')
-    await user.type(screen.getByLabelText('日額の上限'), '30000')
+    await user.selectOptions(
+      screen.getByLabelText('並び替え'),
+      '月額リース料が安い順',
+    )
+    expect(onChange).toHaveBeenLastCalledWith({ sort: 'leaseAsc' })
+    await user.type(screen.getByLabelText('月額リース料の下限'), '10000')
+    await user.type(screen.getByLabelText('月額リース料の上限'), '30000')
     await user.click(screen.getByRole('button', { name: '価格で絞り込む' }))
     expect(onChange).toHaveBeenLastCalledWith({
       priceMin: 10_000,

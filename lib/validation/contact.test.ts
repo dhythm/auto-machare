@@ -8,7 +8,7 @@ describe('validateContact', () => {
         name: '鈴木',
         email: 'suzuki@example.com',
         topic: '取引について',
-        message: 'レンタル購入の充当額について知りたいです。',
+        message: '残価設定リースの充当額について知りたいです。',
       }).ok,
     ).toBe(true)
   })

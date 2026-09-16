@@ -2,20 +2,20 @@
 import { render, screen } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
 import { afterEach, describe, expect, it, vi } from 'vitest'
-import { RentalActions } from './rental-actions'
+import { LeaseActions } from './lease-actions'
 
 const refresh = vi.hoisted(() => vi.fn())
 vi.mock('next/navigation', () => ({ useRouter: () => ({ refresh }) }))
 
 afterEach(() => vi.unstubAllGlobals())
 
-describe('RentalActions', () => {
+describe('LeaseActions', () => {
   it('offers the owner approve and decline on a request', async () => {
     const fetchMock = vi.fn(async () => Response.json({ status: 'active' }))
     vi.stubGlobal('fetch', fetchMock)
     render(
-      <RentalActions
-        rentalId="r-1"
+      <LeaseActions
+        leaseId="r-1"
         status="requested"
         party="owner"
         canConvert={false}
@@ -26,7 +26,7 @@ describe('RentalActions', () => {
       .setup()
       .click(screen.getByRole('button', { name: '承認する' }))
     expect(fetchMock).toHaveBeenCalledWith(
-      '/api/rentals/r-1',
+      '/api/leases/r-1',
       expect.objectContaining({ method: 'PATCH' }),
     )
     expect(
@@ -38,23 +38,18 @@ describe('RentalActions', () => {
     expect(refresh).toHaveBeenCalled()
   })
 
-  it('offers the renter conversion only when allowed', () => {
+  it('offers the lessee conversion only when allowed', () => {
     render(
-      <RentalActions
-        rentalId="r-1"
-        status="active"
-        party="renter"
-        canConvert
-      />,
+      <LeaseActions leaseId="r-1" status="active" party="lessee" canConvert />,
     )
     expect(
       screen.getByRole('button', { name: '購入に切り替える' }),
     ).toBeInTheDocument()
     render(
-      <RentalActions
-        rentalId="r-2"
+      <LeaseActions
+        leaseId="r-2"
         status="active"
-        party="renter"
+        party="lessee"
         canConvert={false}
       />,
     )
@@ -65,8 +60,8 @@ describe('RentalActions', () => {
 
   it('renders nothing when no action applies', () => {
     const { container } = render(
-      <RentalActions
-        rentalId="r-1"
+      <LeaseActions
+        leaseId="r-1"
         status="completed"
         party="owner"
         canConvert={false}

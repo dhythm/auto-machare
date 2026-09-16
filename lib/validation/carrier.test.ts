@@ -2,10 +2,10 @@ import { describe, expect, it } from 'vitest'
 import { validateCarrierProfile } from './carrier'
 
 const valid = {
-  name: '高橋運送',
+  name: '高橋陸送',
   kind: '法人',
   prefecture: '秋田県',
-  vehicles: ['2tトラック', '4tトラック'],
+  vehicles: ['2台積みキャリアカー', 'セルフローダー'],
   serviceAreas: ['秋田県', '山形県'],
   note: ' 週末対応可 ',
 }

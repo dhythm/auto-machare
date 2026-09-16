@@ -8,11 +8,12 @@ import { TransportApplicationForm } from './transport-application-form'
 
 const job: TransportJob = {
   id: 'tj-01',
-  item: 'コンバイン 4条刈',
+  vehicleName: 'マツダ CX-5 XD',
   from: '秋田県 大仙市',
   to: '山形県 天童市',
   distanceKm: 120,
-  weight: '約2.4t',
+  vehicleSize: '普通車',
+  vehicleCount: 1,
   desiredDate: '9/28 午前',
   reward: 38_000,
   status: '募集中',
@@ -33,14 +34,14 @@ describe('TransportApplicationForm', () => {
       <QueryClientProvider client={new QueryClient()}>
         <TransportApplicationForm
           job={job}
-          contact={{ name: '高橋運送', email: 'k@example.com' }}
-          defaultVehicle="4tトラック"
+          contact={{ name: '高橋陸送', email: 'k@example.com' }}
+          defaultVehicle="セルフローダー"
         />
       </QueryClientProvider>,
     )
     const user = userEvent.setup()
-    expect(screen.getByLabelText('お名前・屋号')).toHaveValue('高橋運送')
-    expect(screen.getByLabelText('車両')).toHaveValue('4tトラック')
+    expect(screen.getByLabelText('お名前・屋号')).toHaveValue('高橋陸送')
+    expect(screen.getByLabelText('車両')).toHaveValue('セルフローダー')
     await user.click(screen.getByRole('button', { name: '応募する' }))
     expect(screen.getByLabelText('対応可能日')).toHaveAccessibleDescription(
       '対応可能日を入力してください。',
@@ -60,7 +61,7 @@ describe('TransportApplicationForm', () => {
         .body as string,
     )
     expect(body).toMatchObject({
-      vehicle: '4tトラック',
+      vehicle: 'セルフローダー',
       availableDate: '2026-10-03',
     })
   })

@@ -82,17 +82,17 @@ export function ListingBrowser({
         <div>
           <p className="eyebrow mb-3">THE MARKETPLACE</p>
           <h1 className="text-balance font-display text-3xl font-bold sm:text-4xl tracking-tight text-foreground">
-            農機具を探す
+            車両を探す
           </h1>
           <p className="mt-3 text-sm text-muted-foreground">
-            買う、借りる、借りてから買う。畑に合う一台を。
+            買う、リースする、満了時に買い取る。用途に合う一台を。
           </p>
         </div>
         <Link
           href="/listings/new"
           className="inline-flex items-center gap-2 text-xs font-bold text-primary"
         >
-          農機具を出品する
+          車両を出品する
           <ArrowUpRight className="size-4" />
         </Link>
       </div>

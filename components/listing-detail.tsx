@@ -23,13 +23,13 @@ import { buttonVariants } from '@/components/ui/button'
 import { Badge } from '@/components/badge'
 import { BackLink } from '@/components/back-link'
 import { ListingCard } from '@/components/listing-card'
-import { RentToOwnSimulator } from '@/components/rent-to-own/rent-to-own-simulator'
-import { RentalRequestForm } from '@/components/rent-to-own/rental-request-form'
+import { ResidualLeaseSimulator } from '@/components/lease/residual-lease-simulator'
+import { LeaseRequestForm } from '@/components/lease/lease-request-form'
 import { OrderRequestForm } from '@/components/orders/order-request-form'
 import { TransportEstimate } from '@/components/transport/transport-estimate'
 import { StarRating } from '@/components/reviews/star-rating'
 import type { Review } from '@/lib/server/store/types'
-import type { DateRange, RentToOwnTerms } from '@/lib/rent-to-own'
+import type { DateRange, ResidualLeaseTerms } from '@/lib/residual-lease'
 import {
   formatYen,
   type Listing,
@@ -37,14 +37,14 @@ import {
   type ListingModeConfig,
 } from '@/lib/data'
 
-const modeIcon = { buy: ShoppingCart, rent: Calendar, rentToOwn: Repeat2 }
-const modeLabel = { buy: '購入', rent: 'レンタル', rentToOwn: '試して購入' }
+const modeIcon = { buy: ShoppingCart, lease: Calendar, residualLease: Repeat2 }
+const modeLabel = { buy: '購入', lease: 'リース', residualLease: '残価設定' }
 
 export function ListingDetail({
   listing,
   modes,
   related,
-  rentToOwnTerms,
+  residualLeaseTerms,
   booked,
   viewer,
   sellerReviews = [],
@@ -53,7 +53,7 @@ export function ListingDetail({
   listing: Listing
   modes: ListingModeConfig[]
   related: Listing[]
-  rentToOwnTerms?: RentToOwnTerms
+  residualLeaseTerms?: ResidualLeaseTerms
   booked: DateRange[]
   viewer: { signedIn: boolean; isOwner: boolean; canEdit?: boolean }
   sellerReviews?: Review[]
@@ -73,7 +73,7 @@ export function ListingDetail({
   return (
     <div className="mx-auto max-w-7xl px-4 py-7 sm:px-6 lg:px-8 lg:py-10">
       <div className="flex items-center justify-between gap-4">
-        <BackLink href="/listings" label="農機具一覧にもどる" />
+        <BackLink href="/listings" label="車両一覧にもどる" />
         {viewer.canEdit && (
           <Link
             href={`/listings/${listing.id}/edit`}
@@ -105,7 +105,7 @@ export function ListingDetail({
       </header>
 
       <div className="mt-7 grid items-start gap-7 lg:grid-cols-[minmax(0,1.5fr)_minmax(350px,1fr)] lg:gap-x-9">
-        <section aria-label="農機具の写真と仕様" className="min-w-0">
+        <section aria-label="車両の写真と仕様" className="min-w-0">
           <div className="relative aspect-[4/3] overflow-hidden rounded-2xl bg-muted">
             <Image
               src={mainPicture || '/placeholder.svg'}
@@ -122,12 +122,12 @@ export function ListingDetail({
                   販売
                 </Badge>
               )}
-              {listing.deals.includes('rent') && (
+              {listing.deals.includes('lease') && (
                 <Badge className="bg-accent text-accent-foreground shadow-sm">
-                  レンタル
+                  リース
                 </Badge>
               )}
-              {listing.rentToOwn && (
+              {listing.residualLease && (
                 <Badge className="bg-primary text-primary-foreground shadow-sm">
                   購入充当
                 </Badge>
@@ -165,7 +165,7 @@ export function ListingDetail({
               ))}
             </ul>
           )}
-          <dl className="mt-5 grid grid-cols-2 overflow-hidden rounded-2xl border border-border bg-card sm:grid-cols-4">
+          <dl className="mt-5 grid grid-cols-2 overflow-hidden rounded-2xl border border-border bg-card sm:grid-cols-5">
             <Spec
               icon={<Calendar className="size-4" />}
               label="年式"
@@ -173,8 +173,17 @@ export function ListingDetail({
             />
             <Spec
               icon={<Gauge className="size-4" />}
-              label="稼働時間"
-              value={`${listing.hours.toLocaleString('ja-JP')}h`}
+              label="走行距離"
+              value={`${listing.mileageKm.toLocaleString('ja-JP')}km`}
+            />
+            <Spec
+              icon={<ShieldCheck className="size-4" />}
+              label="車検"
+              value={
+                listing.inspectionExpiresOn
+                  ? `${listing.inspectionExpiresOn}まで`
+                  : 'なし'
+              }
             />
             <Spec
               icon={<Wrench className="size-4" />}
@@ -231,8 +240,8 @@ export function ListingDetail({
                 {active.title}
               </p>
               <p className="mt-2 break-words font-display text-3xl font-bold leading-tight tracking-tight text-primary sm:text-4xl">
-                {active.id === 'rentToOwn' && listing.rentPerDay
-                  ? `${formatYen(listing.rentPerDay)}/日`
+                {active.id === 'residualLease' && listing.leasePerMonth
+                  ? `${formatYen(listing.leasePerMonth)}/日`
                   : active.price}
               </p>
               <p className="mt-3 text-xs leading-6 text-muted-foreground">
@@ -244,18 +253,18 @@ export function ListingDetail({
                   <span>{active.note}</span>
                 </div>
               )}
-              {active.id === 'rentToOwn' && rentToOwnTerms && (
+              {active.id === 'residualLease' && residualLeaseTerms && (
                 <div className="mt-4">
-                  <RentToOwnSimulator terms={rentToOwnTerms} />
+                  <ResidualLeaseSimulator terms={residualLeaseTerms} />
                 </div>
               )}
               <div className="mt-6 flex flex-col gap-2">
                 {active.id !== 'buy' &&
-                listing.rentPerDay &&
+                listing.leasePerMonth &&
                 !viewer.isOwner ? (
-                  <RentalRequestForm
+                  <LeaseRequestForm
                     listingId={listing.id}
-                    rentPerDay={listing.rentPerDay}
+                    leasePerMonth={listing.leasePerMonth}
                     booked={booked}
                     signedIn={viewer.signedIn}
                   />
@@ -295,7 +304,7 @@ export function ListingDetail({
                 href={`/transport/new?listingId=${encodeURIComponent(listing.id)}`}
                 className="mt-4 inline-flex items-center gap-1.5 text-xs font-semibold text-primary hover:underline"
               >
-                この農機具の運搬を依頼する
+                この車両の運搬を依頼する
                 <ArrowRight className="size-3.5" />
               </Link>
             </div>
@@ -309,7 +318,7 @@ export function ListingDetail({
         <div className="min-w-0 lg:col-start-1">
           <section className="border-b border-border pb-8">
             <h2 className="font-display text-xl font-bold text-foreground">
-              この農機具について
+              この車両について
             </h2>
             <p className="mt-4 whitespace-pre-line text-sm leading-8 text-muted-foreground">
               {listing.summary}
@@ -392,7 +401,7 @@ export function ListingDetail({
         <section className="mt-16 border-t border-border pt-10">
           <div className="flex flex-wrap items-end justify-between gap-4">
             <h2 className="font-display text-2xl font-bold tracking-tight text-foreground">
-              こちらの農機具も
+              こちらの車両も
             </h2>
             <Link
               href={`/listings?category=${encodeURIComponent(listing.category)}`}

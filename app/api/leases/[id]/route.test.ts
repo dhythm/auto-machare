@@ -1,7 +1,7 @@
 import { beforeEach, describe, expect, it, vi } from 'vitest'
 import { PATCH } from './route'
 import { getListing } from '@/lib/server/listings'
-import { requestRental } from '@/lib/server/rentals'
+import { requestLease } from '@/lib/server/leases'
 import { resetStore } from '@/lib/server/store'
 import { demoAdmin, demoSeller, demoUser, signInAs } from '@/test/mock-auth'
 
@@ -22,12 +22,12 @@ const patch = (id: string, body: unknown) =>
     { params: Promise.resolve({ id }) },
   )
 
-describe('PATCH /api/rentals/[id]', () => {
+describe('PATCH /api/leases/[id]', () => {
   it('applies transitions with the right status codes', async () => {
-    const listing = (await getListing('trc-001'))!
-    const created = await requestRental(listing, demoUser, {
+    const listing = (await getListing('car-001'))!
+    const created = await requestLease(listing, demoUser, {
       startDate: '2026-10-01',
-      endDate: '2026-10-07',
+      months: 12,
     })
     const id = created.ok ? created.value.id : ''
     expect((await patch(id, { status: 'paid' })).status).toBe(400)
@@ -38,7 +38,7 @@ describe('PATCH /api/rentals/[id]', () => {
     signInAs(demoUser)
     const converted = await patch(id, { status: 'converted' })
     expect(converted.status).toBe(200)
-    expect((await converted.json()).purchasePrice).toBe(18_723_000)
+    expect((await converted.json()).buyoutPrice).toBe(1_978_400)
     signInAs(demoAdmin)
     expect((await patch(id, { status: 'completed' })).status).toBe(409)
     signInAs(null)

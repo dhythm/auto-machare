@@ -2,7 +2,7 @@ import type { Metadata } from 'next'
 import { PageIntro, PageShell } from '@/components/page-shell'
 import { ContactForm } from '@/components/forms/contact-form'
 
-export const metadata: Metadata = { title: 'お問い合わせ | Agri Machare' }
+export const metadata: Metadata = { title: 'お問い合わせ | Auto Machare' }
 
 export default function ContactPage() {
   return (

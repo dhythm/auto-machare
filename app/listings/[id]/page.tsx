@@ -4,27 +4,27 @@ import { ListingDetail } from '@/components/listing-detail'
 import { canManage, canView, getCurrentUser } from '@/lib/server/auth/session'
 import { getListing, getRelatedListings } from '@/lib/server/listings'
 import { buildModes } from '@/lib/server/listing-detail'
-import { listBookedRanges } from '@/lib/server/rentals'
+import { listBookedRanges } from '@/lib/server/leases'
 import { listingHasOpenOrder } from '@/lib/server/orders'
 import { listReviewsForSeller } from '@/lib/server/reviews'
-import type { RentToOwnTerms } from '@/lib/rent-to-own'
+import type { ResidualLeaseTerms } from '@/lib/residual-lease'
 import type { Listing } from '@/lib/data'
 
 export const dynamic = 'force-dynamic'
 
-function rentToOwnTerms(listing: Listing): RentToOwnTerms | undefined {
+function residualLeaseTerms(listing: Listing): ResidualLeaseTerms | undefined {
   if (
-    !listing.rentToOwn ||
-    !listing.rentPerDay ||
+    !listing.residualLease ||
+    !listing.leasePerMonth ||
     !listing.salePrice ||
-    !listing.rentToOwnCreditRate
+    !listing.residualLeaseCreditRate
   )
     return undefined
   return {
-    rentPerDay: listing.rentPerDay,
+    leasePerMonth: listing.leasePerMonth,
     salePrice: listing.salePrice,
-    creditRate: listing.rentToOwnCreditRate,
-    creditCap: listing.rentToOwnCreditCap,
+    creditRate: listing.residualLeaseCreditRate,
+    creditCap: listing.residualLeaseCreditCap,
   }
 }
 
@@ -47,7 +47,7 @@ export default async function ListingPage({
         listing={listing}
         modes={buildModes(listing)}
         related={await getRelatedListings(listing, 3)}
-        rentToOwnTerms={rentToOwnTerms(listing)}
+        residualLeaseTerms={residualLeaseTerms(listing)}
         booked={await listBookedRanges(listing.id)}
         sellerReviews={
           listing.ownerUserId

@@ -26,13 +26,13 @@ describe('parseListingSearchParams', () => {
   it('reads valid values and trims keywords', () => {
     expect(
       parseListingSearchParams({
-        category: 'ドローン',
-        deal: 'rent',
+        category: 'トラック',
+        deal: 'lease',
         page: '3',
         q: ' DJI ',
       }),
     ).toEqual({
-      filter: { category: 'ドローン', deal: 'rent', keyword: 'DJI' },
+      filter: { category: 'トラック', deal: 'lease', keyword: 'DJI' },
       page: 3,
     })
   })
@@ -48,7 +48,7 @@ describe('parseListingSearchParams', () => {
 })
 
 describe('refinements', () => {
-  it('reads prefecture, price range, sort, and rental dates', () => {
+  it('reads prefecture, price range, sort, and lease dates', () => {
     expect(
       parseListingSearchParams({
         prefecture: '新潟県',
@@ -89,11 +89,11 @@ describe('refinements', () => {
     const search = buildListingSearchParams(
       {
         category: 'すべて',
-        deal: 'rent',
+        deal: 'lease',
         keyword: '',
         prefecture: '新潟県',
         priceMax: 30_000,
-        sort: 'rentAsc',
+        sort: 'leaseAsc',
         availableFrom: '2026-10-01',
         availableTo: '2026-10-07',
       },
@@ -103,11 +103,11 @@ describe('refinements', () => {
       parseListingSearchParams(new URLSearchParams(search)).filter,
     ).toEqual({
       category: 'すべて',
-      deal: 'rent',
+      deal: 'lease',
       keyword: '',
       prefecture: '新潟県',
       priceMax: 30_000,
-      sort: 'rentAsc',
+      sort: 'leaseAsc',
       availableFrom: '2026-10-01',
       availableTo: '2026-10-07',
     })
@@ -124,11 +124,11 @@ describe('buildListingSearchParams', () => {
     ).toBe('')
     expect(
       buildListingSearchParams(
-        { category: 'ドローン', deal: 'rent', keyword: 'DJI' },
+        { category: 'トラック', deal: 'lease', keyword: 'DJI' },
         3,
       ),
     ).toBe(
-      'q=DJI&category=%E3%83%89%E3%83%AD%E3%83%BC%E3%83%B3&deal=rent&page=3',
+      'q=DJI&category=%E3%83%88%E3%83%A9%E3%83%83%E3%82%AF&deal=lease&page=3',
     )
   })
 })

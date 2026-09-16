@@ -2,10 +2,10 @@ import 'server-only'
 
 import type { Listing, TransportJob } from '@/lib/data'
 import {
-  listRentalsForOwner,
-  listRentalsForRenter,
-  type RentalWithListing,
-} from './rentals'
+  listLeasesForOwner,
+  listLeasesForLessee,
+  type LeaseWithListing,
+} from './leases'
 import { getStore, type Review, type Submission } from './store'
 import { unreadThreadIds } from './thread-reads'
 import { getCarrierProfile, matchJobsForCarrier } from './carriers'
@@ -30,21 +30,21 @@ export type AccountOverview = {
   sentJobInquiries: { submission: Submission; job?: TransportJob }[]
   /** Number of replies per thread id, for threads that have any. */
   replyCounts: Record<string, number>
-  rentals: { asRenter: RentalWithListing[]; asOwner: RentalWithListing[] }
+  leases: { asLessee: LeaseWithListing[]; asOwner: LeaseWithListing[] }
   /** Reviews the user wrote, keyed by `kind:sourceId`. */
   reviewedSources: Record<string, Review>
   unreadThreadIds: string[]
   /** Present once the user has registered as a carrier. */
   carrier?: { profile: CarrierProfile; matchingJobs: TransportJob[] }
   orders: { asBuyer: OrderWithListing[]; asSeller: OrderWithListing[] }
-  /** Every order, rental, and job the user is part of, newest change first. */
+  /** Every order, lease, and job the user is part of, newest change first. */
   deals: DealSummary[]
   summary: {
     unreadThreads: number
     /** Threads on the user's own listings and jobs still marked new. */
     openInquiries: number
-    /** Rental requests waiting for the user's approval. */
-    requestedRentals: number
+    /** Lease requests waiting for the user's approval. */
+    requestedLeases: number
     /** Purchase requests waiting for the user's acceptance. */
     requestedOrders: number
     pendingListings: number
@@ -71,7 +71,7 @@ export async function getAccountOverview(
     jobs,
     submissions,
     messages,
-    asRenter,
+    asLessee,
     asOwner,
     reviews,
     unread,
@@ -84,8 +84,8 @@ export async function getAccountOverview(
     store.transportJobs.list(),
     store.submissions.list(),
     store.messages.list(),
-    listRentalsForRenter(userId),
-    listRentalsForOwner(userId),
+    listLeasesForLessee(userId),
+    listLeasesForOwner(userId),
     store.reviews.list(),
     unreadThreadIds(userId),
     getCarrierProfile(userId),
@@ -160,7 +160,7 @@ export async function getAccountOverview(
 
   return {
     replyCounts,
-    rentals: { asRenter, asOwner },
+    leases: { asLessee, asOwner },
     reviewedSources,
     unreadThreadIds: unread,
     carrier,
@@ -171,8 +171,8 @@ export async function getAccountOverview(
       openInquiries: incoming.filter(
         (submission) => (submission.status ?? 'new') === 'new',
       ).length,
-      requestedRentals: asOwner.filter(
-        (item) => item.rental.status === 'requested',
+      requestedLeases: asOwner.filter(
+        (item) => item.lease.status === 'requested',
       ).length,
       requestedOrders: asSeller.filter(
         (item) => item.order.status === 'requested',

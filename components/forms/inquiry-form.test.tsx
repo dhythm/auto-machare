@@ -7,30 +7,36 @@ import type { Listing, ListingModeConfig } from '@/lib/data'
 import { InquiryForm } from './inquiry-form'
 
 const listing: Listing = {
-  id: 'trc-001',
-  name: 'クボタ 45馬力',
-  category: 'トラクター',
-  maker: 'クボタ',
+  id: 'car-001',
+  name: 'トヨタ Z',
+  category: '乗用車',
+  maker: 'トヨタ',
+  model: 'テスト車種',
   year: 2019,
-  hours: 620,
+  mileageKm: 620,
   condition: '目立った傷なし',
   prefecture: '新潟県',
   city: '長岡市',
-  image: '/equipment/tractor.png',
+  image: '/vehicles/sedan.png',
   summary: '',
-  deals: ['sale', 'rent'],
+  deals: ['sale', 'lease'],
   salePrice: 18_800_000,
-  rentPerDay: 22_000,
-  seller: { name: '中村ファーム', kind: '農業法人', rating: 4.8, reviews: 34 },
+  leasePerMonth: 22_000,
+  seller: {
+    name: '中村モータース',
+    kind: '中古車販売店',
+    rating: 4.8,
+    reviews: 34,
+  },
   tags: [],
 }
 
 const modes: ListingModeConfig[] = [
-  { id: 'rent', title: 'レンタルする', price: '¥22,000/日', desc: '', cta: '' },
+  { id: 'lease', title: 'リースする', price: '¥22,000/日', desc: '', cta: '' },
   { id: 'buy', title: '購入する', price: '¥18,800,000', desc: '', cta: '' },
 ]
 
-function setup(initialMode: 'rent' | 'buy' | 'question' = 'rent') {
+function setup(initialMode: 'lease' | 'buy' | 'question' = 'lease') {
   render(
     <QueryClientProvider client={new QueryClient()}>
       <InquiryForm
@@ -87,7 +93,7 @@ describe('InquiryForm', () => {
       message: '現物を見たいです',
     })
     expect(fetchMock).toHaveBeenCalledWith(
-      '/api/listings/trc-001/inquiries',
+      '/api/listings/car-001/inquiries',
       expect.objectContaining({ method: 'POST' }),
     )
   })

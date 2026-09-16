@@ -10,7 +10,7 @@ describe('OrderRequestForm', () => {
   it('asks to log in when signed out', () => {
     render(
       <OrderRequestForm
-        listingId="trc-001"
+        listingId="car-001"
         price={18_800_000}
         signedIn={false}
         available
@@ -18,13 +18,13 @@ describe('OrderRequestForm', () => {
     )
     expect(
       screen.getByRole('link', { name: 'ログインして購入を申し込む' }),
-    ).toHaveAttribute('href', '/login?callbackUrl=%2Flistings%2Ftrc-001')
+    ).toHaveAttribute('href', '/login?callbackUrl=%2Flistings%2Fcar-001')
   })
 
   it('explains when another buyer holds the listing', () => {
     render(
       <OrderRequestForm
-        listingId="trc-001"
+        listingId="car-001"
         price={18_800_000}
         signedIn
         available={false}
@@ -43,7 +43,7 @@ describe('OrderRequestForm', () => {
     vi.stubGlobal('fetch', fetchMock)
     render(
       <OrderRequestForm
-        listingId="trc-001"
+        listingId="car-001"
         price={18_800_000}
         signedIn
         available
@@ -56,7 +56,7 @@ describe('OrderRequestForm', () => {
     )
     await user.click(screen.getByRole('button', { name: '購入を申し込む' }))
     expect(fetchMock).toHaveBeenCalledWith(
-      '/api/listings/trc-001/orders',
+      '/api/listings/car-001/orders',
       expect.objectContaining({ method: 'POST' }),
     )
     expect(

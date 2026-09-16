@@ -7,11 +7,11 @@ import { getCurrentUser } from '@/lib/server/auth/session'
 import { getDeal } from '@/lib/server/deals'
 import type { DealKind } from '@/lib/server/store'
 
-export const metadata: Metadata = { title: '取引の履歴 | Agri Machare' }
+export const metadata: Metadata = { title: '取引の履歴 | Auto Machare' }
 
 export const dynamic = 'force-dynamic'
 
-const kinds: DealKind[] = ['order', 'rental', 'transportJob']
+const kinds: DealKind[] = ['order', 'lease', 'transportJob']
 
 export default async function DealPage({
   params,

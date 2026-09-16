@@ -11,9 +11,9 @@ import { configuredAccounts, type UserRole } from './auth/accounts'
 import { listRecentDealEvents } from './deal-events'
 import type { DealKind } from './store'
 import { orderStatusLabels } from '@/lib/data'
-import { rentalStatusLabels } from '@/lib/rent-to-own'
+import { leaseStatusLabels } from '@/lib/residual-lease'
 import type { AccountStatus } from './store'
-import type { RentalWithListing } from './rentals'
+import type { LeaseWithListing } from './leases'
 import {
   getStore,
   type CarrierProfile,
@@ -24,8 +24,8 @@ import {
 export type AdminCounts = {
   pendingListings: number
   pendingTransportJobs: number
-  requestedRentals: number
-  activeRentals: number
+  requestedLeases: number
+  activeLeases: number
   requestedOrders: number
   haulingJobs: number
   openThreads: number
@@ -62,7 +62,7 @@ export type AccountSummary = {
   role: UserRole
   listingCount: number
   transportJobCount: number
-  rentalCount: number
+  leaseCount: number
   status: AccountStatus['status']
   note?: string
 }
@@ -77,11 +77,11 @@ function isPending(entity: { moderationStatus?: string }): boolean {
 
 export async function getAdminCounts(): Promise<AdminCounts> {
   const store = getStore()
-  const [listings, jobs, rentals, submissions, carriers, orders] =
+  const [listings, jobs, leases, submissions, carriers, orders] =
     await Promise.all([
       store.listings.list(),
       store.transportJobs.list(),
-      store.rentals.list(),
+      store.leases.list(),
       store.submissions.list(),
       store.carrierProfiles.list(),
       store.orders.list(),
@@ -89,10 +89,9 @@ export async function getAdminCounts(): Promise<AdminCounts> {
   return {
     pendingListings: listings.filter(isPending).length,
     pendingTransportJobs: jobs.filter(isPending).length,
-    requestedRentals: rentals.filter((rental) => rental.status === 'requested')
+    requestedLeases: leases.filter((lease) => lease.status === 'requested')
       .length,
-    activeRentals: rentals.filter((rental) => rental.status === 'active')
-      .length,
+    activeLeases: leases.filter((lease) => lease.status === 'active').length,
     requestedOrders: orders.filter((order) => order.status === 'requested')
       .length,
     haulingJobs: jobs.filter((job) => job.status === '運搬中').length,
@@ -104,16 +103,16 @@ export async function getAdminCounts(): Promise<AdminCounts> {
   }
 }
 
-export async function listAllRentals(): Promise<RentalWithListing[]> {
+export async function listAllLeases(): Promise<LeaseWithListing[]> {
   const store = getStore()
-  const [rentals, listings] = await Promise.all([
-    store.rentals.list(),
+  const [leases, listings] = await Promise.all([
+    store.leases.list(),
     store.listings.list(),
   ])
   const byId = new Map(listings.map((listing) => [listing.id, listing]))
-  return rentals.map((rental) => ({
-    rental,
-    listing: byId.get(rental.listingId),
+  return leases.map((lease) => ({
+    lease,
+    listing: byId.get(lease.listingId),
   }))
 }
 
@@ -126,7 +125,7 @@ function targetNameOf(
   const name =
     submission.kind === 'listingInquiry'
       ? listings.get(submission.targetId)?.name
-      : jobs.get(submission.targetId)?.item
+      : jobs.get(submission.targetId)?.vehicleName
   return name ?? '（削除済み）'
 }
 
@@ -174,10 +173,10 @@ export function listCarriers(): Promise<CarrierProfile[]> {
 /** Accounts come from the environment; passwords never leave accounts.ts. */
 export async function listAccountSummaries(): Promise<AccountSummary[]> {
   const store = getStore()
-  const [listings, jobs, rentals, statuses] = await Promise.all([
+  const [listings, jobs, leases, statuses] = await Promise.all([
     store.listings.list(),
     store.transportJobs.list(),
-    store.rentals.list(),
+    store.leases.list(),
     store.accountStatuses.list(),
   ])
   const statusById = new Map(statuses.map((row) => [row.id, row]))
@@ -191,7 +190,7 @@ export async function listAccountSummaries(): Promise<AccountSummary[]> {
     listingCount: listings.filter((listing) => listing.ownerUserId === id)
       .length,
     transportJobCount: jobs.filter((job) => job.ownerUserId === id).length,
-    rentalCount: rentals.filter((rental) => rental.renterUserId === id).length,
+    leaseCount: leases.filter((lease) => lease.lesseeUserId === id).length,
   }))
 }
 
@@ -220,10 +219,8 @@ const jobEventLabels: Record<string, string> = {
 function eventStatusLabel(kind: DealKind, status: string): string {
   if (kind === 'order')
     return orderStatusLabels[status as keyof typeof orderStatusLabels] ?? status
-  if (kind === 'rental')
-    return (
-      rentalStatusLabels[status as keyof typeof rentalStatusLabels] ?? status
-    )
+  if (kind === 'lease')
+    return leaseStatusLabels[status as keyof typeof leaseStatusLabels] ?? status
   return jobEventLabels[status] ?? status
 }
 
@@ -232,10 +229,10 @@ export async function listRecentActivity(
   limit: number,
 ): Promise<ActivityItem[]> {
   const store = getStore()
-  const [events, orders, rentals, jobs, listings] = await Promise.all([
+  const [events, orders, leases, jobs, listings] = await Promise.all([
     listRecentDealEvents(limit),
     store.orders.list(),
-    store.rentals.list(),
+    store.leases.list(),
     store.transportJobs.list(),
     store.listings.list(),
   ])
@@ -245,10 +242,10 @@ export async function listRecentActivity(
   const orderListing = new Map(
     orders.map((order) => [order.id, order.listingId]),
   )
-  const rentalListing = new Map(
-    rentals.map((rental) => [rental.id, rental.listingId]),
+  const leaseListing = new Map(
+    leases.map((lease) => [lease.id, lease.listingId]),
   )
-  const jobItem = new Map(jobs.map((job) => [job.id, job.item]))
+  const jobItem = new Map(jobs.map((job) => [job.id, job.vehicleName]))
   const accountName = new Map(
     configuredAccounts().map((account) => [account.id, account.name]),
   )
@@ -257,7 +254,7 @@ export async function listRecentActivity(
       event.dealKind === 'transportJob'
         ? jobItem.get(event.dealId)
         : listingName.get(
-            (event.dealKind === 'order' ? orderListing : rentalListing).get(
+            (event.dealKind === 'order' ? orderListing : leaseListing).get(
               event.dealId,
             ) ?? '',
           )

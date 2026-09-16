@@ -8,14 +8,14 @@ import {
   type Listing,
   type TransportJob,
 } from '@/lib/data'
-import { rentalStatusLabels } from '@/lib/rent-to-own'
+import { leaseStatusLabels } from '@/lib/residual-lease'
 import { configuredAccounts, type AuthenticatedUser } from './auth/accounts'
 import { listDealEvents } from './deal-events'
 import {
   getStore,
   type DealKind,
   type Order,
-  type Rental,
+  type Lease,
   type Submission,
 } from './store'
 
@@ -64,10 +64,8 @@ const jobStatusLabels: Record<string, string> = {
 function statusLabel(kind: DealKind, status: string): string {
   if (kind === 'order')
     return orderStatusLabels[status as keyof typeof orderStatusLabels] ?? status
-  if (kind === 'rental')
-    return (
-      rentalStatusLabels[status as keyof typeof rentalStatusLabels] ?? status
-    )
+  if (kind === 'lease')
+    return leaseStatusLabels[status as keyof typeof leaseStatusLabels] ?? status
   return jobStatusLabels[status] ?? status
 }
 
@@ -97,8 +95,8 @@ type Loaded =
       parties: [string, string]
     }
   | {
-      kind: 'rental'
-      rental: Rental
+      kind: 'lease'
+      lease: Lease
       listing?: Listing
       parties: [string, string | undefined]
     }
@@ -121,15 +119,15 @@ async function load(kind: DealKind, id: string): Promise<Loaded | undefined> {
       parties: [order.buyerUserId, order.sellerUserId],
     }
   }
-  if (kind === 'rental') {
-    const rental = await store.rentals.get(id)
-    if (!rental) return undefined
-    const listing = await store.listings.get(rental.listingId)
+  if (kind === 'lease') {
+    const lease = await store.leases.get(id)
+    if (!lease) return undefined
+    const listing = await store.listings.get(lease.listingId)
     return {
       kind,
-      rental,
+      lease,
       listing,
-      parties: [rental.renterUserId, listing?.ownerUserId],
+      parties: [lease.lesseeUserId, listing?.ownerUserId],
     }
   }
   const job = await store.transportJobs.get(id)
@@ -144,7 +142,7 @@ function summarize(loaded: Loaded, viewerId: string): DealSummary {
     return {
       kind: 'order',
       id: order.id,
-      title: listing?.name ?? '削除された農機具',
+      title: listing?.name ?? '削除された車両',
       href: `/listings/${order.listingId}`,
       amount: order.price,
       status: order.status,
@@ -160,26 +158,26 @@ function summarize(loaded: Loaded, viewerId: string): DealSummary {
       updatedAt: order.updatedAt,
     }
   }
-  if (loaded.kind === 'rental') {
-    const { rental, listing } = loaded
-    const isRenter = rental.renterUserId === viewerId
+  if (loaded.kind === 'lease') {
+    const { lease, listing } = loaded
+    const isRenter = lease.lesseeUserId === viewerId
     return {
-      kind: 'rental',
-      id: rental.id,
-      title: listing?.name ?? '削除された農機具',
-      href: `/listings/${rental.listingId}`,
-      amount: rental.purchasePrice ?? rental.rentTotal,
-      status: rental.status,
-      statusLabel: rentalStatusLabels[rental.status],
+      kind: 'lease',
+      id: lease.id,
+      title: listing?.name ?? '削除された車両',
+      href: `/listings/${lease.listingId}`,
+      amount: lease.buyoutPrice ?? lease.leaseTotal,
+      status: lease.status,
+      statusLabel: leaseStatusLabels[lease.status],
       role: isRenter
         ? '申込者'
         : listing?.ownerUserId === viewerId
           ? '所有者'
           : '運営',
       counterpart: accountName(
-        isRenter ? listing?.ownerUserId : rental.renterUserId,
+        isRenter ? listing?.ownerUserId : lease.lesseeUserId,
       ),
-      updatedAt: rental.updatedAt,
+      updatedAt: lease.updatedAt,
     }
   }
   const { job, parties } = loaded
@@ -187,7 +185,7 @@ function summarize(loaded: Loaded, viewerId: string): DealSummary {
   return {
     kind: 'transportJob',
     id: job.id,
-    title: job.item,
+    title: job.vehicleName,
     href: `/transport/${job.id}`,
     amount: job.reward,
     status: job.status,
@@ -227,12 +225,12 @@ export async function getDeal(
       ? loaded.job.id
       : loaded.kind === 'order'
         ? loaded.order.listingId
-        : loaded.rental.listingId
-  const [events, submissions, orders, rentals] = await Promise.all([
+        : loaded.lease.listingId
+  const [events, submissions, orders, leases] = await Promise.all([
     listDealEvents(kind, id),
     store.submissions.list(),
     store.orders.list(),
-    store.rentals.list(),
+    store.leases.list(),
   ])
   const relatedThreads = submissions
     .filter((submission) => threadInvolves(submission, targetId, parties))
@@ -244,25 +242,25 @@ export async function getDeal(
       statusLabel: threadStatusLabels[submission.status ?? 'new'],
     }))
   const relatedDeals: DealView['relatedDeals'] = []
-  if (loaded.kind === 'rental') {
-    for (const order of orders.filter((order) => order.sourceRentalId === id))
+  if (loaded.kind === 'lease') {
+    for (const order of orders.filter((order) => order.sourceLeaseId === id))
       relatedDeals.push({
         kind: 'order',
         id: order.id,
-        title: loaded.listing?.name ?? '削除された農機具',
+        title: loaded.listing?.name ?? '削除された車両',
         statusLabel: orderStatusLabels[order.status],
       })
   }
-  if (loaded.kind === 'order' && loaded.order.sourceRentalId) {
-    const rental = rentals.find(
-      (rental) => rental.id === loaded.order.sourceRentalId,
+  if (loaded.kind === 'order' && loaded.order.sourceLeaseId) {
+    const lease = leases.find(
+      (lease) => lease.id === loaded.order.sourceLeaseId,
     )
-    if (rental)
+    if (lease)
       relatedDeals.push({
-        kind: 'rental',
-        id: rental.id,
-        title: loaded.listing?.name ?? '削除された農機具',
-        statusLabel: rentalStatusLabels[rental.status],
+        kind: 'lease',
+        id: lease.id,
+        title: loaded.listing?.name ?? '削除された車両',
+        statusLabel: leaseStatusLabels[lease.status],
       })
   }
   return {
@@ -284,12 +282,12 @@ export async function getDeal(
   }
 }
 
-/** Every order, rental, and job the user takes part in, newest change first. */
+/** Every order, lease, and job the user takes part in, newest change first. */
 export async function listDealsForUser(userId: string): Promise<DealSummary[]> {
   const store = getStore()
-  const [orders, rentals, jobs, listings, submissions] = await Promise.all([
+  const [orders, leases, jobs, listings, submissions] = await Promise.all([
     store.orders.list(),
-    store.rentals.list(),
+    store.leases.list(),
     store.transportJobs.list(),
     store.listings.list(),
     store.submissions.list(),
@@ -318,16 +316,16 @@ export async function listDealsForUser(userId: string): Promise<DealSummary[]> {
           userId,
         ),
       )
-  for (const rental of rentals) {
-    const listing = listingById.get(rental.listingId)
-    if (rental.renterUserId === userId || listing?.ownerUserId === userId)
+  for (const lease of leases) {
+    const listing = listingById.get(lease.listingId)
+    if (lease.lesseeUserId === userId || listing?.ownerUserId === userId)
       deals.push(
         summarize(
           {
-            kind: 'rental',
-            rental,
+            kind: 'lease',
+            lease,
             listing,
-            parties: [rental.renterUserId, listing?.ownerUserId],
+            parties: [lease.lesseeUserId, listing?.ownerUserId],
           },
           userId,
         ),

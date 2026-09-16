@@ -33,9 +33,9 @@ describe('store selection', { timeout: 20_000 }, () => {
 
   it('returns the same instance until reset, and reset reseeds', async () => {
     vi.stubEnv('DATA_STORE', 'memory')
-    await getStore().listings.delete('trc-001')
-    expect(await getStore().listings.get('trc-001')).toBeUndefined()
+    await getStore().listings.delete('car-001')
+    expect(await getStore().listings.get('car-001')).toBeUndefined()
     await resetStore()
-    expect(await getStore().listings.get('trc-001')).toBeDefined()
+    expect(await getStore().listings.get('car-001')).toBeDefined()
   })
 })
