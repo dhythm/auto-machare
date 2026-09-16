@@ -5,6 +5,17 @@ import { describe, expect, it } from 'vitest'
 import { Hero } from './hero'
 
 describe('Hero search', () => {
+  it('opens a body-type search with the selected way to get a car', async () => {
+    const user = userEvent.setup()
+    render(<Hero />)
+    await user.click(screen.getByRole('button', { name: '残価設定リース' }))
+    const link = screen.getByRole('link', { name: /SUVから探す/ })
+    const url = new URL(link.getAttribute('href')!, 'http://localhost')
+    expect(url.pathname).toBe('/listings')
+    expect(url.searchParams.get('category')).toBe('SUV')
+    expect(url.searchParams.get('deal')).toBe('residualLease')
+  })
+
   it('submits the selected deal, category and keyword to the existing listing search', async () => {
     const user = userEvent.setup()
     render(<Hero />)

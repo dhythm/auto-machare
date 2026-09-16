@@ -1,21 +1,34 @@
 import Link from 'next/link'
-import { ArrowRight, Check, CalendarDays, Tractor, Repeat2 } from 'lucide-react'
+import { ArrowRight, ArrowUpRight } from 'lucide-react'
 
-const steps = [
+const ownershipOptions = [
   {
-    icon: CalendarDays,
-    title: '期間を選んで、リースする',
-    desc: '開始日と契約期間を選んで申し込む。',
+    number: '01',
+    label: 'BUY',
+    title: '自分の一台に。',
+    type: '購入',
+    description: '価格と車両の状態を比較して、長く付き合える一台を選ぶ。',
+    href: '/listings?deal=sale',
+    action: '購入できる車両',
   },
   {
-    icon: Tractor,
-    title: 'いつもの道で、確かめる',
-    desc: '操作感も、作業効率も。実際に使って判断。',
+    number: '02',
+    label: 'LEASE',
+    title: '必要な期間、乗る。',
+    type: '通常リース',
+    description: '月額と契約期間から、今の暮らしに合う乗り方を選ぶ。',
+    href: '/listings?deal=lease',
+    action: 'リースできる車両',
   },
   {
-    icon: Check,
-    title: '気に入ったら、その一台を',
-    desc: '出品条件に応じてリース料を買取価格に充当。',
+    number: '03',
+    label: 'LEASE TO OWN',
+    title: '乗ってから、決める。',
+    type: '残価設定リース',
+    description:
+      '月額で乗り、買取か返却を選ぶ。リース料の充当条件は車両ごとに確認。',
+    href: '/listings?deal=residualLease',
+    action: '残価設定リースできる車両',
   },
 ]
 
@@ -23,56 +36,54 @@ export function HowItWorks() {
   return (
     <section
       id="how"
-      className="mx-auto max-w-[1280px] scroll-mt-32 px-5 py-12 sm:px-8 sm:py-16"
+      className="mx-auto max-w-[1280px] scroll-mt-32 px-5 py-12 sm:px-8 sm:py-20"
     >
-      <div className="relative overflow-hidden rounded-2xl bg-[#eaf0df] p-7 sm:p-10 lg:grid lg:grid-cols-[1fr_1.1fr] lg:gap-16 lg:p-14">
+      <div className="flex flex-col justify-between gap-5 sm:flex-row sm:items-end">
         <div>
-          <p className="eyebrow text-primary/70">A NEW WAY TO OWN</p>
-          <h2 className="mt-5 font-display text-3xl font-bold leading-relaxed tracking-tight text-primary sm:text-4xl">
-            大きな買い物に、
-            <br />
-            小さなお試しを。
+          <p className="eyebrow">YOUR CAR, YOUR WAY</p>
+          <h2 className="mt-3 font-display text-2xl font-bold tracking-tight sm:text-3xl">
+            クルマの持ち方も、選ぼう。
           </h2>
-          <p className="mt-5 max-w-sm text-sm leading-7 text-primary/75">
-            自分の使い方に合うかは、乗ってみてから。
-            <br />
-            リースから買取へ、納得できる選び方。
-          </p>
-          <Link
-            href="/listings?deal=residualLease"
-            className="mt-7 inline-flex items-center gap-3 rounded-full bg-primary px-6 py-3.5 text-sm font-bold text-white hover:bg-primary/85"
-          >
-            残価設定リースできる車両
-            <ArrowRight className="size-4" />
-          </Link>
-          <Link
-            href="/guide#residual-lease"
-            className="mt-4 flex w-fit items-center gap-2 text-xs text-primary underline underline-offset-4"
-          >
-            しくみと充当条件を見る
-            <Repeat2 className="size-3" />
-          </Link>
         </div>
-        <ol className="mt-10 divide-y divide-primary/15 lg:mt-0">
-          {steps.map(({ icon: Icon, title, desc }, index) => (
-            <li key={title} className="flex gap-5 py-6 first:pt-0 last:pb-0">
-              <span className="flex size-12 shrink-0 items-center justify-center rounded-full border border-primary/20 text-primary">
-                <Icon className="size-5" />
+        <Link
+          href="/guide"
+          className="inline-flex w-fit items-center gap-3 text-sm font-medium underline-offset-4 hover:underline"
+        >
+          ご利用ガイド <ArrowUpRight className="size-4" />
+        </Link>
+      </div>
+      <div className="mt-8 grid border-y border-border md:grid-cols-3">
+        {ownershipOptions.map((option) => (
+          <div
+            key={option.number}
+            className="flex flex-col border-b border-border py-8 last:border-b-0 md:border-b-0 md:border-r md:px-8 md:first:pl-0 md:last:border-r-0 md:last:pr-0"
+          >
+            <div className="flex items-center justify-between">
+              <span className="font-display text-4xl font-medium tracking-tighter text-foreground/25">
+                {option.number}
               </span>
-              <div>
-                <p className="text-[10px] font-bold tracking-widest text-primary/60">
-                  STEP 0{index + 1}
-                </p>
-                <h3 className="mt-1.5 text-base font-bold text-primary">
-                  {title}
-                </h3>
-                <p className="mt-2 text-xs leading-relaxed text-primary/75">
-                  {desc}
-                </p>
-              </div>
-            </li>
-          ))}
-        </ol>
+              <span className="text-[10px] font-bold tracking-[0.18em] text-muted-foreground">
+                {option.label}
+              </span>
+            </div>
+            <p className="mt-7 text-xs font-bold text-muted-foreground">
+              {option.type}
+            </p>
+            <h3 className="mt-2 text-xl font-bold tracking-tight">
+              {option.title}
+            </h3>
+            <p className="mb-7 mt-3 text-sm leading-7 text-muted-foreground">
+              {option.description}
+            </p>
+            <Link
+              href={option.href}
+              className="group mt-auto inline-flex w-fit items-center gap-3 text-sm font-bold underline-offset-4 hover:underline"
+            >
+              {option.action}
+              <ArrowRight className="size-4 transition-transform group-hover:translate-x-1" />
+            </Link>
+          </div>
+        ))}
       </div>
     </section>
   )

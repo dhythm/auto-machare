@@ -23,26 +23,26 @@ export function BrandLogo({
         <rect
           width="40"
           height="40"
-          rx="12"
-          fill={inverse ? '#FFC857' : '#152A3E'}
+          rx="6"
+          fill={inverse ? '#D9F36C' : '#182022'}
         />
         <path
           d="M11 30 20 11l9 19"
-          stroke={inverse ? '#152A3E' : '#FFC857'}
+          stroke={inverse ? '#182022' : '#D9F36C'}
           strokeWidth="3.2"
           strokeLinecap="round"
           strokeLinejoin="round"
         />
         <path
           d="M15.5 24.5h9"
-          stroke={inverse ? '#152A3E' : '#FFC857'}
+          stroke={inverse ? '#182022' : '#D9F36C'}
           strokeWidth="2.6"
           strokeLinecap="round"
           strokeDasharray="3 3"
         />
         <path
           d="M12 34h16"
-          stroke={inverse ? '#152A3E' : '#FFC857'}
+          stroke={inverse ? '#182022' : '#D9F36C'}
           strokeWidth="2"
           strokeLinecap="round"
           opacity="0.55"

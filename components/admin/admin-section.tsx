@@ -16,7 +16,7 @@ export function AdminSection({
     <>
       <div className="mb-7">
         <p className="mb-3 text-[10px] font-semibold tracking-[0.2em] text-muted-foreground">
-          AGRI MACHARE / OPERATIONS
+          AUTO MACHARE / OPERATIONS
         </p>
         <h1 className="font-display text-2xl font-bold tracking-tight text-foreground sm:text-3xl">
           {title}

@@ -84,7 +84,7 @@ export function ListingDetail({
           </Link>
         )}
       </div>
-      <header className="mt-7 border-b border-border pb-7">
+      <header className="mt-8 border-b border-border pb-8">
         <div className="flex flex-wrap items-center gap-2 text-xs font-medium text-muted-foreground">
           <Link
             href={`/listings?category=${encodeURIComponent(listing.category)}`}
@@ -95,7 +95,7 @@ export function ListingDetail({
           <span aria-hidden="true">/</span>
           <span>{listing.maker}</span>
         </div>
-        <h1 className="mt-3 text-balance font-display text-2xl font-bold leading-snug tracking-tight text-foreground sm:text-3xl lg:text-4xl">
+        <h1 className="mt-3 text-balance font-display text-3xl font-bold leading-snug tracking-tight text-foreground sm:text-4xl lg:text-5xl">
           {listing.name}
         </h1>
         <p className="mt-4 flex items-center gap-1.5 text-sm text-muted-foreground">
@@ -106,10 +106,18 @@ export function ListingDetail({
 
       <div className="mt-7 grid items-start gap-7 lg:grid-cols-[minmax(0,1.5fr)_minmax(350px,1fr)] lg:gap-x-9">
         <section aria-label="車両の写真と仕様" className="min-w-0">
-          <div className="relative aspect-[4/3] overflow-hidden rounded-2xl bg-muted">
+          <div className="relative aspect-[3/2] overflow-hidden rounded-sm bg-muted">
             <Image
-              src={mainPicture || '/placeholder.svg'}
-              alt={listing.name}
+              src={
+                mainPicture.startsWith('/vehicles/')
+                  ? `${mainPicture}?v=auto-2026`
+                  : mainPicture || '/placeholder.svg'
+              }
+              alt={
+                mainPicture.startsWith('/vehicles/')
+                  ? `${listing.category}の参考イメージ`
+                  : listing.name
+              }
               fill
               loading="eager"
               fetchPriority="high"
@@ -118,25 +126,30 @@ export function ListingDetail({
             />
             <div className="absolute left-4 top-4 flex flex-wrap gap-1.5">
               {listing.deals.includes('sale') && (
-                <Badge className="bg-card/95 text-foreground shadow-sm">
+                <Badge className="rounded-sm bg-card/95 text-foreground">
                   販売
                 </Badge>
               )}
               {listing.deals.includes('lease') && (
-                <Badge className="bg-accent text-accent-foreground shadow-sm">
+                <Badge className="rounded-sm bg-[#d9f36c] text-[#182022]">
                   リース
                 </Badge>
               )}
               {listing.residualLease && (
-                <Badge className="bg-primary text-primary-foreground shadow-sm">
-                  購入充当
+                <Badge className="rounded-sm bg-[#182022] text-white">
+                  残価設定リース
                 </Badge>
               )}
             </div>
-            <span className="absolute bottom-4 right-4 rounded-full bg-foreground/65 px-3 py-1 text-xs tabular-nums text-background">
+            <span className="absolute bottom-4 right-4 rounded-sm bg-foreground/80 px-3 py-1 text-xs tabular-nums text-background">
               {pictureIndex + 1} / {pictures.length}
             </span>
           </div>
+          {mainPicture.startsWith('/vehicles/') && (
+            <p className="mt-2 text-xs text-muted-foreground">
+              車種カテゴリの参考イメージです。
+            </p>
+          )}
           {pictures.length > 1 && (
             <ul className="mt-3 flex flex-wrap gap-2" aria-label="写真">
               {pictures.map((picture, index) => (
@@ -147,14 +160,18 @@ export function ListingDetail({
                     aria-pressed={index === pictureIndex}
                     onClick={() => setPictureIndex(index)}
                     className={cn(
-                      'relative h-16 w-20 overflow-hidden rounded-lg border-2 transition-colors focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary',
+                      'relative h-16 w-20 overflow-hidden rounded-sm border-2 transition-colors focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary',
                       index === pictureIndex
                         ? 'border-primary'
                         : 'border-transparent opacity-70 hover:opacity-100',
                     )}
                   >
                     <Image
-                      src={picture}
+                      src={
+                        picture.startsWith('/vehicles/')
+                          ? `${picture}?v=auto-2026`
+                          : picture
+                      }
                       alt=""
                       fill
                       sizes="80px"
@@ -165,7 +182,7 @@ export function ListingDetail({
               ))}
             </ul>
           )}
-          <dl className="mt-5 grid grid-cols-2 overflow-hidden rounded-2xl border border-border bg-card sm:grid-cols-5">
+          <dl className="mt-5 grid grid-cols-2 overflow-hidden rounded-sm border border-border bg-card sm:grid-cols-3">
             <Spec
               icon={<Calendar className="size-4" />}
               label="年式"
@@ -202,13 +219,13 @@ export function ListingDetail({
           className="min-w-0 lg:sticky lg:top-36 xl:top-24 lg:row-span-2"
           aria-label="利用方法と申し込み"
         >
-          <div className="overflow-hidden rounded-2xl border border-border bg-card shadow-sm">
-            <div className="border-b border-border px-5 py-5 sm:px-6">
-              <h2 className="text-sm font-semibold text-foreground">
-                利用方法を選ぶ
+          <div className="overflow-hidden rounded-sm border border-border bg-card">
+            <div className="border-b border-border bg-[#182022] px-5 py-5 text-white sm:px-6">
+              <h2 className="text-sm font-semibold text-white">
+                この車の乗り方を選ぶ
               </h2>
               <div
-                className="mt-4 flex gap-1 rounded-xl bg-muted p-1"
+                className="mt-4 flex gap-1 rounded-sm bg-white/10 p-1"
                 role="group"
                 aria-label="利用方法"
               >
@@ -222,10 +239,10 @@ export function ListingDetail({
                       aria-pressed={mode === item.id}
                       onClick={() => setMode(item.id)}
                       className={cn(
-                        'flex min-w-0 flex-1 flex-col items-center justify-center gap-1.5 rounded-lg px-1 py-3 text-xs font-semibold transition-colors focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary',
+                        'flex min-w-0 flex-1 flex-col items-center justify-center gap-1.5 rounded-sm px-1 py-3 text-xs font-semibold transition-colors focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary',
                         mode === item.id
-                          ? 'bg-primary text-primary-foreground shadow-sm'
-                          : 'text-muted-foreground hover:bg-card hover:text-foreground',
+                          ? 'bg-[#d9f36c] text-[#182022]'
+                          : 'text-white/70 hover:bg-white/10 hover:text-white',
                       )}
                     >
                       <Icon className="size-4" />
@@ -241,14 +258,14 @@ export function ListingDetail({
               </p>
               <p className="mt-2 break-words font-display text-3xl font-bold leading-tight tracking-tight text-primary sm:text-4xl">
                 {active.id === 'residualLease' && listing.leasePerMonth
-                  ? `${formatYen(listing.leasePerMonth)}/日`
+                  ? `${formatYen(listing.leasePerMonth)}/月`
                   : active.price}
               </p>
               <p className="mt-3 text-xs leading-6 text-muted-foreground">
                 {active.desc}
               </p>
               {active.note && (
-                <div className="mt-4 flex gap-2 rounded-xl bg-secondary p-3 text-xs leading-6 text-secondary-foreground">
+                <div className="mt-4 flex gap-2 rounded-sm bg-secondary p-3 text-xs leading-6 text-secondary-foreground">
                   <CircleCheckBig className="mt-1 size-4 shrink-0 text-primary" />
                   <span>{active.note}</span>
                 </div>
@@ -335,7 +352,7 @@ export function ListingDetail({
             <h2 className="font-display text-xl font-bold text-foreground">
               出品者
             </h2>
-            <div className="mt-4 flex flex-wrap items-center gap-4 rounded-2xl border border-border bg-card p-5">
+            <div className="mt-4 flex flex-wrap items-center gap-4 rounded-sm border border-border bg-card p-5">
               <span className="flex size-12 shrink-0 items-center justify-center rounded-full bg-secondary font-display text-lg font-bold text-primary">
                 {listing.seller.name.charAt(0)}
               </span>
@@ -401,7 +418,7 @@ export function ListingDetail({
         <section className="mt-16 border-t border-border pt-10">
           <div className="flex flex-wrap items-end justify-between gap-4">
             <h2 className="font-display text-2xl font-bold tracking-tight text-foreground">
-              こちらの車両も
+              同じカテゴリの車両
             </h2>
             <Link
               href={`/listings?category=${encodeURIComponent(listing.category)}`}
@@ -432,7 +449,7 @@ function Spec({
   value: string
 }) {
   return (
-    <div className="p-4">
+    <div className="border-b border-border p-4">
       <dt className="flex items-center gap-1.5 text-xs text-muted-foreground">
         {icon}
         {label}

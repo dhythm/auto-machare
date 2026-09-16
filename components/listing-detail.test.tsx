@@ -6,6 +6,24 @@ import { getListing } from '@/lib/server/listings'
 import { buildModes } from '@/lib/server/listing-detail'
 
 describe('ListingDetail', () => {
+  it('shows residual lease pricing per month, not per day', async () => {
+    const listing = (await getListing('car-001'))!
+    render(
+      <ListingDetail
+        listing={listing}
+        modes={buildModes(listing)}
+        related={[]}
+        booked={[]}
+        viewer={{ signedIn: false, isOwner: false }}
+      />,
+    )
+    await userEvent
+      .setup()
+      .click(screen.getByRole('button', { name: '残価設定リース' }))
+    expect(screen.getByText(/\/月$/)).toBeInTheDocument()
+    expect(screen.queryByText(/\/日$/)).not.toBeInTheDocument()
+  })
+
   it('preserves the selected vehicle when starting a transport request', async () => {
     const listing = (await getListing('car-001'))!
     render(

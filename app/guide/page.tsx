@@ -56,7 +56,7 @@ export default function GuidePage() {
   return (
     <PageShell>
       <div className="mx-auto max-w-5xl px-5 py-12 sm:px-8">
-        <p className="eyebrow mb-5">HOW AGRI MACHARE WORKS</p>
+        <p className="eyebrow mb-5">HOW AUTO MACHARE WORKS</p>
         <PageIntro
           title="はじめての方へ"
           description="車を売る、買う、リースする、運ぶ。あなたに合う入口から、次のつながりを。出品・申込み・問い合わせにはログインが必要です。"

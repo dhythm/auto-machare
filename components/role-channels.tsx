@@ -1,51 +1,50 @@
 import Link from 'next/link'
-import { ArrowUpRight, Tag, Truck } from 'lucide-react'
+import { ArrowUpRight } from 'lucide-react'
+
+const channels = [
+  {
+    label: 'FOR OWNERS',
+    title: 'あなたのクルマに、次の出会いを。',
+    description: '販売・リースの条件を決めて、車両を掲載。',
+    href: '/listings/new',
+    action: '車両を出品する',
+  },
+  {
+    label: 'FOR TRANSPORT PARTNERS',
+    title: '一台を届ける。その先をつなぐ。',
+    description: '積載車と対応エリアを登録して、陸送の仕事を。',
+    href: '/transport/register',
+    action: '運搬者として登録する',
+  },
+]
 
 export function RoleChannels() {
   return (
-    <section className="mx-auto grid max-w-[1280px] gap-5 px-5 pb-20 pt-4 sm:px-8 md:grid-cols-2">
-      <Link
-        href="/listings/new"
-        className="group flex items-start gap-5 rounded-xl border border-border bg-card p-7 transition-colors hover:border-primary/50 sm:p-8"
-      >
-        <span className="flex size-12 shrink-0 items-center justify-center rounded-full bg-secondary text-primary">
-          <Tag className="size-5" />
-        </span>
-        <div className="flex-1">
-          <p className="eyebrow">FOR OWNERS</p>
-          <h2 className="mt-2 text-lg font-bold">
-            眠っている一台を、誰かの力に。
+    <section
+      aria-label="出品・陸送パートナー登録"
+      className="mx-auto grid max-w-[1280px] gap-5 px-5 pb-20 pt-4 sm:px-8 md:grid-cols-2"
+    >
+      {channels.map((channel) => (
+        <Link
+          key={channel.href}
+          href={channel.href}
+          className="group border border-border bg-card p-7 transition-colors hover:border-foreground/50 sm:p-9"
+        >
+          <div className="flex items-center justify-between gap-4">
+            <p className="eyebrow">{channel.label}</p>
+            <ArrowUpRight className="size-5 shrink-0 transition-transform group-hover:-translate-y-0.5 group-hover:translate-x-0.5" />
+          </div>
+          <h2 className="mt-6 text-lg font-bold tracking-tight sm:text-xl">
+            {channel.title}
           </h2>
-          <p className="mt-3 text-xs leading-relaxed text-muted-foreground">
-            販売も、使わない期間の貸し出しも。
+          <p className="mt-3 text-sm leading-relaxed text-muted-foreground">
+            {channel.description}
           </p>
-          <span className="mt-5 inline-flex items-center gap-3 text-sm font-bold text-primary">
-            車両を出品する
-            <ArrowUpRight className="size-4 transition-transform group-hover:-translate-y-0.5 group-hover:translate-x-0.5" />
+          <span className="mt-8 inline-block border-b border-foreground pb-1 text-sm font-bold">
+            {channel.action}
           </span>
-        </div>
-      </Link>
-      <Link
-        href="/transport/register"
-        className="group flex items-start gap-5 rounded-xl border border-border bg-card p-7 transition-colors hover:border-primary/50 sm:p-8"
-      >
-        <span className="flex size-12 shrink-0 items-center justify-center rounded-full bg-secondary text-primary">
-          <Truck className="size-5" />
-        </span>
-        <div className="flex-1">
-          <p className="eyebrow">FOR TRANSPORT PARTNERS</p>
-          <h2 className="mt-2 text-lg font-bold">
-            その帰り道が、次の一台をつなぐ。
-          </h2>
-          <p className="mt-3 text-xs leading-relaxed text-muted-foreground">
-            積載車と対応エリアを登録して、陸送の仕事を。
-          </p>
-          <span className="mt-5 inline-flex items-center gap-3 text-sm font-bold text-primary">
-            運搬者として登録する
-            <ArrowUpRight className="size-4 transition-transform group-hover:-translate-y-0.5 group-hover:translate-x-0.5" />
-          </span>
-        </div>
-      </Link>
+        </Link>
+      ))}
     </section>
   )
 }

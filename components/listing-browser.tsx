@@ -80,7 +80,7 @@ export function ListingBrowser({
     <div className="mx-auto max-w-[1280px] px-5 py-10 sm:px-8 sm:py-14">
       <div className="mb-8 flex flex-wrap items-end justify-between gap-5">
         <div>
-          <p className="eyebrow mb-3">THE MARKETPLACE</p>
+          <p className="eyebrow mb-3">THE COLLECTION</p>
           <h1 className="text-balance font-display text-3xl font-bold sm:text-4xl tracking-tight text-foreground">
             車両を探す
           </h1>
@@ -111,7 +111,7 @@ export function ListingBrowser({
                 name="q"
                 value={keywordInput}
                 onChange={(event) => setKeywordInput(event.target.value)}
-                placeholder="機種名・メーカー・地域"
+                placeholder="車種名・メーカー・地域"
                 className="h-12 w-full rounded-lg border border-border bg-background pl-9 pr-3 text-sm text-foreground outline-none focus-visible:border-primary focus-visible:ring-2 focus-visible:ring-primary/30"
               />
             </label>

@@ -47,38 +47,38 @@
 
 :root {
   color-scheme: light;
-  --background: #f6f7f9;
-  --foreground: #141c26;
+  --background: #f5f5f1;
+  --foreground: #182022;
   --card: #ffffff;
-  --card-foreground: #141c26;
+  --card-foreground: #182022;
   --popover: #ffffff;
-  --popover-foreground: #141c26;
-  --primary: #152a3e;
+  --popover-foreground: #182022;
+  --primary: #182022;
   --primary-foreground: #ffffff;
-  --secondary: #e7ebf1;
-  --secondary-foreground: #23384f;
-  --muted: #eff1f5;
-  --muted-foreground: #66748a;
-  --accent: #ffc857;
-  --accent-foreground: #3a2a06;
+  --secondary: #e9ece5;
+  --secondary-foreground: #29332f;
+  --muted: #eceee9;
+  --muted-foreground: #65706a;
+  --accent: #d9f36c;
+  --accent-foreground: #182022;
   --destructive: #b83e33;
-  --border: #dde1e8;
-  --input: #d5dae3;
-  --ring: #3f6188;
-  --chart-1: #152a3e;
-  --chart-2: #ffc857;
+  --border: #dce0d8;
+  --input: #cbd1c7;
+  --ring: #557332;
+  --chart-1: #182022;
+  --chart-2: #d9f36c;
   --chart-3: #5b7fa6;
   --chart-4: #7d8fa6;
   --chart-5: #a97b4f;
-  --radius: 0.75rem;
-  --sidebar: #152a3e;
-  --sidebar-foreground: #f6f7f9;
-  --sidebar-primary: #ffc857;
-  --sidebar-primary-foreground: #152a3e;
-  --sidebar-accent: #24405c;
+  --radius: 0.4rem;
+  --sidebar: #182022;
+  --sidebar-foreground: #f5f5f1;
+  --sidebar-primary: #d9f36c;
+  --sidebar-primary-foreground: #182022;
+  --sidebar-accent: #29332f;
   --sidebar-accent-foreground: #ffffff;
-  --sidebar-border: #2f4b68;
-  --sidebar-ring: #ffc857;
+  --sidebar-border: #3c4741;
+  --sidebar-ring: #d9f36c;
 }
 
 @layer base {
@@ -119,8 +119,8 @@
     outline: 2px solid var(--ring);
   }
   ::selection {
-    background: #ffc857;
-    color: #152a3e;
+    background: #d9f36c;
+    color: #182022;
   }
 }
 
@@ -133,7 +133,7 @@
 
 @utility page-form {
   border: 1px solid var(--border);
-  border-radius: 1.25rem;
+  border-radius: 0.5rem;
   background: var(--card);
   padding: clamp(1.25rem, 4vw, 2.5rem);
 }
@@ -148,4 +148,18 @@
     animation-duration: 0.01ms !important;
     transition-duration: 0.01ms !important;
   }
+}
+
+@keyframes hero-enter {
+  from {
+    opacity: 0;
+    transform: translateY(12px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+.hero-enter {
+  animation: hero-enter 650ms ease-out both;
 }

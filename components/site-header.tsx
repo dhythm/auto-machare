@@ -15,8 +15,8 @@ const links = [
 export function SiteHeader() {
   const pathname = usePathname()
   return (
-    <header className="sticky top-0 z-40 border-b border-border bg-background/95 backdrop-blur-xl">
-      <div className="mx-auto flex h-20 max-w-[1360px] items-center justify-between gap-3 px-4 sm:px-8 lg:px-10">
+    <header className="sticky top-0 z-40 border-b border-border bg-card/95 backdrop-blur-xl">
+      <div className="mx-auto flex h-[76px] max-w-[1360px] items-center justify-between gap-3 px-4 sm:px-8 lg:px-10">
         <Link href="/" aria-label="Auto Machare ホーム">
           <BrandLogo />
         </Link>
@@ -43,7 +43,7 @@ export function SiteHeader() {
           <AccountMenu />
           <Link
             href="/listings/new"
-            className="hidden h-11 items-center gap-2 rounded-full bg-primary px-5 text-sm font-bold text-primary-foreground transition-colors hover:bg-primary/85 sm:inline-flex"
+            className="hidden h-11 items-center gap-2 rounded-sm bg-primary px-5 text-sm font-bold text-primary-foreground transition-colors hover:bg-primary/85 sm:inline-flex"
           >
             <Plus className="size-4" />
             出品する

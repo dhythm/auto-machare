@@ -13,7 +13,7 @@ export default async function NewListingPage() {
   return (
     <PageShell>
       <div className="mx-auto max-w-4xl px-5 py-12 sm:px-8">
-        <p className="eyebrow mb-5">SHARE YOUR MACHINERY</p>
+        <p className="eyebrow mb-5">YOUR CAR, NEXT CHAPTER</p>
         <PageIntro
           title="車両を出品する"
           description="販売とリースをひとつの出品でまとめて募集できます。内容を確認のうえ掲載します。"

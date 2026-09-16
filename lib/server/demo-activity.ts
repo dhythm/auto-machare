@@ -726,7 +726,7 @@ const reviews: Review[] = [
     sourceKind: 'lease',
     sourceId: 'l-108',
     rating: 3,
-    comment: '機体は問題なし。受け渡し時間の連絡がやや遅めでした。',
+    comment: '車両は問題なし。受け渡し時間の連絡がやや遅めでした。',
     createdAt: at('06-14 20:10'),
   },
 ]

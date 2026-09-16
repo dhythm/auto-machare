@@ -34,9 +34,9 @@ export function Marketplace({ initialPage }: { initialPage: ListingPage }) {
     >
       <div className="flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between">
         <div>
-          <p className="eyebrow mb-3">THE MARKETPLACE</p>
+          <p className="eyebrow mb-3">THE COLLECTION</p>
           <h2 className="text-balance font-display text-2xl font-bold tracking-tight text-foreground sm:text-3xl">
-            次の相棒を、見つけよう。
+            出会いたかった、一台へ。
           </h2>
           <p className="mt-2 leading-relaxed text-muted-foreground">
             用途に合う一台を、あなたに合う持ち方で。
@@ -54,7 +54,7 @@ export function Marketplace({ initialPage }: { initialPage: ListingPage }) {
       <div className="mt-8 flex justify-center">
         <Link
           href={allHref}
-          className="inline-flex items-center gap-1 rounded-full border border-primary/30 bg-transparent px-7 py-3.5 text-sm font-medium text-foreground transition-colors hover:border-primary/40 hover:text-primary"
+          className="inline-flex items-center gap-1 rounded-sm border border-primary/30 bg-transparent px-7 py-3.5 text-sm font-medium text-foreground transition-colors hover:border-primary/40 hover:text-primary"
         >
           すべての車両を見る
           {query.data ? `（${query.data.total}件）` : ''}

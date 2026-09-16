@@ -146,7 +146,7 @@ export function SearchRefinements({
         </select>
       </label>
       <form
-        className="flex items-end gap-2"
+        className="grid w-full grid-cols-2 items-end gap-2 sm:flex sm:w-auto sm:flex-wrap"
         onSubmit={(event) => {
           event.preventDefault()
           onChange({ priceMin: readYen(priceMin), priceMax: readYen(priceMax) })
@@ -159,7 +159,7 @@ export function SearchRefinements({
             value={priceMin}
             onChange={(event) => setPriceMin(event.target.value)}
             placeholder="円"
-            className={cn(controlClass, 'w-28')}
+            className={cn(controlClass, 'w-full min-w-0 sm:w-28')}
           />
         </label>
         <label className="flex flex-col gap-1 text-xs font-medium text-foreground">
@@ -169,24 +169,24 @@ export function SearchRefinements({
             value={priceMax}
             onChange={(event) => setPriceMax(event.target.value)}
             placeholder="円"
-            className={cn(controlClass, 'w-28')}
+            className={cn(controlClass, 'w-full min-w-0 sm:w-28')}
           />
         </label>
         <button
           type="submit"
-          className="h-11 rounded-lg border border-border bg-card px-3 text-sm font-medium text-foreground hover:border-primary/40"
+          className="col-span-2 h-11 shrink-0 rounded-lg border border-border bg-card px-3 text-sm font-medium text-foreground hover:border-primary/40"
         >
           価格で絞り込む
         </button>
       </form>
-      <div className="flex items-end gap-2">
+      <div className="grid w-full grid-cols-2 items-end gap-2 sm:flex sm:w-auto sm:flex-wrap">
         <label className="flex flex-col gap-1 text-xs font-medium text-foreground">
           利用開始日
           <input
             type="date"
             value={from}
             onChange={(event) => applyDates(event.target.value, to)}
-            className={cn(controlClass, 'w-40')}
+            className={cn(controlClass, 'w-full min-w-0 sm:w-40')}
           />
         </label>
         <label className="flex flex-col gap-1 text-xs font-medium text-foreground">
@@ -195,7 +195,7 @@ export function SearchRefinements({
             type="date"
             value={to}
             onChange={(event) => applyDates(from, event.target.value)}
-            className={cn(controlClass, 'w-40')}
+            className={cn(controlClass, 'w-full min-w-0 sm:w-40')}
           />
         </label>
       </div>
