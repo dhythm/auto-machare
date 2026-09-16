@@ -15,9 +15,9 @@ describe('SiteHeader', () => {
         'aria-current',
         'page',
       )
-      expect(
-        nav.getByRole('link', { name: '農機具を探す' }),
-      ).not.toHaveAttribute('aria-current')
+      expect(nav.getByRole('link', { name: '車両を探す' })).not.toHaveAttribute(
+        'aria-current',
+      )
       expect(nav.getByRole('link', { name: 'はじめての方へ' })).toHaveAttribute(
         'href',
         '/guide',

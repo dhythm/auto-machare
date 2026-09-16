@@ -22,7 +22,7 @@ describe('CarrierProfileForm', () => {
     expect(screen.getByLabelText('お名前・屋号')).toHaveValue('利用者デモ')
     await user.selectOptions(screen.getByLabelText('区分'), '法人')
     await user.selectOptions(screen.getByLabelText('拠点の都道府県'), '秋田県')
-    await user.click(screen.getByLabelText('2tトラック'))
+    await user.click(screen.getByLabelText('2台積みキャリアカー'))
     await user.click(
       screen.getByLabelText('秋田県', { selector: 'input[type="checkbox"]' }),
     )
@@ -43,7 +43,7 @@ describe('CarrierProfileForm', () => {
       name: '利用者デモ',
       kind: '法人',
       prefecture: '秋田県',
-      vehicles: ['2tトラック'],
+      vehicles: ['2台積みキャリアカー'],
       serviceAreas: ['秋田県', '山形県'],
       note: '',
     })
@@ -57,18 +57,18 @@ describe('CarrierProfileForm', () => {
     render(
       <CarrierProfileForm
         initial={{
-          name: '高橋運送',
+          name: '高橋陸送',
           kind: '法人',
           prefecture: '秋田県',
-          vehicles: ['4tトラック'],
+          vehicles: ['セルフローダー'],
           serviceAreas: ['秋田県'],
           note: '',
         }}
       />,
     )
-    expect(screen.getByLabelText('4tトラック')).toBeChecked()
+    expect(screen.getByLabelText('セルフローダー')).toBeChecked()
     const user = userEvent.setup()
-    await user.click(screen.getByLabelText('4tトラック'))
+    await user.click(screen.getByLabelText('セルフローダー'))
     await user.click(screen.getByRole('button', { name: '保存する' }))
     expect(
       screen.getByText('車両を1つ以上選択してください。'),

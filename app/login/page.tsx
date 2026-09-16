@@ -8,7 +8,7 @@ import { PageShell } from '@/components/page-shell'
 import { getCurrentUser } from '@/lib/server/auth/session'
 import { readCallbackUrl } from '@/lib/validation/auth'
 
-export const metadata: Metadata = { title: 'ログイン | Agri Machare' }
+export const metadata: Metadata = { title: 'ログイン | Auto Machare' }
 export const dynamic = 'force-dynamic'
 
 export default async function LoginPage({
@@ -23,8 +23,8 @@ export default async function LoginPage({
       <div className="mx-auto grid max-w-6xl gap-0 px-5 py-10 sm:px-8 sm:py-16 md:grid-cols-2">
         <div className="relative hidden min-h-[540px] overflow-hidden rounded-l-2xl bg-primary md:block">
           <Image
-            src="/brand-field.webp"
-            alt="朝の光が差す農地"
+            src="/brand-hero.webp"
+            alt="朝の光が差す道路"
             fill
             sizes="50vw"
             className="object-cover object-[65%_center]"
@@ -40,7 +40,7 @@ export default async function LoginPage({
               次のつながり。
             </h2>
             <p className="mt-5 text-sm leading-7 text-white/75">
-              あなたの農業の、つづきへ。
+              あなたのカーライフの、つづきへ。
             </p>
           </div>
         </div>
@@ -55,7 +55,7 @@ export default async function LoginPage({
               href="/guide"
               className="inline-flex items-center gap-2 text-xs font-medium text-muted-foreground hover:text-primary"
             >
-              Agri Machare をはじめて使う方へ
+              Auto Machare をはじめて使う方へ
               <ArrowUpRight className="size-3.5" />
             </Link>
           </div>

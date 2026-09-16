@@ -3,13 +3,13 @@
 import { useState } from 'react'
 import { useRouter } from 'next/navigation'
 import { Button } from '@/components/ui/button'
-import type { RentalStatus } from '@/lib/rent-to-own'
+import type { LeaseStatus } from '@/lib/residual-lease'
 
-type Action = { status: RentalStatus; label: string; destructive?: boolean }
+type Action = { status: LeaseStatus; label: string; destructive?: boolean }
 
 function actionsFor(
-  status: RentalStatus,
-  party: 'owner' | 'renter',
+  status: LeaseStatus,
+  party: 'owner' | 'lessee',
   canConvert: boolean,
 ): Action[] {
   if (party === 'owner') {
@@ -29,15 +29,15 @@ function actionsFor(
   return []
 }
 
-export function RentalActions({
-  rentalId,
+export function LeaseActions({
+  leaseId,
   status,
   party,
   canConvert,
 }: {
-  rentalId: string
-  status: RentalStatus
-  party: 'owner' | 'renter'
+  leaseId: string
+  status: LeaseStatus
+  party: 'owner' | 'lessee'
   canConvert: boolean
 }) {
   const router = useRouter()
@@ -46,11 +46,11 @@ export function RentalActions({
   const actions = actionsFor(status, party, canConvert)
   if (actions.length === 0) return null
 
-  const apply = async (next: RentalStatus) => {
+  const apply = async (next: LeaseStatus) => {
     setBusy(true)
     setError(undefined)
     try {
-      const response = await fetch(`/api/rentals/${rentalId}`, {
+      const response = await fetch(`/api/leases/${leaseId}`, {
         method: 'PATCH',
         headers: { 'content-type': 'application/json' },
         body: JSON.stringify({ status: next }),

@@ -15,8 +15,8 @@ import { prefectureNames } from '@/lib/transport-fee'
 const dealFilters: { id: DealFilter; label: string }[] = [
   { id: 'all', label: 'すべて' },
   { id: 'sale', label: '購入できる' },
-  { id: 'rent', label: 'レンタルできる' },
-  { id: 'rentToOwn', label: 'レンタル購入可' },
+  { id: 'lease', label: 'リースできる' },
+  { id: 'residualLease', label: '残価設定リース可' },
 ]
 
 export function DealFilterToggle({
@@ -97,7 +97,7 @@ const emptyRefinements = {
 const controlClass =
   'h-11 rounded-lg border border-border bg-background px-3 text-sm text-foreground outline-none focus-visible:border-primary focus-visible:ring-2 focus-visible:ring-primary/30'
 
-/** Prefecture, price range, sort, and rental dates; each change reports only its own keys. */
+/** Prefecture, price range, sort, and lease dates; each change reports only its own keys. */
 export function SearchRefinements({
   value,
   onChange,
@@ -109,7 +109,7 @@ export function SearchRefinements({
   const [priceMax, setPriceMax] = useState(yenText(value.priceMax))
   const [from, setFrom] = useState(value.availableFrom ?? '')
   const [to, setTo] = useState(value.availableTo ?? '')
-  const priceLabel = value.deal === 'rent' ? '日額' : '販売価格'
+  const priceLabel = value.deal === 'lease' ? '月額リース料' : '販売価格'
   const active =
     value.prefecture !== undefined ||
     value.priceMin !== undefined ||

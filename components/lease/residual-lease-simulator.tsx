@@ -3,43 +3,45 @@
 import { useState } from 'react'
 import { Calculator } from 'lucide-react'
 import { formatYen } from '@/lib/data'
-import { calculateRentToOwn, type RentToOwnTerms } from '@/lib/rent-to-own'
+import { SelectField } from '@/components/forms/fields'
+import {
+  calculateResidualLease,
+  leaseTermMonths,
+  type ResidualLeaseTerms,
+} from '@/lib/residual-lease'
 
-export function RentToOwnSimulator({ terms }: { terms: RentToOwnTerms }) {
-  const [days, setDays] = useState(30)
-  const estimate = calculateRentToOwn(terms, Math.max(0, days))
+const termOptions = leaseTermMonths.map((months) => ({
+  value: String(months),
+  label: `${months}ヶ月`,
+}))
+
+export function ResidualLeaseSimulator({
+  terms,
+}: {
+  terms: ResidualLeaseTerms
+}) {
+  const [term, setTerm] = useState('24')
+  const estimate = calculateResidualLease(terms, Number(term))
   return (
     <div className="overflow-hidden rounded-xl border border-border bg-background">
       <div className="p-4">
         <h3 className="flex items-center gap-2 text-xs font-semibold text-foreground">
           <Calculator className="size-4 text-primary" />
-          購入充当シミュレーション
+          残価シミュレーション
         </h3>
-        <div className="mt-4 flex items-center justify-between gap-3">
-          <label
-            htmlFor="rent-to-own-days"
-            className="text-xs font-medium text-muted-foreground"
-          >
-            レンタル日数
-          </label>
-          <div className="flex items-center gap-2 text-xs text-muted-foreground">
-            <input
-              id="rent-to-own-days"
-              type="number"
-              min={1}
-              max={3650}
-              value={days}
-              onChange={(event) => setDays(Number(event.target.value) || 0)}
-              className="h-10 w-24 rounded-lg border border-border bg-card px-3 text-right text-sm font-medium tabular-nums text-foreground outline-none focus-visible:border-primary focus-visible:ring-2 focus-visible:ring-primary/30"
-            />
-            日
-          </div>
-        </div>
+        <SelectField
+          id="residual-lease-term"
+          label="契約期間"
+          className="mt-4"
+          options={termOptions}
+          value={term}
+          onChange={(event) => setTerm(event.target.value)}
+        />
         <dl className="mt-4 grid gap-3 text-xs">
           <div className="flex justify-between gap-3">
-            <dt className="text-muted-foreground">レンタル料合計</dt>
+            <dt className="text-muted-foreground">リース料総額</dt>
             <dd className="font-medium text-foreground">
-              {formatYen(estimate.rentTotal)}
+              {formatYen(estimate.leaseTotal)}
             </dd>
           </div>
           <div className="flex justify-between gap-3">
@@ -58,10 +60,10 @@ export function RentToOwnSimulator({ terms }: { terms: RentToOwnTerms }) {
       <dl className="bg-secondary px-4 py-3" aria-live="polite">
         <div className="flex flex-wrap items-center justify-between gap-2">
           <dt className="text-xs font-medium text-secondary-foreground">
-            購入時の支払い
+            満了時の買取価格（残価）
           </dt>
           <dd className="font-display text-xl font-bold tracking-tight text-primary">
-            {formatYen(estimate.purchasePrice)}
+            {formatYen(estimate.buyoutPrice)}
           </dd>
         </div>
       </dl>

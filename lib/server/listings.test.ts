@@ -12,7 +12,7 @@ import {
   updateListing,
 } from './listings'
 import { listNotifications } from './notifications'
-import { requestRental } from './rentals'
+import { requestLease } from './leases'
 import { demoAdmin, demoSeller, demoUser } from '@/test/mock-auth'
 import { applyModeration } from './moderation'
 import { resetStore } from './store'
@@ -24,21 +24,22 @@ beforeEach(() => resetStore())
 
 const submission: ListingSubmission = {
   images: [],
-  name: 'クボタ トラクター 30馬力 テスト',
-  category: 'トラクター',
-  maker: 'クボタ',
+  name: 'トヨタ プリウス G テスト',
+  category: '乗用車',
+  maker: 'トヨタ',
+  model: 'テスト車種',
   year: 2018,
-  hours: 500,
+  mileageKm: 500,
   condition: '目立った傷なし',
   prefecture: '新潟県',
   city: '長岡市',
-  deals: ['sale', 'rent'],
+  deals: ['sale', 'lease'],
   salePrice: 1_500_000,
-  rentPerDay: 12_000,
-  rentToOwn: true,
-  summary: 'キャビン付き。',
-  sellerName: 'テスト農園',
-  sellerKind: '農業法人',
+  leasePerMonth: 12_000,
+  residualLease: true,
+  summary: '禁煙車。',
+  sellerName: 'テストモータース',
+  sellerKind: '中古車販売店',
   contactEmail: 'seller@example.com',
 }
 
@@ -49,51 +50,51 @@ describe('listing search', () => {
     expect(ids.length).toBeGreaterThanOrEqual(40)
     expect(new Set(ids).size).toBe(ids.length)
     expect(ids.slice(0, 6)).toEqual([
-      'trc-001',
-      'cmb-002',
-      'rpl-003',
-      'til-004',
-      'drn-005',
-      'trc-006',
+      'car-001',
+      'suv-002',
+      'kei-003',
+      'van-004',
+      'trk-005',
+      'suv-006',
     ])
   })
 
   it('combines category and deal filters', async () => {
     const result = await searchListings({
-      category: 'トラクター',
-      deal: 'rent',
+      category: '乗用車',
+      deal: 'lease',
     })
     expect(result.length).toBeGreaterThan(0)
-    expect(result[0].id).toBe('trc-001')
+    expect(result[0].id).toBe('car-001')
     expect(
       result.every(
         (listing) =>
-          listing.category === 'トラクター' && listing.deals.includes('rent'),
+          listing.category === '乗用車' && listing.deals.includes('lease'),
       ),
     ).toBe(true)
   })
 
-  it('limits rent-to-own search to eligible listings', async () => {
+  it('limits residual-lease search to eligible listings', async () => {
     const result = await searchListings({
       category: 'すべて',
-      deal: 'rentToOwn',
+      deal: 'residualLease',
     })
     expect(result.map((listing) => listing.id).slice(0, 3)).toEqual([
-      'trc-001',
-      'cmb-002',
-      'rpl-003',
+      'car-001',
+      'suv-002',
+      'kei-003',
     ])
-    expect(result.every((listing) => listing.rentToOwn === true)).toBe(true)
+    expect(result.every((listing) => listing.residualLease === true)).toBe(true)
   })
 
   it('matches keywords against name, maker, category, location, and tags', async () => {
     const byMaker = await searchListings({
       category: 'すべて',
       deal: 'all',
-      keyword: 'クボタ',
+      keyword: 'トヨタ',
     })
     expect(byMaker.length).toBeGreaterThan(0)
-    expect(byMaker.every((listing) => listing.maker === 'クボタ')).toBe(true)
+    expect(byMaker.every((listing) => listing.maker === 'トヨタ')).toBe(true)
 
     expect(
       (
@@ -103,16 +104,16 @@ describe('listing search', () => {
           keyword: '長岡',
         })
       ).map((listing) => listing.id),
-    ).toContain('trc-001')
+    ).toContain('car-001')
     expect(
       (
         await searchListings({
           category: 'すべて',
           deal: 'all',
-          keyword: '4WD',
+          keyword: '禁煙車',
         })
       ).map((listing) => listing.id),
-    ).toContain('trc-001')
+    ).toContain('car-001')
   })
 
   it('treats blank keywords as no filter and splits on whitespace', async () => {
@@ -122,13 +123,13 @@ describe('listing search', () => {
     const result = await searchListings({
       category: 'すべて',
       deal: 'all',
-      keyword: 'クボタ　新潟県',
+      keyword: 'トヨタ　新潟県',
     })
     expect(result.length).toBeGreaterThan(0)
     expect(
       result.every(
         (listing) =>
-          listing.maker === 'クボタ' && listing.prefecture === '新潟県',
+          listing.maker === 'トヨタ' && listing.prefecture === '新潟県',
       ),
     ).toBe(true)
     expect(
@@ -141,7 +142,7 @@ describe('listing search', () => {
   })
 
   it('finds a listing and handles an unknown id', async () => {
-    expect((await getListing('drn-005'))?.name).toContain('ドローン')
+    expect((await getListing('trk-005'))?.name).toContain('エルフ')
     expect(await getListing('missing')).toBeUndefined()
   })
 })
@@ -161,16 +162,16 @@ describe('listing refinements', () => {
     const cheapSales = await searchListings({
       category: 'すべて',
       deal: 'sale',
-      priceMax: 500_000,
+      priceMax: 800_000,
     })
     expect(cheapSales.length).toBeGreaterThan(0)
     expect(
-      cheapSales.every((listing) => (listing.salePrice ?? 0) <= 500_000),
+      cheapSales.every((listing) => (listing.salePrice ?? 0) <= 800_000),
     ).toBe(true)
 
     const dailyRent = await searchListings({
       category: 'すべて',
-      deal: 'rent',
+      deal: 'lease',
       priceMin: 20_000,
       priceMax: 30_000,
     })
@@ -178,9 +179,9 @@ describe('listing refinements', () => {
     expect(
       dailyRent.every(
         (listing) =>
-          listing.rentPerDay !== undefined &&
-          listing.rentPerDay >= 20_000 &&
-          listing.rentPerDay <= 30_000,
+          listing.leasePerMonth !== undefined &&
+          listing.leasePerMonth >= 20_000 &&
+          listing.leasePerMonth <= 30_000,
       ),
     ).toBe(true)
   })
@@ -206,18 +207,18 @@ describe('listing refinements', () => {
     const rent = await searchListings({
       category: 'すべて',
       deal: 'all',
-      sort: 'rentAsc',
+      sort: 'leaseAsc',
     })
     const rents = rent
-      .filter((l) => l.rentPerDay !== undefined)
-      .map((l) => l.rentPerDay as number)
+      .filter((l) => l.leasePerMonth !== undefined)
+      .map((l) => l.leasePerMonth as number)
     expect(rents).toEqual([...rents].sort((a, b) => a - b))
   })
 
-  it('keeps only rentable listings free for the requested dates', async () => {
-    await requestRental((await getListing('trc-001'))!, demoUser, {
+  it('keeps only leasable listings free for the requested dates', async () => {
+    await requestLease((await getListing('car-001'))!, demoUser, {
       startDate: '2026-10-01',
-      endDate: '2026-10-07',
+      months: 12,
     })
     const busy = await searchListings({
       category: 'すべて',
@@ -225,15 +226,15 @@ describe('listing refinements', () => {
       availableFrom: '2026-10-05',
       availableTo: '2026-10-06',
     })
-    expect(busy.map((l) => l.id)).not.toContain('trc-001')
-    expect(busy.every((l) => l.rentPerDay !== undefined)).toBe(true)
+    expect(busy.map((l) => l.id)).not.toContain('car-001')
+    expect(busy.every((l) => l.leasePerMonth !== undefined)).toBe(true)
     const free = await searchListings({
       category: 'すべて',
       deal: 'all',
-      availableFrom: '2026-10-08',
-      availableTo: '2026-10-09',
+      availableFrom: '2027-10-01',
+      availableTo: '2027-10-02',
     })
-    expect(free.map((l) => l.id)).toContain('trc-001')
+    expect(free.map((l) => l.id)).toContain('car-001')
   })
 })
 
@@ -250,7 +251,7 @@ describe('listing pagination', () => {
       pageSize: 12,
       pageCount: Math.ceil(total / 12),
     })
-    expect(page.items[0].id).toBe('trc-001')
+    expect(page.items[0].id).toBe('car-001')
   })
 
   it('returns the remainder on the last page and nothing beyond it', async () => {
@@ -279,7 +280,7 @@ describe('featured listings', () => {
   it('returns the first listings up to the limit', async () => {
     const featured = await getFeaturedListings(6)
     expect(featured).toHaveLength(6)
-    expect(featured[0].id).toBe('trc-001')
+    expect(featured[0].id).toBe('car-001')
   })
 })
 
@@ -289,19 +290,24 @@ describe('listing CRUD', () => {
     expect(created.id).toMatch(/^[0-9a-f-]{36}$/)
     expect(created).toMatchObject({
       name: submission.name,
-      image: '/equipment/tractor.png',
+      image: '/vehicles/sedan.png',
       moderationStatus: 'pending',
       ownerUserId: 'demo-seller',
-      seller: { name: 'テスト農園', kind: '農業法人', rating: 0, reviews: 0 },
+      seller: {
+        name: 'テストモータース',
+        kind: '中古車販売店',
+        rating: 0,
+        reviews: 0,
+      },
       createdAt: expect.any(String),
     })
     expect((await getListing(created.id))?.name).toBe(submission.name)
-    expect((await getFeaturedListings(1))[0].id).toBe('trc-001')
+    expect((await getFeaturedListings(1))[0].id).toBe('car-001')
     expect(
       await searchListings({
         category: 'すべて',
         deal: 'all',
-        keyword: 'テスト農園',
+        keyword: 'テストモータース',
       }),
     ).toEqual([])
     expect(await getListingIds()).not.toContain(created.id)
@@ -318,7 +324,7 @@ describe('listing CRUD', () => {
         await searchListings({
           category: 'すべて',
           deal: 'all',
-          keyword: 'テスト農園',
+          keyword: 'テストモータース',
         })
       ).map((listing) => listing.id),
     ).toEqual([created.id])
@@ -333,7 +339,7 @@ describe('listing CRUD', () => {
       await searchListings({
         category: 'すべて',
         deal: 'all',
-        keyword: 'テスト農園',
+        keyword: 'テストモータース',
       }),
     ).toEqual([])
   })
@@ -354,7 +360,7 @@ describe('listing CRUD', () => {
       await searchListings({
         category: 'すべて',
         deal: 'all',
-        keyword: 'テスト農園',
+        keyword: 'テストモータース',
       })
     )[0]
     expect(listed.image).toBe(thumb)
@@ -366,39 +372,39 @@ describe('listing CRUD', () => {
       ),
     ).toBe(true)
     const withoutPictures = await createListing(submission, 'demo-seller')
-    expect(withoutPictures.image).toBe('/equipment/tractor.png')
+    expect(withoutPictures.image).toBe('/vehicles/sedan.png')
     expect(withoutPictures.images).toEqual([])
   })
 
-  it('withdraws and republishes a listing, refusing while a rental is open', async () => {
-    const withdrawn = await setListingStatus('trc-001', 'withdrawn', demoSeller)
+  it('withdraws and republishes a listing, refusing while a lease is open', async () => {
+    const withdrawn = await setListingStatus('car-001', 'withdrawn', demoSeller)
     expect(withdrawn.ok && withdrawn.value.withdrawnAt).toEqual(
       expect.any(String),
     )
-    expect(await getListingIds()).not.toContain('trc-001')
-    expect((await getFeaturedListings(1))[0].id).not.toBe('trc-001')
-    const republished = await setListingStatus('trc-001', 'listed', demoAdmin)
+    expect(await getListingIds()).not.toContain('car-001')
+    expect((await getFeaturedListings(1))[0].id).not.toBe('car-001')
+    const republished = await setListingStatus('car-001', 'listed', demoAdmin)
     expect(republished.ok && republished.value.withdrawnAt).toBeUndefined()
-    expect(await getListingIds()).toContain('trc-001')
+    expect(await getListingIds()).toContain('car-001')
 
-    await requestRental((await getListing('trc-001'))!, demoUser, {
+    await requestLease((await getListing('car-001'))!, demoUser, {
       startDate: '2026-10-01',
-      endDate: '2026-10-02',
+      months: 12,
     })
-    const blocked = await setListingStatus('trc-001', 'withdrawn', demoSeller)
-    expect(!blocked.ok && blocked.reason).toBe('rental_open')
-    const stranger = await setListingStatus('trc-001', 'withdrawn', demoUser)
+    const blocked = await setListingStatus('car-001', 'withdrawn', demoSeller)
+    expect(!blocked.ok && blocked.reason).toBe('lease_open')
+    const stranger = await setListingStatus('car-001', 'withdrawn', demoUser)
     expect(!stranger.ok && stranger.reason).toBe('forbidden')
     const missing = await setListingStatus('nope', 'withdrawn', demoAdmin)
     expect(!missing.ok && missing.reason).toBe('not_found')
   })
 
   it('notifies the owner when an admin withdraws', async () => {
-    await setListingStatus('trc-001', 'withdrawn', demoAdmin)
+    await setListingStatus('car-001', 'withdrawn', demoAdmin)
     expect(
       (await listNotifications('demo-seller')).map((n) => n.title),
     ).toEqual(['出品が運営により取り下げられました'])
-    await setListingStatus('trc-001', 'listed', demoSeller)
+    await setListingStatus('car-001', 'listed', demoSeller)
     expect(await listNotifications('demo-seller')).toHaveLength(1)
   })
 
@@ -412,15 +418,15 @@ describe('listing CRUD', () => {
     const updated = await updateListing(created.id, {
       ...submission,
       name: '更新後の名前',
-      deals: ['rent'],
+      deals: ['lease'],
       salePrice: undefined,
-      rentToOwn: false,
+      residualLease: false,
     })
     expect(updated).toMatchObject({
       id: created.id,
       name: '更新後の名前',
-      deals: ['rent'],
-      rentToOwn: false,
+      deals: ['lease'],
+      residualLease: false,
       seller: { rating: 0, reviews: 0 },
       createdAt: created.createdAt,
     })
@@ -430,17 +436,17 @@ describe('listing CRUD', () => {
   })
 
   it('keeps a seeded seller rating when a seeded listing is updated', async () => {
-    const updated = await updateListing('trc-001', submission)
+    const updated = await updateListing('car-001', submission)
     expect(updated?.seller).toMatchObject({
-      name: 'テスト農園',
+      name: 'テストモータース',
       rating: 4.8,
       reviews: 34,
     })
   })
 
   it('deletes a listing', async () => {
-    expect(await deleteListing('trc-001')).toBe(true)
-    expect(await getListing('trc-001')).toBeUndefined()
-    expect(await deleteListing('trc-001')).toBe(false)
+    expect(await deleteListing('car-001')).toBe(true)
+    expect(await getListing('car-001')).toBeUndefined()
+    expect(await deleteListing('car-001')).toBe(false)
   })
 })

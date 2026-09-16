@@ -1,6 +1,7 @@
 'use client'
 
 import { useState } from 'react'
+import { transportVehicleSizes } from '@/lib/data'
 import { validateTransportJob } from '@/lib/validation/transport'
 import { listingCategories } from '@/lib/validation/listing-submission'
 import {
@@ -16,21 +17,22 @@ import type { FormContact } from './contact'
 import { SubmitButton } from './submit-button'
 
 export type TransportJobInitial = {
-  item?: string
+  vehicleName?: string
   category?: string
   fromPrefecture?: string
   fromCity?: string
-  weight?: string
+  vehicleSize?: string
 }
 
 export type TransportJobEdit = {
   jobId: string
   values: {
-    item: string
+    vehicleName: string
     from: string
     to: string
     distanceKm: string
-    weight: string
+    vehicleSize: string
+    vehicleCount: string
     desiredDate: string
     reward: string
     contactEmail: string
@@ -78,11 +80,12 @@ export function TransportJobForm({
     method: edit ? 'PUT' : 'POST',
     validate: validateTransportJob,
     initialValues: edit?.values ?? {
-      item: initial?.item ?? '',
+      vehicleName: initial?.vehicleName ?? '',
       from: joinPlace(initial?.fromPrefecture ?? '', initial?.fromCity ?? ''),
       to: '',
       distanceKm: '',
-      weight: initial?.weight ?? '',
+      vehicleSize: initial?.vehicleSize ?? '',
+      vehicleCount: '1',
       desiredDate: '',
       reward: '',
       contactEmail: contact?.email ?? '',
@@ -108,7 +111,13 @@ export function TransportJobForm({
       form.setValue('distanceKm', String(Math.max(1, distance)))
       form.setValue(
         'reward',
-        String(estimateTransportFee(next.category, Math.max(1, distance))),
+        String(
+          estimateTransportFee(
+            next.category,
+            Math.max(1, distance),
+            Math.max(1, Number(form.values.vehicleCount) || 1),
+          ),
+        ),
       )
     }
   }
@@ -138,16 +147,16 @@ export function TransportJobForm({
       <FormAlert error={form.failed ? '送信できませんでした。' : undefined} />
       <div className="grid gap-5 sm:grid-cols-2">
         <TextField
-          id="item"
-          label="運ぶもの"
-          placeholder="例: トラクター 45馬力"
-          value={form.values.item}
-          onChange={(e) => form.setValue('item', e.target.value)}
-          error={form.errors.item}
+          id="vehicle-name"
+          label="運ぶ車"
+          placeholder="例: トヨタ プリウス Z"
+          value={form.values.vehicleName}
+          onChange={(e) => form.setValue('vehicleName', e.target.value)}
+          error={form.errors.vehicleName}
         />
         <SelectField
           id="category"
-          label="種類"
+          label="カテゴリ"
           options={listingCategories}
           value={places.category}
           onChange={(e) => updatePlaces({ category: e.target.value })}
@@ -206,13 +215,21 @@ export function TransportJobForm({
           onChange={(e) => form.setValue('distanceKm', e.target.value)}
           error={form.errors.distanceKm}
         />
+        <SelectField
+          id="vehicle-size"
+          label="車両サイズ"
+          options={transportVehicleSizes}
+          value={form.values.vehicleSize}
+          onChange={(e) => form.setValue('vehicleSize', e.target.value)}
+          error={form.errors.vehicleSize}
+        />
         <TextField
-          id="weight"
-          label="重量"
-          placeholder="例: 約1.8t"
-          value={form.values.weight}
-          onChange={(e) => form.setValue('weight', e.target.value)}
-          error={form.errors.weight}
+          id="vehicle-count"
+          label="積載台数"
+          inputMode="numeric"
+          value={form.values.vehicleCount}
+          onChange={(e) => form.setValue('vehicleCount', e.target.value)}
+          error={form.errors.vehicleCount}
         />
         <TextField
           id="desiredDate"

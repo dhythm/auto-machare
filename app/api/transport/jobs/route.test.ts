@@ -12,11 +12,12 @@ beforeEach(() => {
 })
 
 const input = {
-  item: 'トラクター 25馬力',
+  vehicleName: '乗用車 L',
   from: '長野県 松本市',
   to: '長野県 諏訪市',
   distanceKm: '40',
-  weight: '約1.2t',
+  vehicleSize: '普通車',
+  vehicleCount: 1,
   desiredDate: '相談',
   reward: '14000',
   contactEmail: 'owner@example.com',
@@ -43,7 +44,7 @@ describe('/api/transport/jobs', () => {
     const body = await response.json()
     expect(body.job).toMatchObject({
       id: body.id,
-      item: input.item,
+      vehicleName: input.vehicleName,
       status: '募集中',
       moderationStatus: 'pending',
       ownerUserId: 'demo-seller',

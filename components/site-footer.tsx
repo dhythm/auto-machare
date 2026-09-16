@@ -4,12 +4,12 @@ import { BrandLogo } from '@/components/brand-logo'
 
 const groups = [
   {
-    title: '農機具をつなぐ',
+    title: '車両をつなぐ',
     links: [
-      { label: '農機具を買う', href: '/listings?deal=sale' },
-      { label: 'レンタルする', href: '/listings?deal=rent' },
-      { label: '借りてから買う', href: '/listings?deal=rentToOwn' },
-      { label: '農機具を出品する', href: '/listings/new' },
+      { label: '車両を買う', href: '/listings?deal=sale' },
+      { label: 'リースする', href: '/listings?deal=lease' },
+      { label: '残価設定リース', href: '/listings?deal=residualLease' },
+      { label: '車両を出品する', href: '/listings/new' },
     ],
   },
   {
@@ -35,26 +35,26 @@ const groups = [
 
 export function SiteFooter() {
   return (
-    <footer className="bg-[#173f35] text-white">
+    <footer className="bg-[#152a3e] text-white">
       <div className="mx-auto max-w-[1360px] px-5 pb-8 pt-14 sm:px-8 lg:px-10">
         <div className="grid gap-12 lg:grid-cols-[1.2fr_2fr]">
           <div>
-            <Link href="/" aria-label="Agri Machare ホーム">
+            <Link href="/" aria-label="Auto Machare ホーム">
               <BrandLogo inverse />
             </Link>
             <p className="mt-7 font-display text-2xl font-bold leading-relaxed">
-              農機具と、次の可能性を。
+              車と、次の可能性を。
             </p>
             <p className="mt-4 max-w-xs text-xs leading-7 text-white/65">
               つくる人、使う人、運ぶ人。
               <br />
-              一台の農機具から、農業の未来をつないでいく。
+              一台の車から、次の可能性をつないでいく。
             </p>
           </div>
           <div className="grid grid-cols-2 gap-x-6 gap-y-8 sm:grid-cols-3">
             {groups.map((group) => (
               <div key={group.title}>
-                <h3 className="text-xs font-bold text-[#d9eb8b]">
+                <h3 className="text-xs font-bold text-[#ffc857]">
                   {group.title}
                 </h3>
                 <ul className="mt-5 space-y-3.5">
@@ -76,7 +76,7 @@ export function SiteFooter() {
         </div>
         <div className="mt-12 flex flex-col gap-3 border-t border-white/15 pt-6 text-[10px] text-white/55 sm:flex-row sm:items-center sm:justify-between">
           <p>コンセプト検証版 · 実際の取引・決済は行われません。</p>
-          <p className="tracking-wider">© 2026 Agri Machare</p>
+          <p className="tracking-wider">© 2026 Auto Machare</p>
         </div>
       </div>
     </footer>

@@ -25,14 +25,14 @@ describe('GET /api/listings', () => {
   it('returns filtered, searched, and paged listings', async () => {
     const response = await GET(
       new Request(
-        'http://localhost/api/listings?category=トラクター&deal=rent&q=クボタ&page=1&pageSize=3',
+        'http://localhost/api/listings?category=乗用車&deal=lease&q=トヨタ&page=1&pageSize=3',
       ),
     )
     expect(response.status).toBe(200)
     const body = await response.json()
     expect(body.items.length).toBeGreaterThan(0)
     expect(body.items.length).toBeLessThanOrEqual(3)
-    expect(body.items[0]).toMatchObject({ id: 'trc-001' })
+    expect(body.items[0]).toMatchObject({ id: 'car-001' })
     expect(body.pageSize).toBe(3)
   })
 
@@ -51,7 +51,7 @@ describe('GET /api/listings', () => {
     ).toBe(true)
     expect(
       body.items.every(
-        (item: { rentPerDay?: number }) => item.rentPerDay !== undefined,
+        (item: { leasePerMonth?: number }) => item.leasePerMonth !== undefined,
       ),
     ).toBe(true)
   })
@@ -65,8 +65,8 @@ describe('GET /api/listings', () => {
     'category=unknown',
     'deal=',
     'category=',
-    'deal=rent&deal=sale',
-    'category=すべて&category=ドローン',
+    'deal=lease&deal=sale',
+    'category=すべて&category=トラック',
     'page=0',
     'page=abc',
     'pageSize=0',
@@ -82,21 +82,22 @@ describe('GET /api/listings', () => {
 })
 
 const submission = {
-  name: 'クボタ トラクター 30馬力',
-  category: 'トラクター',
-  maker: 'クボタ',
+  name: 'トヨタ プリウス G',
+  category: '乗用車',
+  maker: 'トヨタ',
+  model: 'テスト車種',
   year: '2018',
-  hours: '500',
+  mileageKm: '500',
   condition: '目立った傷なし',
   prefecture: '新潟県',
   city: '長岡市',
   deals: ['sale'],
   salePrice: '1500000',
-  rentPerDay: '',
-  rentToOwn: false,
-  summary: 'キャビン付き。',
-  sellerName: 'テスト農園',
-  sellerKind: '農業法人',
+  leasePerMonth: '',
+  residualLease: false,
+  summary: '禁煙車。',
+  sellerName: 'テストモータース',
+  sellerKind: '中古車販売店',
   contactEmail: 'seller@example.com',
 }
 
@@ -127,7 +128,7 @@ describe('POST /api/listings', () => {
     const list = await (
       await GET(new Request('http://localhost/api/listings?pageSize=1'))
     ).json()
-    expect(list.items[0].id).toBe('trc-001')
+    expect(list.items[0].id).toBe('car-001')
     expect(list.items.map((item: { id: string }) => item.id)).not.toContain(
       body.id,
     )

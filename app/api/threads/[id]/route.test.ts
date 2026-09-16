@@ -20,8 +20,8 @@ async function openInquiry() {
   return (
     await acceptSubmission(
       'listingInquiry',
-      { mode: 'rent', name: '利用者デモ', message: '借りたい' },
-      { targetId: 'trc-001', userId: 'demo-user' },
+      { mode: 'lease', name: '利用者デモ', message: '借りたい' },
+      { targetId: 'car-001', userId: 'demo-user' },
     )
   ).id
 }
@@ -32,7 +32,7 @@ async function openApplication() {
       'transportApplication',
       {
         name: '利用者デモ',
-        vehicle: '2tトラック',
+        vehicle: '2台積みキャリアカー',
         availableDate: '2026-10-03',
       },
       { targetId: 'tj-01', userId: 'demo-user' },
@@ -65,7 +65,7 @@ describe('GET /api/threads/[id]', () => {
     expect(body).toMatchObject({
       status: 'new',
       role: 'sender',
-      target: { kind: 'listing', listing: { id: 'trc-001' } },
+      target: { kind: 'listing', listing: { id: 'car-001' } },
     })
     expect(body.messages.map((m: { body: string }) => m.body)).toEqual([
       '見に行けますか',

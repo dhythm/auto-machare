@@ -20,7 +20,7 @@ export function RoleChannels() {
             販売も、使わない期間の貸し出しも。
           </p>
           <span className="mt-5 inline-flex items-center gap-3 text-sm font-bold text-primary">
-            農機具を出品する
+            車両を出品する
             <ArrowUpRight className="size-4 transition-transform group-hover:-translate-y-0.5 group-hover:translate-x-0.5" />
           </span>
         </div>
@@ -35,10 +35,10 @@ export function RoleChannels() {
         <div className="flex-1">
           <p className="eyebrow">FOR TRANSPORT PARTNERS</p>
           <h2 className="mt-2 text-lg font-bold">
-            その帰り道が、農業をつなぐ。
+            その帰り道が、次の一台をつなぐ。
           </h2>
           <p className="mt-3 text-xs leading-relaxed text-muted-foreground">
-            車両と対応エリアを登録して、運搬の仕事を。
+            積載車と対応エリアを登録して、陸送の仕事を。
           </p>
           <span className="mt-5 inline-flex items-center gap-3 text-sm font-bold text-primary">
             運搬者として登録する

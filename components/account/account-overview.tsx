@@ -22,17 +22,17 @@ import {
 import type { AccountOverview } from '@/lib/server/account'
 import type { Submission } from '@/lib/server/store/types'
 import { CompleteJobButton } from './complete-job-button'
-import { RentalActions } from './rental-actions'
+import { LeaseActions } from './lease-actions'
 import { StartHaulButton } from './start-haul-button'
 import { ListingStatusButton } from '@/components/listings/listing-status-button'
 import { ReviewForm } from '@/components/reviews/review-form'
 import { StarRating } from '@/components/reviews/star-rating'
 import type { Review } from '@/lib/server/store/types'
-import { rentalStatusLabels } from '@/lib/rent-to-own'
+import { leaseStatusLabels } from '@/lib/residual-lease'
 import { orderStatusLabels } from '@/lib/data'
 import type { OrderWithListing } from '@/lib/server/orders'
 import { OrderActions } from './order-actions'
-import type { RentalWithListing } from '@/lib/server/rentals'
+import type { LeaseWithListing } from '@/lib/server/leases'
 
 const moderationLabels: Record<ModerationStatus, string> = {
   pending: '審査待ち',
@@ -195,14 +195,14 @@ function OrderList({
                 {listing.name}
               </Link>
             ) : (
-              <span className="text-muted-foreground">削除された農機具</span>
+              <span className="text-muted-foreground">削除された車両</span>
             )}
             <Badge variant={order.status === 'requested' ? 'default' : 'muted'}>
               {orderStatusLabels[order.status]}
             </Badge>
             <span className="text-muted-foreground">
               {formatYen(order.price)}
-              {order.sourceRentalId && '（レンタルから切替）'}
+              {order.sourceLeaseId && '（リースから切替）'}
             </span>
           </div>
           {order.message && (
@@ -241,21 +241,21 @@ function OrderList({
   )
 }
 
-function RentalList({
+function LeaseList({
   items,
   party,
   reviewedSources,
 }: {
-  items: RentalWithListing[]
-  party: 'owner' | 'renter'
+  items: LeaseWithListing[]
+  party: 'owner' | 'lessee'
   reviewedSources: Record<string, Review>
 }) {
   if (items.length === 0) return <Empty label="まだありません" />
   return (
     <ul className="flex flex-col gap-3">
-      {items.map(({ rental, listing }) => (
+      {items.map(({ lease, listing }) => (
         <li
-          key={rental.id}
+          key={lease.id}
           className="rounded-2xl border border-border bg-card p-5 text-sm sm:p-6"
         >
           <div className="flex flex-wrap items-center gap-2">
@@ -267,24 +267,22 @@ function RentalList({
                 {listing.name}
               </Link>
             ) : (
-              <span className="text-muted-foreground">削除された農機具</span>
+              <span className="text-muted-foreground">削除された車両</span>
             )}
-            <Badge
-              variant={rental.status === 'requested' ? 'default' : 'muted'}
-            >
-              {rentalStatusLabels[rental.status]}
+            <Badge variant={lease.status === 'requested' ? 'default' : 'muted'}>
+              {leaseStatusLabels[lease.status]}
             </Badge>
           </div>
           <p className="mt-1 text-muted-foreground">
-            {rental.startDate} 〜 {rental.endDate}・{rental.days}日間・
-            {formatYen(rental.rentTotal)}
+            {lease.startDate} 〜 {lease.endDate}・{lease.months}ヶ月・
+            {formatYen(lease.leaseTotal)}
           </p>
-          {rental.purchasePrice !== undefined && (
+          {lease.buyoutPrice !== undefined && (
             <p className="mt-1 text-foreground">
-              購入価格 {formatYen(rental.purchasePrice)}（充当後）
+              購入価格 {formatYen(lease.buyoutPrice)}（充当後）
             </p>
           )}
-          {rental.status === 'converted' && listing && party === 'renter' && (
+          {lease.status === 'converted' && listing && party === 'lessee' && (
             <Link
               href={`/transport/new?listingId=${listing.id}`}
               className="mt-2 inline-block text-sm font-medium text-primary hover:underline"
@@ -293,23 +291,22 @@ function RentalList({
             </Link>
           )}
           <div className="mt-4 border-t border-border pt-4">
-            <RentalActions
-              rentalId={rental.id}
-              status={rental.status}
+            <LeaseActions
+              leaseId={lease.id}
+              status={lease.status}
               party={party}
               canConvert={
-                rental.salePrice !== undefined &&
-                rental.creditRate !== undefined
+                lease.salePrice !== undefined && lease.creditRate !== undefined
               }
             />
           </div>
-          {party === 'renter' &&
-            (rental.status === 'completed' || rental.status === 'converted') &&
-            (reviewedSources[`rental:${rental.id}`] ? (
-              <WrittenReview review={reviewedSources[`rental:${rental.id}`]} />
+          {party === 'lessee' &&
+            (lease.status === 'completed' || lease.status === 'converted') &&
+            (reviewedSources[`lease:${lease.id}`] ? (
+              <WrittenReview review={reviewedSources[`lease:${lease.id}`]} />
             ) : (
               <div className="mt-3 border-t border-border pt-3">
-                <ReviewForm sourceKind="rental" sourceId={rental.id} />
+                <ReviewForm sourceKind="lease" sourceId={lease.id} />
               </div>
             ))}
         </li>
@@ -340,15 +337,15 @@ export function AccountOverviewView({
       icon: Inbox,
     },
     {
-      label: '承認待ちのレンタル',
-      value: overview.summary.requestedRentals,
+      label: '承認待ちのリース',
+      value: overview.summary.requestedLeases,
       href: '#lending',
       icon: CalendarDays,
     },
     {
       label: '審査待ちの出品',
       value: overview.summary.pendingListings,
-      href: '#equipment',
+      href: '#listings',
       icon: Clock3,
     },
   ]
@@ -388,7 +385,7 @@ export function AccountOverviewView({
         <div className="flex min-w-0 flex-col gap-10">
           <AccountActivity overview={overview} />
           <Section
-            id="equipment"
+            id="listings"
             title="自分の出品"
             count={overview.listings.length}
             action={
@@ -502,8 +499,8 @@ export function AccountOverviewView({
                     <Badge variant="outline">
                       {deal.kind === 'order'
                         ? '注文'
-                        : deal.kind === 'rental'
-                          ? 'レンタル'
+                        : deal.kind === 'lease'
+                          ? 'リース'
                           : '運搬'}
                     </Badge>
                     <Link
@@ -530,7 +527,7 @@ export function AccountOverviewView({
 
           <Section
             id="purchases"
-            title="買った農機具"
+            title="買った車両"
             count={overview.orders.asBuyer.length}
           >
             <OrderList
@@ -542,7 +539,7 @@ export function AccountOverviewView({
 
           <Section
             id="sales"
-            title="売った農機具"
+            title="売った車両"
             count={overview.orders.asSeller.length}
           >
             <OrderList
@@ -553,24 +550,24 @@ export function AccountOverviewView({
           </Section>
 
           <Section
-            id="rentals"
-            title="借りている農機具"
-            count={overview.rentals.asRenter.length}
+            id="leases"
+            title="借りている車両"
+            count={overview.leases.asLessee.length}
           >
-            <RentalList
-              items={overview.rentals.asRenter}
-              party="renter"
+            <LeaseList
+              items={overview.leases.asLessee}
+              party="lessee"
               reviewedSources={overview.reviewedSources}
             />
           </Section>
 
           <Section
             id="lending"
-            title="貸している農機具"
-            count={overview.rentals.asOwner.length}
+            title="貸している車両"
+            count={overview.leases.asOwner.length}
           >
-            <RentalList
-              items={overview.rentals.asOwner}
+            <LeaseList
+              items={overview.leases.asOwner}
               party="owner"
               reviewedSources={overview.reviewedSources}
             />
@@ -609,7 +606,7 @@ export function AccountOverviewView({
                             href={`/transport/${job.id}`}
                             className="font-semibold text-foreground hover:text-primary hover:underline"
                           >
-                            {job.item}
+                            {job.vehicleName}
                           </Link>
                           <ModerationBadge status={job.moderationStatus} />
                           <Badge variant="muted">{job.status}</Badge>
@@ -725,7 +722,7 @@ export function AccountOverviewView({
                           href={`/transport/${job.id}`}
                           className="font-semibold text-foreground hover:text-primary hover:underline"
                         >
-                          {job.item}
+                          {job.vehicleName}
                         </Link>
                         <span className="text-muted-foreground">
                           {job.from} → {job.to}・{formatYen(job.reward)}
@@ -775,7 +772,7 @@ export function AccountOverviewView({
                         </Link>
                       ) : (
                         <span className="text-muted-foreground">
-                          削除された農機具
+                          削除された車両
                         </span>
                       )}
                       <span className="text-muted-foreground">
@@ -814,7 +811,7 @@ export function AccountOverviewView({
                           href={`/transport/${job.id}`}
                           className="font-semibold text-foreground hover:text-primary hover:underline"
                         >
-                          {job.item}
+                          {job.vehicleName}
                         </Link>
                       ) : (
                         <span className="text-muted-foreground">
@@ -865,7 +862,7 @@ export function AccountOverviewView({
                           href={`/transport/${job.id}`}
                           className="font-semibold text-foreground hover:text-primary hover:underline"
                         >
-                          {job.item}
+                          {job.vehicleName}
                         </Link>
                       ) : (
                         <span className="text-muted-foreground">

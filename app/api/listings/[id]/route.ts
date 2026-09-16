@@ -10,8 +10,8 @@ import { validateListingSubmission } from '@/lib/validation/listing-submission'
 
 type Context = { params: Promise<{ id: string }> }
 
-const missing = () => notFound('農機具が見つかりません。')
-const notOwner = () => forbidden('この農機具を編集する権限がありません。')
+const missing = () => notFound('車両が見つかりません。')
+const notOwner = () => forbidden('この車両を編集する権限がありません。')
 
 export async function GET(_request: Request, { params }: Context) {
   const listing = await getListing((await params).id)

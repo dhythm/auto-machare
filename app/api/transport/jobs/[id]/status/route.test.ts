@@ -29,7 +29,7 @@ describe('PATCH /api/transport/jobs/[id]/status', () => {
       'transportApplication',
       {
         name: '利用者デモ',
-        vehicle: '2tトラック',
+        vehicle: '2台積みキャリアカー',
         availableDate: '2026-10-03',
       },
       { targetId: 'tj-01', userId: 'demo-user' },

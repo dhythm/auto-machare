@@ -15,7 +15,7 @@ beforeEach(() => {
 const application = {
   name: '高橋 健',
   email: 'ken@example.com',
-  vehicle: '2tトラック',
+  vehicle: '2台積みキャリアカー',
   availableDate: '2026-10-03',
 }
 
@@ -56,11 +56,12 @@ describe('POST /api/transport/jobs/[id]/applications', () => {
       new Request('http://localhost/api/transport/jobs', {
         method: 'POST',
         body: JSON.stringify({
-          item: '審査中トラクター',
+          vehicleName: '審査中乗用車',
           from: '長野県 松本市',
           to: '長野県 諏訪市',
           distanceKm: '40',
-          weight: '約1.2t',
+          vehicleSize: '普通車',
+          vehicleCount: 1,
           desiredDate: '相談',
           reward: '14000',
           contactEmail: 'owner@example.com',

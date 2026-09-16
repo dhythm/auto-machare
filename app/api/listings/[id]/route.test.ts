@@ -15,21 +15,22 @@ beforeEach(() => {
 })
 
 const submission = {
-  name: '更新後のトラクター',
-  category: 'トラクター',
-  maker: 'クボタ',
+  name: '更新後の乗用車',
+  category: '乗用車',
+  maker: 'トヨタ',
+  model: 'テスト車種',
   year: '2018',
-  hours: '500',
+  mileageKm: '500',
   condition: '目立った傷なし',
   prefecture: '新潟県',
   city: '長岡市',
-  deals: ['rent'],
+  deals: ['lease'],
   salePrice: '',
-  rentPerDay: '9000',
-  rentToOwn: false,
+  leasePerMonth: '9000',
+  residualLease: false,
   summary: '更新しました。',
-  sellerName: '中村ファーム',
-  sellerKind: '農業法人',
+  sellerName: '中村モータース',
+  sellerKind: '中古車販売店',
   contactEmail: 'seller@example.com',
 }
 
@@ -37,9 +38,9 @@ const context = (id: string) => ({ params: Promise.resolve({ id }) })
 
 describe('GET /api/listings/[id]', () => {
   it('returns the listing or 404', async () => {
-    const found = await GET(new Request('http://localhost'), context('trc-001'))
+    const found = await GET(new Request('http://localhost'), context('car-001'))
     expect(found.status).toBe(200)
-    expect((await found.json()).id).toBe('trc-001')
+    expect((await found.json()).id).toBe('car-001')
     expect(
       (await GET(new Request('http://localhost'), context('missing'))).status,
     ).toBe(404)
@@ -50,21 +51,22 @@ describe('GET /api/listings/[id]', () => {
       new Request('http://localhost/api/listings', {
         method: 'POST',
         body: JSON.stringify({
-          name: '審査中トラクター',
-          category: 'トラクター',
-          maker: 'クボタ',
+          name: '審査中乗用車',
+          category: '乗用車',
+          maker: 'トヨタ',
+          model: 'テスト車種',
           year: '2018',
-          hours: '500',
+          mileageKm: '500',
           condition: '目立った傷なし',
           prefecture: '新潟県',
           city: '長岡市',
           deals: ['sale'],
           salePrice: '1000000',
-          rentPerDay: '',
-          rentToOwn: false,
+          leasePerMonth: '',
+          residualLease: false,
           summary: '審査中。',
-          sellerName: '審査農園',
-          sellerKind: '農業法人',
+          sellerName: '審査モータース',
+          sellerKind: '中古車販売店',
           contactEmail: 'seller@example.com',
         }),
       }),
@@ -93,37 +95,37 @@ describe('PUT /api/listings/[id]', () => {
     )
 
   it('replaces the listing fields and keeps the id', async () => {
-    const response = await put('trc-001', submission)
+    const response = await put('car-001', submission)
     expect(response.status).toBe(200)
     const body = await response.json()
     expect(body).toMatchObject({
-      id: 'trc-001',
-      name: '更新後のトラクター',
-      deals: ['rent'],
+      id: 'car-001',
+      name: '更新後の乗用車',
+      deals: ['lease'],
     })
     expect(body.salePrice).toBeUndefined()
     expect(
       (
         await (
-          await GET(new Request('http://localhost'), context('trc-001'))
+          await GET(new Request('http://localhost'), context('car-001'))
         ).json()
       ).name,
-    ).toBe('更新後のトラクター')
+    ).toBe('更新後の乗用車')
   })
 
   it('validates the body and reports unknown ids', async () => {
-    expect((await put('trc-001', { ...submission, name: '' })).status).toBe(400)
+    expect((await put('car-001', { ...submission, name: '' })).status).toBe(400)
     expect((await put('missing', submission)).status).toBe(404)
   })
 
   it('is limited to the owner or an admin', async () => {
     signInAs(null)
-    expect((await put('trc-001', submission)).status).toBe(401)
+    expect((await put('car-001', submission)).status).toBe(401)
     signInAs(demoUser)
-    expect((await put('trc-001', submission)).status).toBe(403)
-    expect((await put('trc-007', submission)).status).toBe(403)
+    expect((await put('car-001', submission)).status).toBe(403)
+    expect((await put('kei-007', submission)).status).toBe(403)
     signInAs(demoAdmin)
-    expect((await put('trc-007', submission)).status).toBe(200)
+    expect((await put('kei-007', submission)).status).toBe(200)
   })
 })
 
@@ -139,20 +141,20 @@ describe('DELETE /api/listings/[id]', () => {
           message: 'x',
         }),
       }),
-      context('trc-001'),
+      context('car-001'),
     )
-    expect(await listSubmissions('listingInquiry', 'trc-001')).toHaveLength(1)
+    expect(await listSubmissions('listingInquiry', 'car-001')).toHaveLength(1)
     const response = await DELETE(
       new Request('http://localhost'),
-      context('trc-001'),
+      context('car-001'),
     )
     expect(response.status).toBe(204)
     expect(
-      (await GET(new Request('http://localhost'), context('trc-001'))).status,
+      (await GET(new Request('http://localhost'), context('car-001'))).status,
     ).toBe(404)
-    expect(await listSubmissions('listingInquiry', 'trc-001')).toHaveLength(0)
+    expect(await listSubmissions('listingInquiry', 'car-001')).toHaveLength(0)
     expect(
-      (await DELETE(new Request('http://localhost'), context('trc-001')))
+      (await DELETE(new Request('http://localhost'), context('car-001')))
         .status,
     ).toBe(404)
   })
@@ -161,10 +163,10 @@ describe('DELETE /api/listings/[id]', () => {
     const remove = (id: string) =>
       DELETE(new Request('http://localhost'), context(id))
     signInAs(null)
-    expect((await remove('trc-002')).status).toBe(401)
+    expect((await remove('kei-002')).status).toBe(401)
     signInAs(demoUser)
-    expect((await remove('cmb-002')).status).toBe(403)
+    expect((await remove('suv-002')).status).toBe(403)
     signInAs(demoAdmin)
-    expect((await remove('trc-007')).status).toBe(204)
+    expect((await remove('kei-007')).status).toBe(204)
   })
 })

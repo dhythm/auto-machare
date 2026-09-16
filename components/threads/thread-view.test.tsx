@@ -12,11 +12,11 @@ const thread: Thread = {
   submission: {
     id: 't-1',
     kind: 'listingInquiry',
-    targetId: 'trc-001',
+    targetId: 'car-001',
     userId: 'demo-user',
     receivedAt: '2026-09-13T01:00:00.000Z',
     payload: {
-      mode: 'rent',
+      mode: 'lease',
       name: '利用者デモ',
       email: 'u@example.com',
       message: '借りたいです',
@@ -27,22 +27,23 @@ const thread: Thread = {
   target: {
     kind: 'listing',
     listing: {
-      id: 'trc-001',
-      name: 'クボタ 45馬力',
-      category: 'トラクター',
-      maker: 'クボタ',
+      id: 'car-001',
+      name: 'トヨタ Z',
+      category: '乗用車',
+      maker: 'トヨタ',
+      model: 'テスト車種',
       year: 2019,
-      hours: 620,
+      mileageKm: 620,
       condition: '目立った傷なし',
       prefecture: '新潟県',
       city: '長岡市',
-      image: '/equipment/tractor.png',
+      image: '/vehicles/sedan.png',
       summary: '',
-      deals: ['rent'],
-      rentPerDay: 22_000,
+      deals: ['lease'],
+      leasePerMonth: 22_000,
       seller: {
-        name: '中村ファーム',
-        kind: '農業法人',
+        name: '中村モータース',
+        kind: '中古車販売店',
         rating: 4.8,
         reviews: 34,
       },
@@ -77,9 +78,9 @@ describe('ThreadView', () => {
     expect(screen.getByText('借りたいです')).toBeInTheDocument()
     expect(screen.getByText('在庫あります')).toBeInTheDocument()
     expect(screen.getByText('相手')).toBeInTheDocument()
-    expect(screen.getByRole('link', { name: 'クボタ 45馬力' })).toHaveAttribute(
+    expect(screen.getByRole('link', { name: 'トヨタ Z' })).toHaveAttribute(
       'href',
-      '/listings/trc-001',
+      '/listings/car-001',
     )
     expect(screen.queryByRole('button', { name: '成約' })).toBeNull()
     const user = userEvent.setup()
@@ -125,7 +126,7 @@ describe('ThreadView', () => {
     )
     expect(
       screen.getByRole('link', { name: '運搬を依頼する' }),
-    ).toHaveAttribute('href', '/transport/new?listingId=trc-001')
+    ).toHaveAttribute('href', '/transport/new?listingId=car-001')
   })
 
   it('shows the review form to the sender of an agreed inquiry', () => {

@@ -4,6 +4,7 @@ import {
   finish,
   invalidInput,
   readBoolean,
+  readDate,
   readInteger,
   requireChoice,
   requireEmail,
@@ -23,25 +24,32 @@ export const listingConditions = [
   '要整備',
 ] as const
 
-export const sellerKinds = ['個人農家', '法人', '農業法人', '販売店'] as const
+export const sellerKinds = [
+  '個人',
+  '法人',
+  'ディーラー',
+  '中古車販売店',
+] as const
 
-const listingDeals = ['sale', 'rent'] as const
+const listingDeals = ['sale', 'lease'] as const
 
 export type ListingSubmission = {
   name: string
   category: (typeof listingCategories)[number]
   maker: string
+  model: string
   year: number
-  hours: number
+  mileageKm: number
+  inspectionExpiresOn?: string
   condition: (typeof listingConditions)[number]
   prefecture: string
   city: string
   deals: (typeof listingDeals)[number][]
   salePrice?: number
-  rentPerDay?: number
-  rentToOwn: boolean
-  rentToOwnCreditRate?: number
-  rentToOwnCreditCap?: number
+  leasePerMonth?: number
+  residualLease: boolean
+  residualLeaseCreditRate?: number
+  residualLeaseCreditCap?: number
   /** Data URLs (jpeg / png / webp), largest side about 1200px. */
   images: string[]
   /** Small data URL of the first image for lists. */
@@ -119,13 +127,13 @@ export function validateListingSubmission(
 
   const deals = readDeals(errors, source)
   const canSell = deals.includes('sale')
-  const canRent = deals.includes('rent')
-  const rentToOwn = readBoolean(source, 'rentToOwn')
-  if (rentToOwn && deals.length > 0 && !(canSell && canRent))
-    errors.rentToOwn = 'レンタル購入には販売とレンタルの両方が必要です。'
+  const canLease = deals.includes('lease')
+  const residualLease = readBoolean(source, 'residualLease')
+  if (residualLease && deals.length > 0 && !(canSell && canLease))
+    errors.residualLease = '残価設定リースには販売とリースの両方が必要です。'
 
   const value: ListingSubmission = {
-    name: requireText(errors, source, 'name', '農機具名', 80),
+    name: requireText(errors, source, 'name', '車名', 80),
     category: requireChoice(
       errors,
       source,
@@ -134,14 +142,22 @@ export function validateListingSubmission(
       listingCategories,
     ) as ListingSubmission['category'],
     maker: requireText(errors, source, 'maker', 'メーカー', 40),
+    model: requireText(errors, source, 'model', '車種・グレード', 60),
     year: readInteger(errors, source, 'year', '年式', {
       min: 1980,
       max: 2030,
     }) as number,
-    hours: readInteger(errors, source, 'hours', '稼働時間', {
+    mileageKm: readInteger(errors, source, 'mileageKm', '走行距離', {
       min: 0,
-      max: 100_000,
+      max: 999_999,
     }) as number,
+    inspectionExpiresOn: readDate(
+      errors,
+      source,
+      'inspectionExpiresOn',
+      '車検満了日',
+      false,
+    ),
     condition: requireChoice(
       errors,
       source,
@@ -160,28 +176,28 @@ export function validateListingSubmission(
       { min: 1, max: 1_000_000_000 },
       canSell,
     ),
-    rentPerDay: readInteger(
+    leasePerMonth: readInteger(
       errors,
       source,
-      'rentPerDay',
-      'レンタル料（1日）',
+      'leasePerMonth',
+      '月額リース料',
       { min: 1, max: 10_000_000 },
-      canRent,
+      canLease,
     ),
-    rentToOwn,
-    rentToOwnCreditRate: readInteger(
+    residualLease,
+    residualLeaseCreditRate: readInteger(
       errors,
       source,
-      'rentToOwnCreditRate',
-      '充当率',
+      'residualLeaseCreditRate',
+      '買取価格への充当率',
       { min: 1, max: 100 },
-      rentToOwn,
+      residualLease,
     ),
-    rentToOwnCreditCap: readInteger(
+    residualLeaseCreditCap: readInteger(
       errors,
       source,
-      'rentToOwnCreditCap',
-      '充当上限',
+      'residualLeaseCreditCap',
+      '充当上限額',
       { min: 1, max: 1_000_000_000 },
       false,
     ),
@@ -199,10 +215,10 @@ export function validateListingSubmission(
     contactEmail: requireEmail(errors, source, 'contactEmail'),
   }
   if (!canSell) value.salePrice = undefined
-  if (!canRent) value.rentPerDay = undefined
-  if (!rentToOwn) {
-    value.rentToOwnCreditRate = undefined
-    value.rentToOwnCreditCap = undefined
+  if (!canLease) value.leasePerMonth = undefined
+  if (!residualLease) {
+    value.residualLeaseCreditRate = undefined
+    value.residualLeaseCreditCap = undefined
   }
 
   return finish(errors, value)

@@ -8,7 +8,7 @@ import { getCurrentUser } from '@/lib/server/auth/session'
 import { getCarrierProfile } from '@/lib/server/carriers'
 import type { CarrierProfileInput } from '@/lib/validation/carrier'
 
-export const metadata: Metadata = { title: '運搬者登録 | Agri Machare' }
+export const metadata: Metadata = { title: '運搬者登録 | Auto Machare' }
 
 export const dynamic = 'force-dynamic'
 

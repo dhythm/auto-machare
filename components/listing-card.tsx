@@ -5,7 +5,7 @@ import { type Listing, formatYen } from '@/lib/data'
 
 export function ListingCard({ listing }: { listing: Listing }) {
   const canBuy = listing.deals.includes('sale')
-  const canRent = listing.deals.includes('rent')
+  const canRent = listing.deals.includes('lease')
   return (
     <Link
       href={`/listings/${listing.id}`}
@@ -27,7 +27,7 @@ export function ListingCard({ listing }: { listing: Listing }) {
           )}
           {canRent && (
             <span className="rounded-md bg-accent px-2.5 py-1 text-accent-foreground">
-              レンタル
+              リース
             </span>
           )}
         </div>
@@ -45,16 +45,16 @@ export function ListingCard({ listing }: { listing: Listing }) {
         </h3>
         <p className="mt-2 text-xs text-muted-foreground">
           {listing.year}年式 <span className="mx-1.5">·</span>{' '}
-          {listing.hours.toLocaleString('ja-JP')}時間{' '}
+          {listing.mileageKm.toLocaleString('ja-JP')}km{' '}
           <span className="mx-1.5">·</span> {listing.condition}
         </p>
         <div className="mt-3 flex flex-wrap items-center gap-1.5 text-xs text-muted-foreground">
           <MapPin className="size-3.5" />
           {listing.prefecture} {listing.city}
-          {listing.rentToOwn && (
+          {listing.residualLease && (
             <span className="ml-auto inline-flex items-center gap-1 text-[10px] font-bold text-primary">
               <Repeat2 className="size-3" />
-              レンタル購入可
+              残価設定リース可
             </span>
           )}
         </div>
@@ -69,15 +69,15 @@ export function ListingCard({ listing }: { listing: Listing }) {
               </span>
             </p>
           )}
-          {canRent && listing.rentPerDay !== undefined && (
+          {canRent && listing.leasePerMonth !== undefined && (
             <p className="flex items-baseline justify-between gap-2">
               <span className="text-[11px] text-muted-foreground">
-                レンタル
+                月額リース料
               </span>
               <span className="font-display text-lg font-bold text-primary">
-                {formatYen(listing.rentPerDay)}
+                {formatYen(listing.leasePerMonth)}
                 <span className="ml-1 text-xs font-normal text-muted-foreground">
-                  / 日
+                  / 月
                 </span>
               </span>
             </p>

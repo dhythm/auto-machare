@@ -12,10 +12,10 @@ describe('CarrierMatches', () => {
             score: 2,
             profile: {
               id: 'demo-user',
-              name: '高橋運送',
+              name: '高橋陸送',
               kind: '法人',
               prefecture: '秋田県',
-              vehicles: ['2tトラック', '4tトラック'],
+              vehicles: ['2台積みキャリアカー', 'セルフローダー'],
               serviceAreas: ['秋田県', '山形県'],
               createdAt: '2026-09-13T00:00:00.000Z',
               updatedAt: '2026-09-13T00:00:00.000Z',
@@ -24,8 +24,10 @@ describe('CarrierMatches', () => {
         ]}
       />,
     )
-    expect(screen.getByText('高橋運送')).toBeInTheDocument()
-    expect(screen.getByText('2tトラック・4tトラック')).toBeInTheDocument()
+    expect(screen.getByText('高橋陸送')).toBeInTheDocument()
+    expect(
+      screen.getByText('2台積みキャリアカー・セルフローダー'),
+    ).toBeInTheDocument()
     expect(screen.getByText('秋田県・山形県')).toBeInTheDocument()
     expect(screen.getByText('出発地と届け先の両方に対応')).toBeInTheDocument()
   })

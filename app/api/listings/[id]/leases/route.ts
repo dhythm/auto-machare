@@ -1,14 +1,14 @@
-import { notFound, parseBody, rentalFailure } from '@/lib/server/api'
+import { notFound, parseBody, leaseFailure } from '@/lib/server/api'
 import { canView, getCurrentUser, requireUser } from '@/lib/server/auth/session'
 import { getListing } from '@/lib/server/listings'
-import { listBookedRanges, requestRental } from '@/lib/server/rentals'
-import { validateRentalRequest } from '@/lib/validation/rental'
+import { listBookedRanges, requestLease } from '@/lib/server/leases'
+import { validateLeaseRequest } from '@/lib/validation/lease'
 
 type Context = { params: Promise<{ id: string }> }
 
-const missing = () => notFound('農機具が見つかりません。')
+const missing = () => notFound('車両が見つかりません。')
 
-/** Booked date ranges of a listing (no renter details). */
+/** Booked date ranges of a listing (no lessee details). */
 export async function GET(_request: Request, { params }: Context) {
   const listing = await getListing((await params).id)
   if (!listing || !canView(await getCurrentUser(), listing)) return missing()
@@ -20,10 +20,10 @@ export async function POST(request: Request, { params }: Context) {
   if (!authorized.ok) return authorized.response
   const listing = await getListing((await params).id)
   if (!listing || !canView(authorized.user, listing)) return missing()
-  const parsed = await parseBody(request, validateRentalRequest)
+  const parsed = await parseBody(request, validateLeaseRequest)
   if (!parsed.ok) return parsed.response
-  const result = await requestRental(listing, authorized.user, parsed.value)
+  const result = await requestLease(listing, authorized.user, parsed.value)
   return result.ok
     ? Response.json(result.value, { status: 201 })
-    : rentalFailure(result.reason)
+    : leaseFailure(result.reason)
 }

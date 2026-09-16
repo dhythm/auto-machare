@@ -8,7 +8,7 @@ import { formatYen } from '@/lib/data'
 import { canView, getCurrentUser } from '@/lib/server/auth/session'
 import { getTransportJob } from '@/lib/server/transport'
 
-export const metadata: Metadata = { title: '案件に質問する | Agri Machare' }
+export const metadata: Metadata = { title: '案件に質問する | Auto Machare' }
 
 export const dynamic = 'force-dynamic'
 
@@ -29,7 +29,7 @@ export default async function TransportInquiryPage({
         <div className="mt-6">
           <PageIntro
             title="案件に質問する"
-            description={`${job.item}（${job.from} → ${job.to}・${formatYen(job.reward)}）`}
+            description={`${job.vehicleName}（${job.from} → ${job.to}・${formatYen(job.reward)}）`}
           />
         </div>
         <div className="mt-8">

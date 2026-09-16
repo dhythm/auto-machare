@@ -40,12 +40,12 @@ export async function TransportBoard() {
               <Truck className="size-4" /> TRANSPORT MATCHING
             </p>
             <h1 className="mt-5 font-display text-3xl font-bold leading-[1.4] tracking-tight sm:text-4xl lg:text-5xl">
-              次の畑まで、
+              次の街まで、
               <br />
-              農機をつなぐ。
+              車両をつなぐ。
             </h1>
             <p className="mt-5 max-w-md text-sm leading-7 text-primary-foreground/75">
-              運びたい農機具と、空きトラック・帰り便をマッチング。売買もレンタルも、運搬までひとつながりに。
+              運びたい車両と、空きトラック・帰り便をマッチング。売買もリースも、運搬までひとつながりに。
             </p>
             <Link
               href="/transport/pricing"
@@ -58,7 +58,7 @@ export async function TransportBoard() {
             <div className="flex flex-col rounded-2xl bg-accent p-5 text-accent-foreground sm:p-6">
               <ArrowUpRight className="size-7" strokeWidth={1.5} />
               <p className="mt-6 text-xs font-medium opacity-70">
-                農機具を運びたい方
+                車両を運びたい方
               </p>
               <h2 className="mt-2 text-lg font-bold">運搬を依頼する</h2>
               <p className="mt-2 flex-1 text-xs leading-6 opacity-75">
@@ -78,7 +78,7 @@ export async function TransportBoard() {
               </p>
               <h2 className="mt-2 text-lg font-bold">空き便を、仕事に。</h2>
               <p className="mt-2 flex-1 text-xs leading-6 text-primary-foreground/75">
-                車両と対応地域を登録して、あなたに合う運搬案件へ。
+                積載車と対応地域を登録して、あなたに合う陸送案件へ。
               </p>
               <Link
                 href="/transport/register"
@@ -146,12 +146,12 @@ export async function TransportBoard() {
                       {job.status}
                     </Badge>
                     <h3 className="mt-3 text-lg font-bold text-foreground">
-                      {job.item}
+                      {job.vehicleName}
                     </h3>
                     <div className="mt-3 flex flex-wrap gap-x-4 gap-y-2 text-xs text-muted-foreground">
                       <span className="inline-flex items-center gap-1.5">
                         <Scale className="size-3.5" />
-                        {job.weight}
+                        {job.vehicleSize}・{job.vehicleCount}台
                       </span>
                       <span className="inline-flex items-center gap-1.5">
                         <Route className="size-3.5" />約{job.distanceKm}km

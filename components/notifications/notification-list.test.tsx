@@ -27,15 +27,15 @@ const items = [
     userId: 'demo-user',
     kind: 'reply' as const,
     title: '返信が届きました',
-    body: 'クボタ 45馬力',
+    body: 'トヨタ Z',
     href: '/account/threads/t-1',
     createdAt: '2026-09-13T06:00:00.000Z',
   },
   {
     id: 'n-2',
     userId: 'demo-user',
-    kind: 'rental' as const,
-    title: 'レンタルが「レンタル中」になりました',
+    kind: 'lease' as const,
+    title: 'リースが「リース中」になりました',
     href: '/account',
     createdAt: '2026-09-13T05:00:00.000Z',
     readAt: '2026-09-13T05:30:00.000Z',
@@ -50,18 +50,16 @@ describe('NotificationList', () => {
     expect(
       screen.getByRole('button', { name: /返信が届きました/ }),
     ).toBeInTheDocument()
-    expect(screen.queryByRole('button', { name: /レンタルが/ })).toBeNull()
+    expect(screen.queryByRole('button', { name: /リースが/ })).toBeNull()
     await user.click(screen.getByRole('button', { name: /^すべて 2/ }))
-    expect(
-      screen.getByRole('button', { name: /レンタルが/ }),
-    ).toBeInTheDocument()
+    expect(screen.getByRole('button', { name: /リースが/ })).toBeInTheDocument()
   })
 
   it('marks a notification read before following its link', async () => {
     const fetchMock = vi.fn(async () => Response.json({ ok: true }))
     vi.stubGlobal('fetch', fetchMock)
     render(<NotificationList items={items} />)
-    expect(screen.getByText('クボタ 45馬力')).toBeInTheDocument()
+    expect(screen.getByText('トヨタ Z')).toBeInTheDocument()
     expect(screen.getByText('未読')).toBeInTheDocument()
     await userEvent
       .setup()

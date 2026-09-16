@@ -26,21 +26,22 @@ afterEach(() => {
 })
 
 const listingBody = {
-  name: '審査中トラクター',
-  category: 'トラクター',
-  maker: 'クボタ',
+  name: '審査中乗用車',
+  category: '乗用車',
+  maker: 'トヨタ',
+  model: 'テスト車種',
   year: '2018',
-  hours: '500',
+  mileageKm: '500',
   condition: '目立った傷なし',
   prefecture: '新潟県',
   city: '長岡市',
   deals: ['sale'],
   salePrice: '1000000',
-  rentPerDay: '',
-  rentToOwn: false,
+  leasePerMonth: '',
+  residualLease: false,
   summary: '審査中。',
-  sellerName: '審査農園',
-  sellerKind: '農業法人',
+  sellerName: '審査モータース',
+  sellerKind: '中古車販売店',
   contactEmail: 'seller@example.com',
 }
 
@@ -61,7 +62,7 @@ describe('/api/admin/queue', () => {
   it('requires a signed-in admin', async () => {
     const body = JSON.stringify({
       kind: 'listing',
-      id: 'trc-001',
+      id: 'car-001',
       status: 'approved',
     })
     auth.mockResolvedValue(null)
@@ -114,11 +115,12 @@ describe('/api/admin/queue', () => {
       new Request('http://localhost/api/transport/jobs', {
         method: 'POST',
         body: JSON.stringify({
-          item: '審査中コンバイン',
+          vehicleName: '審査中SUV',
           from: '秋田県 大仙市',
           to: '山形県 天童市',
           distanceKm: '120',
-          weight: '約2.4t',
+          vehicleSize: '普通車',
+          vehicleCount: 1,
           desiredDate: '相談',
           reward: '38000',
           contactEmail: 'owner@example.com',

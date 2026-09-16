@@ -11,7 +11,7 @@ describe('HomeStatus', () => {
         status={{
           unreadThreads: 2,
           openInquiries: 1,
-          requestedRentals: 0,
+          requestedLeases: 0,
           requestedOrders: 1,
           pendingListings: 3,
           matchingJobs: 4,
@@ -35,6 +35,6 @@ describe('HomeStatus', () => {
     expect(
       within(region).getByRole('link', { name: /承諾待ちの注文/ }),
     ).toBeInTheDocument()
-    expect(within(region).queryByText(/申込中のレンタル/)).toBeNull()
+    expect(within(region).queryByText(/申込中のリース/)).toBeNull()
   })
 })

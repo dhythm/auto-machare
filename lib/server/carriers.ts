@@ -1,25 +1,45 @@
 import 'server-only'
 
-import { isApproved, type TransportJob } from '@/lib/data'
+import {
+  isApproved,
+  transportVehicleSizes,
+  type TransportJob,
+  type TransportVehicleSize,
+} from '@/lib/data'
 import { prefectureOf } from '@/lib/transport-fee'
 import type { CarrierProfileInput } from '@/lib/validation/carrier'
 import type { AuthenticatedUser } from './auth/accounts'
 import { getStore, type CarrierProfile } from './store'
 
-/** Rough payload each vehicle type can carry, in tons. */
-const vehicleCapacityTons: Record<string, number> = {
-  軽トラック: 0.35,
-  '2tトラック': 2,
-  '4tトラック': 4,
-  トレーラー: 20,
+/** Cars each carrier vehicle hauls at once, and the largest size it takes. */
+const carrierCapacities: Record<
+  string,
+  { cars: number; maxSize: TransportVehicleSize }
+> = {
+  '積載車（1台）': { cars: 1, maxSize: '普通車' },
+  '2台積みキャリアカー': { cars: 2, maxSize: '普通車' },
+  '5台積みキャリアカー': { cars: 5, maxSize: '普通車' },
+  セルフローダー: { cars: 1, maxSize: '大型車' },
 }
 
-/** "約2.4t" → 2.4, "1,800kg" → 1.8; undefined when the text has no number. */
-export function parseTons(weight: string): number | undefined {
-  const match = weight.replace(/,/g, '').match(/(\d+(?:\.\d+)?)\s*(t|kg)/i)
-  if (!match) return undefined
-  const amount = Number(match[1])
-  return match[2].toLowerCase() === 'kg' ? amount / 1000 : amount
+function sizeRank(size: TransportVehicleSize): number {
+  return transportVehicleSizes.indexOf(size)
+}
+
+/** True when one of the carrier's vehicles takes that many cars of that size. */
+export function carrierCanHaul(
+  vehicles: string[],
+  size: TransportVehicleSize,
+  count: number,
+): boolean {
+  return vehicles.some((vehicle) => {
+    const capacity = carrierCapacities[vehicle]
+    return (
+      capacity !== undefined &&
+      capacity.cars >= count &&
+      sizeRank(capacity.maxSize) >= sizeRank(size)
+    )
+  })
 }
 
 export async function upsertCarrierProfile(
@@ -61,27 +81,27 @@ function jobPrefectures(job: TransportJob): string[] {
   )
 }
 
-function canCarry(profile: CarrierProfile, tons: number | undefined): boolean {
-  if (tons === undefined) return true
-  return profile.vehicles.some(
-    (vehicle) => (vehicleCapacityTons[vehicle] ?? 0) >= tons,
-  )
-}
-
-/** Carriers serving either end of the job, both ends first; heavy loads need a big enough vehicle. */
+/** Carriers serving either end of the job, both ends first; the vehicle must fit the load. */
 export async function matchCarriersForJob(
   job: TransportJob,
 ): Promise<CarrierMatch[]> {
   const areas = jobPrefectures(job)
   if (areas.length === 0) return []
-  const tons = parseTons(job.weight)
   const profiles = await listCarrierProfiles()
   return profiles
     .map((profile) => ({
       profile,
       score: areas.filter((area) => profile.serviceAreas.includes(area)).length,
     }))
-    .filter((match) => match.score > 0 && canCarry(match.profile, tons))
+    .filter(
+      (match) =>
+        match.score > 0 &&
+        carrierCanHaul(
+          match.profile.vehicles,
+          job.vehicleSize,
+          job.vehicleCount,
+        ),
+    )
     .sort((a, b) => b.score - a.score)
 }
 

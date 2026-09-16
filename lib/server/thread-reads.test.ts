@@ -13,8 +13,8 @@ async function openInquiry() {
   return (
     await acceptSubmission(
       'listingInquiry',
-      { mode: 'rent', name: '利用者デモ', message: '借りたい' },
-      { targetId: 'trc-001', userId: 'demo-user' },
+      { mode: 'lease', name: '利用者デモ', message: '借りたい' },
+      { targetId: 'car-001', userId: 'demo-user' },
     )
   ).id
 }

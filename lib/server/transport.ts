@@ -28,11 +28,12 @@ export async function getTransportJobIds(): Promise<string[]> {
 /** Public job fields; the requester's contact email is not published. */
 function jobFields(input: TransportJobInput) {
   return {
-    item: input.item,
+    vehicleName: input.vehicleName,
     from: input.from,
     to: input.to,
     distanceKm: input.distanceKm,
-    weight: input.weight,
+    vehicleSize: input.vehicleSize,
+    vehicleCount: input.vehicleCount,
     desiredDate: input.desiredDate,
     reward: input.reward,
   }
@@ -125,7 +126,7 @@ export async function updateTransportJobStatus(
       userId: recipient,
       kind: 'application',
       title: status === '運搬中' ? '運搬が始まりました' : '運搬が完了しました',
-      body: job.item,
+      body: job.vehicleName,
       href: `/transport/${id}`,
     })
   return { ok: true, value: updated }

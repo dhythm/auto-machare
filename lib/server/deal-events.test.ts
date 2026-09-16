@@ -3,7 +3,7 @@ import { listDealEvents, recordDealEvent } from './deal-events'
 import { getListing } from './listings'
 import { applyModeration } from './moderation'
 import { requestOrder, updateOrderStatus } from './orders'
-import { requestRental, updateRentalStatus } from './rentals'
+import { requestLease, updateLeaseStatus } from './leases'
 import { resetStore } from './store'
 import { acceptSubmission } from './submissions'
 import { updateThreadStatus } from './threads'
@@ -43,7 +43,7 @@ describe('deal events', () => {
 
   it('records the order lifecycle', async () => {
     const created = await requestOrder(
-      (await getListing('trc-001'))!,
+      (await getListing('car-001'))!,
       demoUser,
       { message: '現金で' },
     )
@@ -61,21 +61,21 @@ describe('deal events', () => {
     expect(events[0].note).toBe('現金で')
   })
 
-  it('records the rental lifecycle including the conversion order', async () => {
-    const created = await requestRental(
-      (await getListing('trc-001'))!,
+  it('records the lease lifecycle including the conversion order', async () => {
+    const created = await requestLease(
+      (await getListing('car-001'))!,
       demoUser,
       {
         startDate: '2026-10-01',
-        endDate: '2026-10-07',
+        months: 12,
       },
     )
     const id = created.ok ? created.value.id : ''
     await later()
-    await updateRentalStatus(id, demoSeller, 'active')
+    await updateLeaseStatus(id, demoSeller, 'active')
     await later()
-    await updateRentalStatus(id, demoUser, 'converted')
-    expect((await listDealEvents('rental', id)).map((e) => e.status)).toEqual([
+    await updateLeaseStatus(id, demoUser, 'converted')
+    expect((await listDealEvents('lease', id)).map((e) => e.status)).toEqual([
       'requested',
       'active',
       'converted',
@@ -85,11 +85,12 @@ describe('deal events', () => {
   it('records job creation, review, booking, haul, and completion', async () => {
     const job = await createTransportJob(
       {
-        item: 'トラクター',
+        vehicleName: '乗用車',
         from: '新潟県 長岡市',
         to: '新潟県 上越市',
         distanceKm: 40,
-        weight: '約1.2t',
+        vehicleSize: '普通車',
+        vehicleCount: 1,
         desiredDate: '相談',
         reward: 14_000,
         contactEmail: 'seller@example.com',
@@ -106,7 +107,7 @@ describe('deal events', () => {
       'transportApplication',
       {
         name: '利用者デモ',
-        vehicle: '2tトラック',
+        vehicle: '2台積みキャリアカー',
         availableDate: '2026-10-03',
       },
       { targetId: job.id, userId: 'demo-user' },

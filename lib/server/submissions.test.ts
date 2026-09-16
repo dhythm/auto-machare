@@ -28,19 +28,19 @@ describe('submissions', () => {
     await acceptSubmission(
       'listingInquiry',
       { message: 'x' },
-      { targetId: 'trc-001' },
+      { targetId: 'car-001' },
     )
     await acceptSubmission(
       'listingInquiry',
       { message: 'y' },
-      { targetId: 'trc-006' },
+      { targetId: 'suv-006' },
     )
     await acceptSubmission(
       'transportApplication',
       { message: 'z' },
       { targetId: 'tj-01' },
     )
-    expect(await listSubmissions('listingInquiry', 'trc-001')).toHaveLength(1)
+    expect(await listSubmissions('listingInquiry', 'car-001')).toHaveLength(1)
     expect(await listSubmissions('listingInquiry')).toHaveLength(2)
     expect(await listSubmissions('transportApplication', 'tj-01')).toHaveLength(
       1,
@@ -51,7 +51,7 @@ describe('submissions', () => {
     await acceptSubmission(
       'listingInquiry',
       { message: 'mine' },
-      { targetId: 'trc-001', userId: 'demo-user' },
+      { targetId: 'car-001', userId: 'demo-user' },
     )
     await acceptSubmission('contact', { message: 'anonymous' })
     const mine = await listSubmissionsByUser('demo-user')
@@ -66,14 +66,14 @@ describe('submissions', () => {
     await acceptSubmission(
       'listingInquiry',
       { message: 'x' },
-      { targetId: 'trc-001' },
+      { targetId: 'car-001' },
     )
     await acceptSubmission(
       'listingInquiry',
       { message: 'y' },
-      { targetId: 'trc-006' },
+      { targetId: 'suv-006' },
     )
-    await deleteListing('trc-001')
+    await deleteListing('car-001')
     expect(await listSubmissions('listingInquiry')).toHaveLength(1)
   })
 })

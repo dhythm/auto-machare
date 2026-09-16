@@ -8,7 +8,7 @@ import {
 } from './notifications'
 import { getListing } from './listings'
 import { applyModeration } from './moderation'
-import { requestRental, updateRentalStatus } from './rentals'
+import { requestLease, updateLeaseStatus } from './leases'
 import { resetStore } from './store'
 import { acceptSubmission } from './submissions'
 import { addMessage, updateThreadStatus } from './threads'
@@ -32,9 +32,9 @@ describe('notifications service', () => {
     })
     await notify({
       userId: 'demo-user',
-      kind: 'rental',
-      title: 'レンタルが承認されました',
-      body: 'クボタ',
+      kind: 'lease',
+      title: 'リースが承認されました',
+      body: 'トヨタ',
       href: '/account',
     })
     await notify({
@@ -44,7 +44,7 @@ describe('notifications service', () => {
       href: '/account',
     })
     expect(await titles('demo-user')).toEqual([
-      'レンタルが承認されました',
+      'リースが承認されました',
       '返信があります',
     ])
     expect(await countUnread('demo-user')).toBe(2)
@@ -64,8 +64,8 @@ describe('notification triggers', () => {
   it('tells the owner about a new inquiry and the other side about replies and status', async () => {
     const { id } = await acceptSubmission(
       'listingInquiry',
-      { mode: 'rent', name: '利用者デモ', message: '借りたい' },
-      { targetId: 'trc-001', userId: 'demo-user' },
+      { mode: 'lease', name: '利用者デモ', message: '借りたい' },
+      { targetId: 'car-001', userId: 'demo-user' },
     )
     expect(await titles('demo-seller')).toEqual(['問い合わせが届きました'])
     expect((await listNotifications('demo-seller'))[0].href).toBe(
@@ -90,7 +90,7 @@ describe('notification triggers', () => {
       'transportApplication',
       {
         name: '利用者デモ',
-        vehicle: '2tトラック',
+        vehicle: '2台積みキャリアカー',
         availableDate: '2026-10-03',
       },
       { targetId: 'tj-01', userId: 'demo-user' },
@@ -98,25 +98,25 @@ describe('notification triggers', () => {
     expect(await titles('demo-seller')).toEqual(['応募が届きました'])
   })
 
-  it('follows a rental through request, approval, and conversion', async () => {
-    const created = await requestRental(
-      (await getListing('trc-001'))!,
+  it('follows a lease through request, approval, and conversion', async () => {
+    const created = await requestLease(
+      (await getListing('car-001'))!,
       demoUser,
       {
         startDate: '2026-10-01',
-        endDate: '2026-10-07',
+        months: 12,
       },
     )
     const id = created.ok ? created.value.id : ''
-    expect(await titles('demo-seller')).toEqual(['レンタルの申込が届きました'])
-    await updateRentalStatus(id, demoSeller, 'active')
+    expect(await titles('demo-seller')).toEqual(['リースの申込が届きました'])
+    await updateLeaseStatus(id, demoSeller, 'active')
     expect(await titles('demo-user')).toEqual([
-      'レンタルが「レンタル中」になりました',
+      'リースが「リース中」になりました',
     ])
-    await updateRentalStatus(id, demoUser, 'converted')
+    await updateLeaseStatus(id, demoUser, 'converted')
     expect(await titles('demo-seller')).toEqual([
-      'レンタルが「購入に切替」になりました',
-      'レンタルの申込が届きました',
+      'リースが「買取に切替」になりました',
+      'リースの申込が届きました',
     ])
   })
 
@@ -124,20 +124,21 @@ describe('notification triggers', () => {
     const listing = await createListing(
       {
         name: '審査中',
-        category: 'トラクター',
-        maker: 'クボタ',
+        category: '乗用車',
+        maker: 'トヨタ',
+        model: 'テスト車種',
         year: 2018,
-        hours: 500,
+        mileageKm: 500,
         condition: '目立った傷なし',
         prefecture: '新潟県',
         city: '長岡市',
         deals: ['sale'],
         salePrice: 1_000_000,
-        rentToOwn: false,
+        residualLease: false,
         images: [],
         summary: '説明',
         sellerName: '出品者デモ',
-        sellerKind: '農業法人',
+        sellerKind: '中古車販売店',
         contactEmail: 'seller@example.com',
       },
       'demo-seller',

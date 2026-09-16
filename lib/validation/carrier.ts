@@ -9,13 +9,13 @@ import {
   type FieldErrors,
   type ValidationResult,
 } from './shared'
-import { carrierKinds, vehicleTypes } from './transport'
+import { carrierKinds, carrierVehicleTypes } from './transport'
 
 export type CarrierProfileInput = {
   name: string
   kind: (typeof carrierKinds)[number]
   prefecture: string
-  vehicles: (typeof vehicleTypes)[number][]
+  vehicles: (typeof carrierVehicleTypes)[number][]
   serviceAreas: string[]
   note?: string
 }
@@ -62,7 +62,13 @@ export function validateCarrierProfile(
       '拠点の都道府県',
       prefectureNames,
     ) as string,
-    vehicles: readChoices(errors, source, 'vehicles', '車両', vehicleTypes),
+    vehicles: readChoices(
+      errors,
+      source,
+      'vehicles',
+      '車両',
+      carrierVehicleTypes,
+    ),
     serviceAreas: readChoices(
       errors,
       source,

@@ -13,7 +13,7 @@ import {
   messageTable,
   notificationTable,
   orderTable,
-  rentalTable,
+  leaseTable,
   reviewTable,
   submissionTable,
   threadReadTable,
@@ -29,7 +29,7 @@ export const defaultPgliteDataDir = '.data/pglite'
 
 async function seed(db: PGlite, options: SeedOptions): Promise<void> {
   // Rows list newest-first by `seq`, so insert each seed back to front to
-  // keep the sample order (trc-001 first).
+  // keep the sample order (car-001 first).
   const rows = seedRows(options)
   await db.transaction(async (tx) => {
     const connect = async () => tx
@@ -45,7 +45,7 @@ async function seed(db: PGlite, options: SeedOptions): Promise<void> {
     await insert(transportJobTable, rows.transportJobs)
     await insert(submissionTable, rows.submissions)
     await insert(messageTable, rows.messages)
-    await insert(rentalTable, rows.rentals)
+    await insert(leaseTable, rows.leases)
     await insert(accountStatusTable, rows.accountStatuses)
     await insert(notificationTable, rows.notifications)
     await insert(reviewTable, rows.reviews)
@@ -87,7 +87,7 @@ export function createPgliteStore(options: PgliteStoreOptions): Store {
     transportJobs: createSqlRepository(transportJobTable, connect),
     submissions: createSqlRepository(submissionTable, connect),
     messages: createSqlRepository(messageTable, connect),
-    rentals: createSqlRepository(rentalTable, connect),
+    leases: createSqlRepository(leaseTable, connect),
     accountStatuses: createSqlRepository(accountStatusTable, connect),
     notifications: createSqlRepository(notificationTable, connect),
     reviews: createSqlRepository(reviewTable, connect),
@@ -98,7 +98,7 @@ export function createPgliteStore(options: PgliteStoreOptions): Store {
     async reset() {
       const db = await ready
       await db.exec(
-        `truncate listings, transport_jobs, submissions, messages, rentals, account_statuses, notifications, reviews, thread_reads, carrier_profiles, orders, deal_events restart identity`,
+        `truncate listings, transport_jobs, submissions, messages, leases, account_statuses, notifications, reviews, thread_reads, carrier_profiles, orders, deal_events restart identity`,
       )
       await seed(db, options)
     },

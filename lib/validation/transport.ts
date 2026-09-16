@@ -1,3 +1,4 @@
+import { transportVehicleSizes, type TransportVehicleSize } from '@/lib/data'
 import {
   asRecord,
   finish,
@@ -13,17 +14,17 @@ import {
 } from './shared'
 
 export const carrierKinds = ['個人', '法人'] as const
-export const vehicleTypes = [
-  '軽トラック',
-  '2tトラック',
-  '4tトラック',
-  'トレーラー',
+export const carrierVehicleTypes = [
+  '積載車（1台）',
+  '2台積みキャリアカー',
+  '5台積みキャリアカー',
+  'セルフローダー',
 ] as const
 
 export type TransportApplication = {
   name: string
   email: string
-  vehicle: (typeof vehicleTypes)[number]
+  vehicle: (typeof carrierVehicleTypes)[number]
   availableDate: string
   message?: string
 }
@@ -56,7 +57,7 @@ export function validateTransportApplication(
       source,
       'vehicle',
       '車両',
-      vehicleTypes,
+      carrierVehicleTypes,
     ) as TransportApplication['vehicle'],
     availableDate: readDate(
       errors,
@@ -71,11 +72,12 @@ export function validateTransportApplication(
 }
 
 export type TransportJobInput = {
-  item: string
+  vehicleName: string
   from: string
   to: string
   distanceKm: number
-  weight: string
+  vehicleSize: TransportVehicleSize
+  vehicleCount: number
   desiredDate: string
   reward: number
   contactEmail: string
@@ -88,14 +90,24 @@ export function validateTransportJob(
   if (!source) return invalidInput
   const errors: FieldErrors = {}
   const value: TransportJobInput = {
-    item: requireText(errors, source, 'item', '運ぶもの', 80),
+    vehicleName: requireText(errors, source, 'vehicleName', '運ぶ車', 80),
     from: requireText(errors, source, 'from', '出発地', 60),
     to: requireText(errors, source, 'to', '届け先', 60),
     distanceKm: readInteger(errors, source, 'distanceKm', '距離', {
       min: 1,
       max: 3000,
     }) as number,
-    weight: requireText(errors, source, 'weight', '重量', 30),
+    vehicleSize: requireChoice(
+      errors,
+      source,
+      'vehicleSize',
+      '車両サイズ',
+      transportVehicleSizes,
+    ) as TransportVehicleSize,
+    vehicleCount: readInteger(errors, source, 'vehicleCount', '積載台数', {
+      min: 1,
+      max: 8,
+    }) as number,
     desiredDate: requireText(errors, source, 'desiredDate', '希望日', 30),
     reward: readInteger(errors, source, 'reward', '報酬', {
       min: 1,

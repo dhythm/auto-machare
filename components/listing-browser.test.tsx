@@ -8,19 +8,20 @@ import type { Listing, ListingPage } from '@/lib/data'
 
 const listing: Listing = {
   id: 'initial',
-  name: '初期トラクター',
-  category: 'トラクター',
+  name: '初期乗用車',
+  category: '乗用車',
   maker: 'メーカー',
+  model: 'テスト車種',
   year: 2020,
-  hours: 100,
+  mileageKm: 100,
   condition: '目立った傷なし',
   prefecture: '新潟県',
   city: '長岡市',
-  image: '/equipment/tractor.png',
+  image: '/vehicles/sedan.png',
   summary: '説明',
   deals: ['sale'],
   salePrice: 100000,
-  seller: { name: '農家', kind: '個人農家', rating: 4, reviews: 1 },
+  seller: { name: '個人オーナー', kind: '個人', rating: 4, reviews: 1 },
   tags: [],
 }
 
@@ -53,9 +54,7 @@ describe('ListingBrowser', () => {
   it('renders the initial page with its total and page count', () => {
     vi.stubGlobal('fetch', vi.fn())
     setup()
-    expect(
-      screen.getByRole('heading', { name: '初期トラクター' }),
-    ).toBeVisible()
+    expect(screen.getByRole('heading', { name: '初期乗用車' })).toBeVisible()
     expect(screen.getByText(/30件/)).toBeInTheDocument()
     expect(
       screen.getByRole('navigation', { name: 'ページ' }),
@@ -93,18 +92,18 @@ describe('ListingBrowser', () => {
     const user = setup(pageOf([listing], 2))
     await user.type(
       screen.getByRole('searchbox', { name: 'キーワード' }),
-      'クボタ{Enter}',
+      'トヨタ{Enter}',
     )
     await waitFor(() =>
       expect(fetchMock).toHaveBeenLastCalledWith(
-        '/api/listings?category=%E3%81%99%E3%81%B9%E3%81%A6&deal=all&page=1&pageSize=12&q=%E3%82%AF%E3%83%9C%E3%82%BF',
+        '/api/listings?category=%E3%81%99%E3%81%B9%E3%81%A6&deal=all&page=1&pageSize=12&q=%E3%83%88%E3%83%A8%E3%82%BF',
         expect.anything(),
       ),
     )
     expect(
       await screen.findByRole('heading', { name: '検索結果' }),
     ).toBeVisible()
-    expect(window.location.search).toBe('?q=%E3%82%AF%E3%83%9C%E3%82%BF')
+    expect(window.location.search).toBe('?q=%E3%83%88%E3%83%A8%E3%82%BF')
   })
 
   it('follows browser history navigation', async () => {

@@ -19,13 +19,13 @@ const zenKaku = Zen_Kaku_Gothic_New({
 
 export const metadata: Metadata = {
   icons: { icon: { url: '/icon.svg', type: 'image/svg+xml' } },
-  title: 'Agri Machare | 農機具の売買・レンタル・運搬マッチング',
+  title: 'Auto Machare | 車両の売買・リース・運搬マッチング',
   description:
-    'トラクター・コンバイン・田植機などの農機具を、売る・買う・借りる・運ぶ。高額な農機具をシェアして、レンタルから購入までスムーズに。',
+    '軽自動車・乗用車・SUV・トラック・バンを、売る・買う・リースする・運ぶ。残価設定リースで、乗ってから買うかを決められます。',
 }
 
 export const viewport: Viewport = {
-  themeColor: '#173f35',
+  themeColor: '#152a3e',
 }
 
 export default function RootLayout({

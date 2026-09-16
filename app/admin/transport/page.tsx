@@ -3,7 +3,7 @@ import { AdminQueue } from '@/components/admin/admin-queue'
 import { AdminSection, transportTabs } from '@/components/admin/admin-section'
 import { getModerationQueue } from '@/lib/server/moderation'
 
-export const metadata: Metadata = { title: '運搬管理 | Agri Machare 運営' }
+export const metadata: Metadata = { title: '運搬管理 | Auto Machare 運営' }
 
 export const dynamic = 'force-dynamic'
 

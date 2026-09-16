@@ -3,7 +3,7 @@
 import type { TransportJob } from '@/lib/data'
 import {
   validateTransportApplication,
-  vehicleTypes,
+  carrierVehicleTypes,
 } from '@/lib/validation/transport'
 import { useSubmissionForm } from './use-submission-form'
 import { FormAlert, SelectField, TextField, TextareaField } from './fields'
@@ -72,7 +72,7 @@ export function TransportApplicationForm({
         <SelectField
           id="vehicle"
           label="車両"
-          options={vehicleTypes}
+          options={carrierVehicleTypes}
           value={form.values.vehicle}
           onChange={(e) => form.setValue('vehicle', e.target.value)}
           error={form.errors.vehicle}

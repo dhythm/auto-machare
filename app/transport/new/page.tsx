@@ -11,7 +11,7 @@ import { PageIntro, PageShell } from '@/components/page-shell'
 import { getCurrentUser } from '@/lib/server/auth/session'
 import { getListing } from '@/lib/server/listings'
 
-export const metadata: Metadata = { title: '運搬を依頼する | Agri Machare' }
+export const metadata: Metadata = { title: '運搬を依頼する | Auto Machare' }
 
 export const dynamic = 'force-dynamic'
 
@@ -22,7 +22,7 @@ async function initialFromListing(
   const listing = await getListing(listingId)
   if (!listing) return undefined
   return {
-    item: listing.name,
+    vehicleName: listing.name,
     category: listing.category,
     fromPrefecture: listing.prefecture,
     fromCity: listing.city,
@@ -51,7 +51,7 @@ export default async function NewTransportJobPage({
             </span>
             <PageIntro
               title="運搬を依頼する"
-              description="大切な農機具を、必要な場所へ。希望の区間に合う運搬者を見つけましょう。"
+              description="大切な車両を、必要な場所へ。希望の区間に合う運搬者を見つけましょう。"
             />
             <Link
               href="/transport/pricing"

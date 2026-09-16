@@ -17,7 +17,7 @@ import {
   validateCarrierProfile,
   type CarrierProfileInput,
 } from '@/lib/validation/carrier'
-import { carrierKinds, vehicleTypes } from '@/lib/validation/transport'
+import { carrierKinds, carrierVehicleTypes } from '@/lib/validation/transport'
 
 type Values = {
   name: string
@@ -136,7 +136,7 @@ export function CarrierProfileForm({
           車両
         </legend>
         <div className="flex flex-wrap gap-4">
-          {vehicleTypes.map((vehicle) => (
+          {carrierVehicleTypes.map((vehicle) => (
             <CheckboxField
               key={vehicle}
               id={`vehicle-${vehicle}`}

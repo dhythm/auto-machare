@@ -2,23 +2,24 @@ import { describe, expect, it } from 'vitest'
 import { validateListingSubmission } from './listing-submission'
 
 const valid = {
-  name: 'クボタ トラクター 30馬力',
-  category: 'トラクター',
-  maker: 'クボタ',
+  name: 'トヨタ プリウス G',
+  category: '乗用車',
+  maker: 'トヨタ',
+  model: 'テスト車種',
   year: '2018',
-  hours: '500',
+  mileageKm: '500',
   condition: '目立った傷なし',
   prefecture: '新潟県',
   city: '長岡市',
-  deals: ['sale', 'rent'],
+  deals: ['sale', 'lease'],
   salePrice: '1500000',
-  rentPerDay: '12000',
-  rentToOwn: true,
-  rentToOwnCreditRate: '50',
-  rentToOwnCreditCap: '300000',
-  summary: 'キャビン付き。まず借りて試せます。',
-  sellerName: '中村ファーム',
-  sellerKind: '農業法人',
+  leasePerMonth: '12000',
+  residualLease: true,
+  residualLeaseCreditRate: '50',
+  residualLeaseCreditCap: '300000',
+  summary: '禁煙車。まず借りて試せます。',
+  sellerName: '中村モータース',
+  sellerKind: '中古車販売店',
   contactEmail: 'seller@example.com',
 }
 
@@ -29,13 +30,13 @@ describe('validateListingSubmission', () => {
     if (!result.ok) return
     expect(result.value).toMatchObject({
       year: 2018,
-      hours: 500,
+      mileageKm: 500,
       salePrice: 1_500_000,
-      rentPerDay: 12_000,
-      rentToOwn: true,
-      rentToOwnCreditRate: 50,
-      rentToOwnCreditCap: 300_000,
-      deals: ['sale', 'rent'],
+      leasePerMonth: 12_000,
+      residualLease: true,
+      residualLeaseCreditRate: 50,
+      residualLeaseCreditCap: 300_000,
+      deals: ['sale', 'lease'],
     })
   })
 
@@ -75,53 +76,54 @@ describe('validateListingSubmission', () => {
     expect(tooBig.ok).toBe(false)
   })
 
-  it('requires the credit rate only for rent-to-own and clears it otherwise', () => {
+  it('requires the credit rate only for residual-lease and clears it otherwise', () => {
     const missingRate = validateListingSubmission({
       ...valid,
-      rentToOwnCreditRate: '',
+      residualLeaseCreditRate: '',
     })
     expect(missingRate.ok).toBe(false)
     if (!missingRate.ok)
-      expect(missingRate.errors).toHaveProperty('rentToOwnCreditRate')
+      expect(missingRate.errors).toHaveProperty('residualLeaseCreditRate')
 
     const tooHigh = validateListingSubmission({
       ...valid,
-      rentToOwnCreditRate: '120',
+      residualLeaseCreditRate: '120',
     })
     expect(tooHigh.ok).toBe(false)
 
     const noCap = validateListingSubmission({
       ...valid,
-      rentToOwnCreditCap: '',
+      residualLeaseCreditCap: '',
     })
     expect(noCap.ok).toBe(true)
-    if (noCap.ok) expect(noCap.value.rentToOwnCreditCap).toBeUndefined()
+    if (noCap.ok) expect(noCap.value.residualLeaseCreditCap).toBeUndefined()
 
-    const plain = validateListingSubmission({ ...valid, rentToOwn: false })
+    const plain = validateListingSubmission({ ...valid, residualLease: false })
     expect(plain.ok).toBe(true)
     if (plain.ok) {
-      expect(plain.value.rentToOwnCreditRate).toBeUndefined()
-      expect(plain.value.rentToOwnCreditCap).toBeUndefined()
+      expect(plain.value.residualLeaseCreditRate).toBeUndefined()
+      expect(plain.value.residualLeaseCreditCap).toBeUndefined()
     }
   })
 
   it('requires prices for the selected deals only', () => {
     const rentOnly = validateListingSubmission({
       ...valid,
-      deals: ['rent'],
+      deals: ['lease'],
       salePrice: '',
-      rentToOwn: false,
+      residualLease: false,
     })
     expect(rentOnly.ok).toBe(true)
     if (rentOnly.ok) expect(rentOnly.value.salePrice).toBeUndefined()
 
     const missingRent = validateListingSubmission({
       ...valid,
-      deals: ['rent'],
-      rentPerDay: '',
+      deals: ['lease'],
+      leasePerMonth: '',
     })
     expect(missingRent.ok).toBe(false)
-    if (!missingRent.ok) expect(missingRent.errors).toHaveProperty('rentPerDay')
+    if (!missingRent.ok)
+      expect(missingRent.errors).toHaveProperty('leasePerMonth')
   })
 
   it('reports every invalid field', () => {
@@ -148,14 +150,14 @@ describe('validateListingSubmission', () => {
     ])
   })
 
-  it('rejects rent-to-own without both deals', () => {
+  it('rejects residual-lease without both deals', () => {
     const result = validateListingSubmission({
       ...valid,
       deals: ['sale'],
-      rentToOwn: true,
+      residualLease: true,
     })
     expect(result.ok).toBe(false)
-    if (!result.ok) expect(result.errors).toHaveProperty('rentToOwn')
+    if (!result.ok) expect(result.errors).toHaveProperty('residualLease')
   })
 
   it('rejects non-object input', () => {

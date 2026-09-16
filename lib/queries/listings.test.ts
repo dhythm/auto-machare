@@ -10,15 +10,14 @@ describe('listing query', () => {
   it('keeps separate cache entries for every search condition', () => {
     const base = listingQueryOptions({ category: 'すべて', deal: 'all' }, page)
     expect(base.queryKey).not.toEqual(
-      listingQueryOptions({ category: 'トラクター', deal: 'all' }, page)
-        .queryKey,
+      listingQueryOptions({ category: '乗用車', deal: 'all' }, page).queryKey,
     )
     expect(base.queryKey).not.toEqual(
       listingQueryOptions({ category: 'すべて', deal: 'sale' }, page).queryKey,
     )
     expect(base.queryKey).not.toEqual(
       listingQueryOptions(
-        { category: 'すべて', deal: 'all', keyword: 'クボタ' },
+        { category: 'すべて', deal: 'all', keyword: 'トヨタ' },
         page,
       ).queryKey,
     )
@@ -34,17 +33,17 @@ describe('listing query', () => {
     const options = listingQueryOptions(
       {
         category: 'すべて',
-        deal: 'rent',
+        deal: 'lease',
         prefecture: '新潟県',
         priceMax: 30_000,
-        sort: 'rentAsc',
+        sort: 'leaseAsc',
         availableFrom: '2026-10-01',
         availableTo: '2026-10-07',
       },
       page,
     )
     expect(options.queryKey).not.toEqual(
-      listingQueryOptions({ category: 'すべて', deal: 'rent' }, page).queryKey,
+      listingQueryOptions({ category: 'すべて', deal: 'lease' }, page).queryKey,
     )
     const fetchMock = vi.fn<(input: string) => Promise<Response>>(async () =>
       Response.json({
@@ -60,7 +59,7 @@ describe('listing query', () => {
     const url = new URL(fetchMock.mock.calls[0][0], 'http://localhost')
     expect(url.searchParams.get('prefecture')).toBe('新潟県')
     expect(url.searchParams.get('priceMax')).toBe('30000')
-    expect(url.searchParams.get('sort')).toBe('rentAsc')
+    expect(url.searchParams.get('sort')).toBe('leaseAsc')
     expect(url.searchParams.get('from')).toBe('2026-10-01')
     expect(url.searchParams.get('to')).toBe('2026-10-07')
     expect(url.searchParams.has('priceMin')).toBe(false)
@@ -86,7 +85,7 @@ describe('listing query', () => {
     )
     await queryClient.fetchQuery(
       listingQueryOptions(
-        { category: 'ドローン', deal: 'rent', keyword: 'DJI' },
+        { category: 'トラック', deal: 'lease', keyword: 'DJI' },
         { page: 2, pageSize: 6 },
       ),
     )
@@ -94,7 +93,7 @@ describe('listing query', () => {
       '/api/listings?category=%E3%81%99%E3%81%B9%E3%81%A6&deal=all&page=1&pageSize=12',
     )
     expect(fetchMock.mock.calls[1][0]).toBe(
-      '/api/listings?category=%E3%83%89%E3%83%AD%E3%83%BC%E3%83%B3&deal=rent&page=2&pageSize=6&q=DJI',
+      '/api/listings?category=%E3%83%88%E3%83%A9%E3%83%83%E3%82%AF&deal=lease&page=2&pageSize=6&q=DJI',
     )
     queryClient.clear()
   })

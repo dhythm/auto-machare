@@ -2,14 +2,14 @@ import { listings, transportJobs } from '../data'
 import { demoActivity, type DemoActivity } from '../demo-activity'
 
 export type SeedOptions = {
-  /** Load the sample activity (orders, rentals, threads, …) on top of the listings. */
+  /** Load the sample activity (orders, leases, threads, …) on top of the listings. */
   demoActivity?: boolean
 }
 
 const empty: Omit<DemoActivity, 'listings' | 'transportJobs'> = {
   submissions: [],
   messages: [],
-  rentals: [],
+  leases: [],
   orders: [],
   reviews: [],
   carrierProfiles: [],

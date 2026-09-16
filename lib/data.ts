@@ -1,4 +1,4 @@
-type DealType = 'sale' | 'rent'
+type DealType = 'sale' | 'lease'
 
 export const moderationStatuses = ['pending', 'approved', 'rejected'] as const
 
@@ -24,8 +24,12 @@ export type Listing = {
   name: string
   category: string
   maker: string
+  /** Model name and grade, such as "プリウス Z". */
+  model: string
   year: number
-  hours: number
+  mileageKm: number
+  /** Inspection expiry (YYYY-MM-DD); unset when the vehicle has none. */
+  inspectionExpiresOn?: string
   condition: '未使用に近い' | '目立った傷なし' | '使用感あり' | '要整備'
   prefecture: string
   city: string
@@ -36,14 +40,14 @@ export type Listing = {
   summary: string
   deals: DealType[]
   salePrice?: number
-  rentPerDay?: number
-  rentToOwn?: boolean
-  /** Share of paid rent credited on purchase (percent) and its cap (yen). */
-  rentToOwnCreditRate?: number
-  rentToOwnCreditCap?: number
+  leasePerMonth?: number
+  residualLease?: boolean
+  /** Share of paid lease credited on buyout (percent) and its cap (yen). */
+  residualLeaseCreditRate?: number
+  residualLeaseCreditCap?: number
   seller: {
     name: string
-    kind: '個人農家' | '法人' | '農業法人' | '販売店'
+    kind: '個人' | '法人' | 'ディーラー' | '中古車販売店'
     rating: number
     reviews: number
   }
@@ -59,13 +63,19 @@ export type Listing = {
   withdrawnAt?: string
 }
 
+export const transportVehicleSizes = ['軽自動車', '普通車', '大型車'] as const
+
+export type TransportVehicleSize = (typeof transportVehicleSizes)[number]
+
 export type TransportJob = {
   id: string
-  item: string
+  /** The vehicle to haul, such as "トヨタ ハイエース". */
+  vehicleName: string
   from: string
   to: string
   distanceKm: number
-  weight: string
+  vehicleSize: TransportVehicleSize
+  vehicleCount: number
   desiredDate: string
   reward: number
   status: '募集中' | '調整中' | '運搬中' | '完了'
@@ -79,24 +89,24 @@ export type TransportJob = {
 
 export const categories = [
   'すべて',
-  'トラクター',
-  'コンバイン',
-  '田植機',
-  '耕運機',
-  'ドローン',
+  '軽自動車',
+  '乗用車',
+  'SUV',
+  'トラック',
+  'バン',
 ] as const
 
 export function formatYen(value: number): string {
   return '¥' + value.toLocaleString('ja-JP')
 }
 
-export type DealFilter = 'all' | 'sale' | 'rent' | 'rentToOwn'
+export type DealFilter = 'all' | 'sale' | 'lease' | 'residualLease'
 
 export const listingSorts = [
   'newest',
   'priceAsc',
   'priceDesc',
-  'rentAsc',
+  'leaseAsc',
 ] as const
 
 export type ListingSort = (typeof listingSorts)[number]
@@ -105,7 +115,7 @@ export const listingSortLabels: Record<ListingSort, string> = {
   newest: '新着順',
   priceAsc: '販売価格が安い順',
   priceDesc: '販売価格が高い順',
-  rentAsc: '日額が安い順',
+  leaseAsc: '月額リース料が安い順',
 }
 
 export function isListingSort(value: string): value is ListingSort {
@@ -117,11 +127,11 @@ export type ListingFilter = {
   deal: DealFilter
   keyword?: string
   prefecture?: string
-  /** Yen. Applies to the daily rate when `deal` is `rent`, otherwise to the sale price. */
+  /** Yen. Applies to the monthly lease when `deal` is `lease`, otherwise to the sale price. */
   priceMin?: number
   priceMax?: number
   sort?: ListingSort
-  /** Both dates (YYYY-MM-DD) narrow to rentable listings free over that span. */
+  /** Both dates (YYYY-MM-DD) narrow to leasable listings free over that span. */
   availableFrom?: string
   availableTo?: string
 }
@@ -200,7 +210,7 @@ export type ListingPage = {
   pageCount: number
 }
 
-const dealFilters = ['all', 'sale', 'rent', 'rentToOwn'] as const
+const dealFilters = ['all', 'sale', 'lease', 'residualLease'] as const
 
 export const listingPageSize = 12
 
@@ -216,7 +226,7 @@ export function isCategory(
   return (categories as readonly string[]).includes(value)
 }
 
-export type ListingMode = 'buy' | 'rent' | 'rentToOwn'
+export type ListingMode = 'buy' | 'lease' | 'residualLease'
 
 export type ListingModeConfig = {
   id: ListingMode

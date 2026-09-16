@@ -16,29 +16,31 @@ const listing = (
 ): Listing => ({
   id,
   name,
-  category: 'トラクター',
-  maker: 'クボタ',
+  category: '乗用車',
+  maker: 'トヨタ',
+  model: 'テスト車種',
   year: 2019,
-  hours: 620,
+  mileageKm: 620,
   condition: '目立った傷なし',
   prefecture: '新潟県',
   city: '長岡市',
-  image: '/equipment/tractor.png',
+  image: '/vehicles/sedan.png',
   summary: '説明',
   deals: ['sale'],
   salePrice: 1_000_000,
-  seller: { name: '出品者デモ', kind: '農業法人', rating: 0, reviews: 0 },
+  seller: { name: '出品者デモ', kind: '中古車販売店', rating: 0, reviews: 0 },
   tags: [],
   ...extra,
 })
 
 const job: TransportJob = {
   id: 'tj-01',
-  item: 'コンバイン',
+  vehicleName: 'SUV',
   from: '秋田県 大仙市',
   to: '山形県 天童市',
   distanceKm: 120,
-  weight: '約2.4t',
+  vehicleSize: '普通車',
+  vehicleCount: 1,
   desiredDate: '9/28',
   reward: 38_000,
   status: '募集中',
@@ -47,7 +49,7 @@ const job: TransportJob = {
 const overview: AccountOverview = {
   listings: [
     {
-      listing: listing('l-1', '公開中のトラクター'),
+      listing: listing('l-1', '公開中の乗用車'),
       inquiries: [
         {
           id: 'i-1',
@@ -56,7 +58,7 @@ const overview: AccountOverview = {
           userId: 'demo-user',
           receivedAt: '2026-09-13T01:00:00.000Z',
           payload: {
-            mode: 'rent',
+            mode: 'lease',
             name: '山田',
             email: 'y@example.com',
             message: '借りたい',
@@ -65,13 +67,13 @@ const overview: AccountOverview = {
       ],
     },
     {
-      listing: listing('l-2', '審査中のコンバイン', {
+      listing: listing('l-2', '審査中のSUV', {
         moderationStatus: 'pending',
       }),
       inquiries: [],
     },
     {
-      listing: listing('l-3', '取り下げ中の田植機', {
+      listing: listing('l-3', '取り下げ中の軽自動車', {
         withdrawnAt: '2026-09-13T00:00:00.000Z',
       }),
       inquiries: [],
@@ -83,12 +85,12 @@ const overview: AccountOverview = {
       submission: {
         id: 'i-2',
         kind: 'listingInquiry',
-        targetId: 'trc-001',
+        targetId: 'car-001',
         userId: 'me',
         receivedAt: '2026-09-13T02:00:00.000Z',
         payload: { mode: 'buy', message: '買いたい' },
       },
-      listing: listing('trc-001', 'クボタ 45馬力'),
+      listing: listing('car-001', 'トヨタ Z'),
     },
   ],
   sentApplications: [
@@ -99,10 +101,18 @@ const overview: AccountOverview = {
         targetId: 'tj-09',
         userId: 'me',
         receivedAt: '2026-09-13T03:00:00.000Z',
-        payload: { vehicle: '2tトラック', availableDate: '2026-10-03' },
+        payload: {
+          vehicle: '2台積みキャリアカー',
+          availableDate: '2026-10-03',
+        },
         status: 'agreed',
       },
-      job: { ...job, id: 'tj-09', item: '受託した田植機', status: '調整中' },
+      job: {
+        ...job,
+        id: 'tj-09',
+        vehicleName: '受託した軽自動車',
+        status: '調整中',
+      },
     },
   ],
   sentJobInquiries: [
@@ -125,7 +135,7 @@ const overview: AccountOverview = {
       {
         order: {
           id: 'o-1',
-          listingId: 'trc-006',
+          listingId: 'suv-006',
           buyerUserId: 'me',
           sellerUserId: 'demo-seller',
           price: 21_000_000,
@@ -133,7 +143,7 @@ const overview: AccountOverview = {
           createdAt: '2026-09-13T00:00:00.000Z',
           updatedAt: '2026-09-13T00:00:00.000Z',
         },
-        listing: listing('trc-006', 'ジョンディア 90馬力'),
+        listing: listing('suv-006', 'トヨタ ランドクルーザー プラド'),
       },
     ],
     asSeller: [
@@ -149,7 +159,7 @@ const overview: AccountOverview = {
           createdAt: '2026-09-13T00:00:00.000Z',
           updatedAt: '2026-09-13T00:00:00.000Z',
         },
-        listing: listing('l-1', '公開中のトラクター'),
+        listing: listing('l-1', '公開中の乗用車'),
       },
     ],
   },
@@ -157,8 +167,8 @@ const overview: AccountOverview = {
     {
       kind: 'order',
       id: 'o-1',
-      title: 'ジョンディア 90馬力',
-      href: '/listings/trc-006',
+      title: 'トヨタ ランドクルーザー プラド',
+      href: '/listings/suv-006',
       amount: 21_000_000,
       status: 'delivered',
       statusLabel: '引き渡し済み',
@@ -169,7 +179,7 @@ const overview: AccountOverview = {
     {
       kind: 'transportJob',
       id: 'tj-01',
-      title: 'コンバイン',
+      title: 'SUV',
       href: '/transport/tj-01',
       amount: 38_000,
       status: '募集中',
@@ -183,10 +193,10 @@ const overview: AccountOverview = {
   carrier: {
     profile: {
       id: 'me',
-      name: '高橋運送',
+      name: '高橋陸送',
       kind: '法人',
       prefecture: '秋田県',
-      vehicles: ['2tトラック'],
+      vehicles: ['2台積みキャリアカー'],
       serviceAreas: ['秋田県', '山形県'],
       createdAt: '2026-09-13T00:00:00.000Z',
       updatedAt: '2026-09-13T00:00:00.000Z',
@@ -196,48 +206,48 @@ const overview: AccountOverview = {
   summary: {
     unreadThreads: 1,
     openInquiries: 2,
-    requestedRentals: 1,
+    requestedLeases: 1,
     requestedOrders: 1,
     pendingListings: 1,
   },
-  rentals: {
-    asRenter: [
+  leases: {
+    asLessee: [
       {
-        rental: {
-          id: 'r-1',
-          listingId: 'trc-001',
-          renterUserId: 'me',
+        lease: {
+          id: 'l-1',
+          listingId: 'car-001',
+          lesseeUserId: 'me',
           startDate: '2026-10-01',
-          endDate: '2026-10-07',
-          days: 7,
-          rentPerDay: 22_000,
-          rentTotal: 154_000,
-          salePrice: 18_800_000,
-          creditRate: 50,
+          endDate: '2027-09-30',
+          months: 12,
+          leasePerMonth: 42_000,
+          leaseTotal: 504_000,
+          salePrice: 2_180_000,
+          creditRate: 40,
           status: 'converted',
-          purchasePrice: 18_723_000,
+          buyoutPrice: 1_978_400,
           createdAt: '2026-09-13T00:00:00.000Z',
           updatedAt: '2026-09-13T00:00:00.000Z',
         },
-        listing: listing('trc-001', 'クボタ 45馬力', { rentToOwn: true }),
+        listing: listing('car-001', 'トヨタ Z', { residualLease: true }),
       },
     ],
     asOwner: [
       {
-        rental: {
-          id: 'r-2',
+        lease: {
+          id: 'l-2',
           listingId: 'l-1',
-          renterUserId: 'demo-user',
+          lesseeUserId: 'demo-user',
           startDate: '2026-11-01',
-          endDate: '2026-11-03',
-          days: 3,
-          rentPerDay: 10_000,
-          rentTotal: 30_000,
+          endDate: '2027-10-31',
+          months: 12,
+          leasePerMonth: 30_000,
+          leaseTotal: 360_000,
           status: 'requested',
           createdAt: '2026-09-13T00:00:00.000Z',
           updatedAt: '2026-09-13T00:00:00.000Z',
         },
-        listing: listing('l-1', '公開中のトラクター'),
+        listing: listing('l-1', '公開中の乗用車'),
       },
     ],
   },
@@ -266,10 +276,10 @@ describe('AccountOverviewView', () => {
     const navigation = screen.getByRole('navigation', { name: '取引メニュー' })
     expect(
       within(navigation).getByRole('link', { name: '出品管理' }),
-    ).toHaveAttribute('href', '#equipment')
+    ).toHaveAttribute('href', '#listings')
     expect(
-      within(navigation).getByRole('link', { name: 'レンタル管理' }),
-    ).toHaveAttribute('href', '#rentals')
+      within(navigation).getByRole('link', { name: 'リース管理' }),
+    ).toHaveAttribute('href', '#leases')
     expect(
       within(navigation).getByRole('link', { name: '運搬管理' }),
     ).toHaveAttribute('href', '#transport')
@@ -285,7 +295,7 @@ describe('AccountOverviewView', () => {
       '/account/threads/new-request',
     ])
     expect(
-      screen.getByRole('link', { name: 'レンタル申込を確認する' }),
+      screen.getByRole('link', { name: 'リース申込を確認する' }),
     ).toHaveAttribute('href', '#lending')
   })
 
@@ -295,13 +305,13 @@ describe('AccountOverviewView', () => {
         overview={{
           ...overview,
           reviewedSources: {
-            'rental:r-1': {
+            'lease:l-1': {
               id: 'rv-1',
-              listingId: 'trc-001',
+              listingId: 'car-001',
               sellerUserId: 'demo-seller',
               reviewerUserId: 'me',
-              sourceKind: 'rental',
-              sourceId: 'r-1',
+              sourceKind: 'lease',
+              sourceId: 'l-1',
               rating: 4,
               comment: '助かりました',
               createdAt: '2026-09-13T00:00:00.000Z',
@@ -310,7 +320,7 @@ describe('AccountOverviewView', () => {
         }}
       />,
     )
-    const renting = screen.getByRole('region', { name: '借りている農機具' })
+    const renting = screen.getByRole('region', { name: '借りている車両' })
     expect(
       within(renting).queryByRole('button', { name: 'レビューを送る' }),
     ).toBeNull()
@@ -321,7 +331,7 @@ describe('AccountOverviewView', () => {
   it('lists owned rows with status and what came in', () => {
     render(<AccountOverviewView overview={overview} />)
     const mine = screen.getByRole('region', { name: '自分の出品' })
-    expect(within(mine).getByText('公開中のトラクター')).toBeInTheDocument()
+    expect(within(mine).getByText('公開中の乗用車')).toBeInTheDocument()
     expect(within(mine).getByText('審査待ち')).toBeInTheDocument()
     expect(within(mine).getByText('取り下げ中')).toBeInTheDocument()
     expect(
@@ -345,69 +355,76 @@ describe('AccountOverviewView', () => {
     expect(within(summary).getAllByText('1件')).toHaveLength(3)
     expect(within(summary).getByText('2件')).toBeInTheDocument()
     const carrier = screen.getByRole('region', { name: '運搬者プロフィール' })
-    expect(within(carrier).getByText('高橋運送')).toBeInTheDocument()
+    expect(within(carrier).getByText('高橋陸送')).toBeInTheDocument()
     expect(
       within(carrier).getByRole('link', { name: 'プロフィールを編集' }),
     ).toHaveAttribute('href', '/transport/register')
-    expect(
-      within(carrier).getByRole('link', { name: 'コンバイン' }),
-    ).toHaveAttribute('href', '/transport/tj-01')
+    expect(within(carrier).getByRole('link', { name: 'SUV' })).toHaveAttribute(
+      'href',
+      '/transport/tj-01',
+    )
     expect(within(mine).getByText('未対応')).toBeInTheDocument()
     const jobs = screen.getByRole('region', { name: '自分の運搬依頼' })
-    expect(within(jobs).getByText('コンバイン')).toBeInTheDocument()
+    expect(within(jobs).getByText('SUV')).toBeInTheDocument()
     expect(within(jobs).getByText('応募はまだありません')).toBeInTheDocument()
     expect(
       within(jobs).getByRole('button', { name: '完了にする' }),
     ).toBeInTheDocument()
     const sent = screen.getByRole('region', { name: '送った問い合わせ' })
     expect(
-      within(sent).getByRole('link', { name: 'クボタ 45馬力' }),
-    ).toHaveAttribute('href', '/listings/trc-001')
+      within(sent).getByRole('link', { name: 'トヨタ Z' }),
+    ).toHaveAttribute('href', '/listings/car-001')
     expect(within(sent).getByText('買いたい')).toBeInTheDocument()
     expect(
       within(sent).getByRole('link', { name: 'やり取りを開く' }),
     ).toHaveAttribute('href', '/account/threads/i-2')
     const applications = screen.getByRole('region', { name: '送った応募' })
-    expect(within(applications).getByText('受託した田植機')).toBeInTheDocument()
+    expect(
+      within(applications).getByText('受託した軽自動車'),
+    ).toBeInTheDocument()
     expect(
       within(applications).getByRole('button', { name: '運搬を開始' }),
     ).toBeInTheDocument()
     const questions = screen.getByRole('region', { name: '送った質問' })
     expect(within(questions).getByText('積載方法は？')).toBeInTheDocument()
-    const bought = screen.getByRole('region', { name: '買った農機具' })
-    expect(within(bought).getByText('ジョンディア 90馬力')).toBeInTheDocument()
+    const bought = screen.getByRole('region', { name: '買った車両' })
+    expect(
+      within(bought).getByText('トヨタ ランドクルーザー プラド'),
+    ).toBeInTheDocument()
     expect(within(bought).getByText('引き渡し済み')).toBeInTheDocument()
     expect(
       within(bought).getByRole('button', { name: '受け取りを確認' }),
     ).toBeInTheDocument()
     expect(
       within(bought).getByRole('link', { name: '運搬を依頼する' }),
-    ).toHaveAttribute('href', '/transport/new?listingId=trc-006')
+    ).toHaveAttribute('href', '/transport/new?listingId=suv-006')
     const history = screen.getByRole('region', { name: '取引の履歴' })
     expect(
-      within(history).getByRole('link', { name: /ジョンディア 90馬力/ }),
+      within(history).getByRole('link', {
+        name: /トヨタ ランドクルーザー プラド/,
+      }),
     ).toHaveAttribute('href', '/account/deals/order/o-1')
     expect(within(history).queryByText('Invalid Date')).not.toBeInTheDocument()
-    const sold = screen.getByRole('region', { name: '売った農機具' })
+    const sold = screen.getByRole('region', { name: '売った車両' })
     expect(within(sold).getByText('現金で')).toBeInTheDocument()
     expect(
       within(sold).getByRole('button', { name: '承諾する' }),
     ).toBeInTheDocument()
-    const renting = screen.getByRole('region', { name: '借りている農機具' })
-    expect(within(renting).getByText('購入に切替')).toBeInTheDocument()
+    const renting = screen.getByRole('region', { name: '借りている車両' })
+    expect(within(renting).getByText('買取に切替')).toBeInTheDocument()
     expect(
       within(renting).getByRole('link', { name: '運搬を依頼する' }),
-    ).toHaveAttribute('href', '/transport/new?listingId=trc-001')
+    ).toHaveAttribute('href', '/transport/new?listingId=car-001')
     expect(
       within(renting).getByRole('button', { name: 'レビューを送る' }),
     ).toBeInTheDocument()
     expect(
-      within(renting).getByText('2026-10-01 〜 2026-10-07・7日間・¥154,000'),
+      within(renting).getByText('2026-10-01 〜 2027-09-30・12ヶ月・¥504,000'),
     ).toBeInTheDocument()
     expect(
       within(renting).queryByRole('button', { name: '購入に切り替える' }),
     ).toBeNull()
-    const lending = screen.getByRole('region', { name: '貸している農機具' })
+    const lending = screen.getByRole('region', { name: '貸している車両' })
     expect(within(lending).getByText('申込中')).toBeInTheDocument()
     expect(
       within(lending).getByRole('button', { name: '承認する' }),

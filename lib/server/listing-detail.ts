@@ -4,24 +4,28 @@ import { formatYen, type Listing, type ListingModeConfig } from '@/lib/data'
 
 export function buildModes(listing: Listing): ListingModeConfig[] {
   const modes: ListingModeConfig[] = []
-  if (listing.rentPerDay) {
+  if (listing.leasePerMonth) {
     modes.push({
-      id: 'rent',
-      title: 'レンタルする',
-      price: `${formatYen(listing.rentPerDay)}/日`,
-      desc: '繁忙期や試したい期間だけ。日単位・シーズン単位で相談できます。',
-      cta: 'レンタルを申し込む',
+      id: 'lease',
+      title: 'リースする',
+      price: `${formatYen(listing.leasePerMonth)}/月`,
+      desc: '12〜60ヶ月から期間を選べます。車検や整備込みの条件も相談できます。',
+      cta: 'リースを申し込む',
     })
   }
-  if (listing.rentToOwn && listing.rentPerDay && listing.rentToOwnCreditRate) {
-    const cap = listing.rentToOwnCreditCap
+  if (
+    listing.residualLease &&
+    listing.leasePerMonth &&
+    listing.residualLeaseCreditRate
+  ) {
+    const cap = listing.residualLeaseCreditCap
     modes.push({
-      id: 'rentToOwn',
-      title: 'レンタルして試す → 購入',
-      price: 'まず試す',
-      desc: '借りて使ってみて、良ければそのまま購入。支払ったレンタル料の一部を購入価格に充当します。',
-      cta: 'お試しレンタルを始める',
-      note: `レンタル料の${listing.rentToOwnCreditRate}%${cap ? `（上限 ${formatYen(cap)}）` : ''}を購入価格に充当します。試してから決められるので、高額な買い物でも安心です。`,
+      id: 'residualLease',
+      title: '残価設定リース',
+      price: '満了時に買取',
+      desc: '月額で乗り、満了時に残価で買い取るか返却するかを選べます。',
+      cta: '残価設定リースを申し込む',
+      note: `リース料の${listing.residualLeaseCreditRate}%${cap ? `（上限 ${formatYen(cap)}）` : ''}を買取価格に充当します。`,
     })
   }
   if (listing.salePrice) {
@@ -29,7 +33,7 @@ export function buildModes(listing: Listing): ListingModeConfig[] {
       id: 'buy',
       title: '購入する',
       price: formatYen(listing.salePrice),
-      desc: '写真・状態・稼働時間を確認し、出品者と購入条件を相談できます。',
+      desc: '写真・状態・走行距離を確認し、出品者と購入条件を相談できます。',
       cta: '購入手続きへ進む',
     })
   }

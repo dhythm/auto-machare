@@ -4,7 +4,7 @@ import type {
   ThreadStatus,
   TransportJob,
 } from '@/lib/data'
-import type { RentalStatus } from '@/lib/rent-to-own'
+import type { LeaseStatus } from '@/lib/residual-lease'
 import type { Repository } from './repository'
 
 export type SubmissionKind =
@@ -36,22 +36,23 @@ export type Message = {
   createdAt: string
 }
 
-/** A rental agreement; pricing is copied from the listing at request time. */
-export type Rental = {
+/** A lease agreement; pricing is copied from the listing at request time. */
+export type Lease = {
   id: string
   listingId: string
-  renterUserId: string
+  lesseeUserId: string
   startDate: string
+  /** Last day of the term, derived from `startDate` and `months`. */
   endDate: string
-  days: number
-  rentPerDay: number
-  rentTotal: number
+  months: number
+  leasePerMonth: number
+  leaseTotal: number
   salePrice?: number
   creditRate?: number
   creditCap?: number
-  status: RentalStatus
-  /** Price after the rent credit, set when converted to a purchase. */
-  purchasePrice?: number
+  status: LeaseStatus
+  /** Residual value left to pay, set when the lease converts to a buyout. */
+  buyoutPrice?: number
   createdAt: string
   updatedAt: string
 }
@@ -65,7 +66,7 @@ export type AccountStatus = {
 }
 
 export type NotificationKind =
-  'inquiry' | 'application' | 'reply' | 'threadStatus' | 'rental' | 'moderation'
+  'inquiry' | 'application' | 'reply' | 'threadStatus' | 'lease' | 'moderation'
 
 /** In-app notification for one user; `readAt` is set when opened. */
 export type Notification = {
@@ -79,16 +80,16 @@ export type Notification = {
   readAt?: string
 }
 
-export type ReviewSourceKind = 'rental' | 'thread' | 'order'
+export type ReviewSourceKind = 'lease' | 'thread' | 'order'
 
-/** A buyer's or renter's rating of the seller after one finished deal. */
+/** A buyer's or lessee's rating of the seller after one finished deal. */
 export type Review = {
   id: string
   listingId: string
   sellerUserId: string
   reviewerUserId: string
   sourceKind: ReviewSourceKind
-  /** Rental id or thread (submission) id the review is about. */
+  /** Lease id or thread (submission) id the review is about. */
   sourceId: string
   rating: number
   comment?: string
@@ -118,7 +119,7 @@ export type CarrierProfile = {
   updatedAt: string
 }
 
-/** A purchase; the price is copied from the listing (or the rental credit) when opened. */
+/** A purchase; the price is copied from the listing (or the lease credit) when opened. */
 export type Order = {
   id: string
   listingId: string
@@ -127,13 +128,13 @@ export type Order = {
   price: number
   status: OrderStatus
   message?: string
-  /** Set when the order came from a rent-to-own conversion. */
-  sourceRentalId?: string
+  /** Set when the order came from a residual-lease conversion. */
+  sourceLeaseId?: string
   createdAt: string
   updatedAt: string
 }
 
-export type DealKind = 'order' | 'rental' | 'transportJob'
+export type DealKind = 'order' | 'lease' | 'transportJob'
 
 /** One step in a deal's history, appended whenever its status changes. */
 export type DealEvent = {
@@ -154,7 +155,7 @@ export type Store = {
   transportJobs: Repository<TransportJob>
   submissions: Repository<Submission>
   messages: Repository<Message>
-  rentals: Repository<Rental>
+  leases: Repository<Lease>
   accountStatuses: Repository<AccountStatus>
   notifications: Repository<Notification>
   reviews: Repository<Review>

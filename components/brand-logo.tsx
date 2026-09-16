@@ -24,26 +24,34 @@ export function BrandLogo({
           width="40"
           height="40"
           rx="12"
-          fill={inverse ? '#D9EB8B' : '#173F35'}
+          fill={inverse ? '#FFC857' : '#152A3E'}
         />
         <path
-          d="M10 29 20 10l10 19M15 23h10"
-          stroke={inverse ? '#173F35' : '#D9EB8B'}
+          d="M11 30 20 11l9 19"
+          stroke={inverse ? '#152A3E' : '#FFC857'}
           strokeWidth="3.2"
           strokeLinecap="round"
           strokeLinejoin="round"
         />
         <path
-          d="M11 33h18"
-          stroke={inverse ? '#173F35' : '#D9EB8B'}
+          d="M15.5 24.5h9"
+          stroke={inverse ? '#152A3E' : '#FFC857'}
+          strokeWidth="2.6"
+          strokeLinecap="round"
+          strokeDasharray="3 3"
+        />
+        <path
+          d="M12 34h16"
+          stroke={inverse ? '#152A3E' : '#FFC857'}
           strokeWidth="2"
           strokeLinecap="round"
+          opacity="0.55"
         />
       </svg>
       {!compact && (
         <span className="flex flex-col">
           <span className="text-[18px] font-bold leading-none tracking-[-0.055em] sm:text-[21px]">
-            Agri Machare<span className="ml-0.5 text-xs">.</span>
+            Auto Machare<span className="ml-0.5 text-xs">.</span>
           </span>
           <span
             className={cn(
@@ -51,7 +59,7 @@ export function BrandLogo({
               inverse ? 'text-white/65' : 'text-muted-foreground',
             )}
           >
-            農機具と、次の可能性を。
+            車と、次の可能性を。
           </span>
         </span>
       )}

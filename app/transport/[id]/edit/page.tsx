@@ -9,7 +9,7 @@ import { canManage } from '@/lib/server/auth/access'
 import { getCurrentUser } from '@/lib/server/auth/session'
 import { getTransportJob } from '@/lib/server/transport'
 
-export const metadata: Metadata = { title: '運搬依頼を編集する | Agri Machare' }
+export const metadata: Metadata = { title: '運搬依頼を編集する | Auto Machare' }
 
 export const dynamic = 'force-dynamic'
 
@@ -33,7 +33,10 @@ export default async function EditTransportJobPage({
             <span className="mb-6 flex size-12 items-center justify-center rounded-2xl bg-primary text-primary-foreground">
               <Pencil className="size-5" />
             </span>
-            <PageIntro title="運搬依頼を編集する" description={job.item} />
+            <PageIntro
+              title="運搬依頼を編集する"
+              description={job.vehicleName}
+            />
           </div>
           <div className="min-w-0 rounded-2xl border border-border bg-card p-5 sm:p-8">
             {user ? (
@@ -42,11 +45,12 @@ export default async function EditTransportJobPage({
                 edit={{
                   jobId: job.id,
                   values: {
-                    item: job.item,
+                    vehicleName: job.vehicleName,
                     from: job.from,
                     to: job.to,
                     distanceKm: String(job.distanceKm),
-                    weight: job.weight,
+                    vehicleSize: job.vehicleSize,
+                    vehicleCount: String(job.vehicleCount),
                     desiredDate: job.desiredDate,
                     reward: String(job.reward),
                     contactEmail: user.email,

@@ -8,26 +8,28 @@ describe('Hero search', () => {
   it('submits the selected deal, category and keyword to the existing listing search', async () => {
     const user = userEvent.setup()
     render(<Hero />)
-    const form = screen.getByRole('search', { name: '農機具を探す' })
+    const form = screen.getByRole('search', { name: '車両を探す' })
     expect(form).toHaveAttribute('action', '/listings')
     expect(form).toHaveAttribute('method', 'get')
-    await user.click(screen.getByRole('button', { name: '借りる' }))
+    await user.click(screen.getByRole('button', { name: 'リースする' }))
     await user.selectOptions(
       screen.getByRole('combobox', { name: 'カテゴリ' }),
-      'トラクター',
+      '乗用車',
     )
     await user.type(
       screen.getByRole('searchbox', { name: 'キーワード' }),
-      'クボタ',
+      'トヨタ',
     )
     const data = new FormData(form as HTMLFormElement)
     expect(Object.fromEntries(data)).toEqual({
-      deal: 'rent',
-      category: 'トラクター',
-      q: 'クボタ',
+      deal: 'lease',
+      category: '乗用車',
+      q: 'トヨタ',
     })
-    await user.click(screen.getByRole('button', { name: '借りてから買う' }))
-    expect(new FormData(form as HTMLFormElement).get('deal')).toBe('rentToOwn')
+    await user.click(screen.getByRole('button', { name: '残価設定リース' }))
+    expect(new FormData(form as HTMLFormElement).get('deal')).toBe(
+      'residualLease',
+    )
   })
 
   it('keeps transport requests and available jobs reachable from the first screen', () => {

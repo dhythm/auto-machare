@@ -4,7 +4,7 @@ import {
   listCarrierProfiles,
   matchCarriersForJob,
   matchJobsForCarrier,
-  parseTons,
+  carrierCanHaul,
   upsertCarrierProfile,
 } from './carriers'
 import { resetStore } from './store'
@@ -16,36 +16,38 @@ vi.mock('server-only', () => ({}))
 beforeEach(() => resetStore())
 
 const akita = {
-  name: '高橋運送',
+  name: '高橋陸送',
   kind: '法人' as const,
   prefecture: '秋田県',
-  vehicles: ['2tトラック' as const],
+  vehicles: ['2台積みキャリアカー' as const],
   serviceAreas: ['秋田県', '山形県'],
 }
 
 describe('carrier profiles', () => {
   it('creates and updates one profile per user', async () => {
     const created = await upsertCarrierProfile(demoUser, akita)
-    expect(created).toMatchObject({ id: 'demo-user', name: '高橋運送' })
+    expect(created).toMatchObject({ id: 'demo-user', name: '高橋陸送' })
     const updated = await upsertCarrierProfile(demoUser, {
       ...akita,
-      vehicles: ['4tトラック'],
+      vehicles: ['セルフローダー'],
     })
-    expect(updated.vehicles).toEqual(['4tトラック'])
+    expect(updated.vehicles).toEqual(['セルフローダー'])
     expect(updated.createdAt).toBe(created.createdAt)
     expect(await listCarrierProfiles()).toHaveLength(1)
     expect((await getCarrierProfile('demo-user'))?.vehicles).toEqual([
-      '4tトラック',
+      'セルフローダー',
     ])
     expect(await getCarrierProfile('nobody')).toBeUndefined()
   })
 })
 
-describe('parseTons', () => {
-  it('reads tons and kilograms from free text', () => {
-    expect(parseTons('約2.4t')).toBe(2.4)
-    expect(parseTons('1,800kg')).toBe(1.8)
-    expect(parseTons('軽量')).toBeUndefined()
+describe('carrierCanHaul', () => {
+  it('checks the load against each vehicle', () => {
+    expect(carrierCanHaul(['セルフローダー'], '大型車', 1)).toBe(true)
+    expect(carrierCanHaul(['セルフローダー'], '普通車', 2)).toBe(false)
+    expect(carrierCanHaul(['5台積みキャリアカー'], '普通車', 5)).toBe(true)
+    expect(carrierCanHaul(['5台積みキャリアカー'], '大型車', 1)).toBe(false)
+    expect(carrierCanHaul(['自家用車'], '軽自動車', 1)).toBe(false)
   })
 })
 
@@ -54,17 +56,17 @@ describe('matching', () => {
     await upsertCarrierProfile(demoUser, akita)
     await upsertCarrierProfile(demoSeller, {
       ...akita,
-      name: '大型運送',
-      vehicles: ['4tトラック'],
+      name: '大型陸送',
+      vehicles: ['セルフローダー'],
       serviceAreas: ['山形県'],
     })
     const job = (await getTransportJob('tj-01'))! // 秋田県 → 山形県, 約2.4t
     const matches = await matchCarriersForJob(job)
-    expect(matches.map((match) => match.profile.name)).toEqual(['大型運送'])
-    const light = await matchCarriersForJob({ ...job, weight: '約1t' })
+    expect(matches.map((match) => match.profile.name)).toEqual(['大型陸送'])
+    const light = await matchCarriersForJob({ ...job, vehicleSize: '普通車' })
     expect(light.map((match) => [match.profile.name, match.score])).toEqual([
-      ['高橋運送', 2],
-      ['大型運送', 1],
+      ['高橋陸送', 2],
+      ['大型陸送', 1],
     ])
     expect(
       await matchCarriersForJob({

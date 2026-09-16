@@ -28,11 +28,12 @@ describe('transport job detail', () => {
     })
     vi.mocked(getTransportJob).mockResolvedValue({
       id: 'job-1',
-      item: 'トラクター',
+      vehicleName: '乗用車',
       from: '新潟県',
       to: '長野県',
       distanceKm: 180,
-      weight: '2t',
+      vehicleSize: '普通車',
+      vehicleCount: 1,
       desiredDate: '10月1日',
       reward: 45000,
       status: '調整中',

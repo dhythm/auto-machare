@@ -15,11 +15,12 @@ beforeEach(() => {
 })
 
 const input = {
-  item: 'コンバイン 4条刈（更新）',
+  vehicleName: 'マツダ CX-5 XD（更新）',
   from: '秋田県 大仙市',
   to: '山形県 天童市',
   distanceKm: '120',
-  weight: '約2.4t',
+  vehicleSize: '普通車',
+  vehicleCount: 1,
   desiredDate: '10/1 午前',
   reward: '40000',
   contactEmail: 'owner@example.com',
@@ -108,7 +109,7 @@ describe('/api/transport/jobs/[id]', () => {
         body: JSON.stringify({
           name: '高橋',
           email: 'k@example.com',
-          vehicle: '2tトラック',
+          vehicle: '2台積みキャリアカー',
           availableDate: '2026-10-03',
         }),
       }),

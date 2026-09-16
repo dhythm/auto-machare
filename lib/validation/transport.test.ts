@@ -5,7 +5,7 @@ describe('validateTransportApplication', () => {
   const valid = {
     name: '高橋 健',
     email: 'ken@example.com',
-    vehicle: '2tトラック',
+    vehicle: '2台積みキャリアカー',
     availableDate: '2026-10-03',
     message: '',
   }
@@ -29,11 +29,12 @@ describe('validateTransportApplication', () => {
 
 describe('validateTransportJob', () => {
   const valid = {
-    item: 'トラクター 25馬力',
+    vehicleName: 'スズキ アルト L',
     from: '長野県 松本市',
     to: '長野県 諏訪市',
     distanceKm: '40',
-    weight: '約1.2t',
+    vehicleSize: '普通車',
+    vehicleCount: '1',
     desiredDate: '相談',
     reward: '14000',
     contactEmail: 'owner@example.com',
@@ -43,7 +44,11 @@ describe('validateTransportJob', () => {
     const result = validateTransportJob(valid)
     expect(result.ok).toBe(true)
     if (result.ok)
-      expect(result.value).toMatchObject({ distanceKm: 40, reward: 14_000 })
+      expect(result.value).toMatchObject({
+        distanceKm: 40,
+        reward: 14_000,
+        vehicleCount: 1,
+      })
   })
 
   it('requires every field with numeric distance and reward', () => {
@@ -51,14 +56,16 @@ describe('validateTransportJob', () => {
       ...valid,
       distanceKm: '-1',
       reward: 'abc',
-      item: '',
+      vehicleName: '',
+      vehicleCount: '0',
     })
     expect(result.ok).toBe(false)
     if (!result.ok)
       expect(Object.keys(result.errors).sort()).toEqual([
         'distanceKm',
-        'item',
         'reward',
+        'vehicleCount',
+        'vehicleName',
       ])
   })
 })
